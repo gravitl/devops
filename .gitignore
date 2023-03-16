@@ -1,0 +1,10 @@
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+infra.out
+output
+bin/*
+src/experiment/*
+.vscode
+test/test

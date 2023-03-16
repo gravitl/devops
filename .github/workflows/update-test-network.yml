@@ -1,0 +1,43 @@
+name: 'Update Network'
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Update Test Network
+    runs-on: ubuntu-latest
+    environment: testing
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
+    - name: build binaries  # avoids library mismatches between build machine and github runner
+      run: |
+        go build -o bin/updateNetwork src/updateNetwork/updateNetwork.go
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh/
+        echo "$SSH_KEY" > ~/.ssh/id_devops
+        chmod 600 ~/.ssh/id_devops 
+        cat >>~/.ssh/config <<END
+        Host *.clustercat.com
+          User root
+          IdentityFile ~/.ssh/id_devops
+          StrictHostKeyChecking no
+        END
+      env:
+          SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
+    - name: Update Network
+      run: |
+          bin/updateNetwork
+      env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN }}

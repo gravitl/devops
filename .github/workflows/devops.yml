@@ -1,0 +1,24 @@
+name: Daily Test
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '00 10 * * *'
+
+jobs:
+
+  testartifacts:
+    uses: ./.github/workflows/test-artifacts.yml
+    secrets: inherit
+  update-network:
+    needs: [testartifacts]
+    uses: ./.github/workflows/update-test-network.yml
+    secrets: inherit
+  devops:
+    needs: [update-network]
+    uses: ./.github/workflows/branchtest.yml
+    with:
+      tag: devops
+      network: devops
+    secrets: inherit
+

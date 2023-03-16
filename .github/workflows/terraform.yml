@@ -1,0 +1,73 @@
+name: 'Terraform'
+
+on:
+  workflow_dispatch:
+    inputs:
+      netmakerbranch:
+        description: netmaker branch to run on.
+        default: develop
+        required: true
+      netclientbranch:
+        description: netclient branch to run on.
+        default: develop
+        required: true
+  workflow_call:
+    inputs:
+      netmakerbranch:
+        required: true
+        type: string
+      netclientbranch:
+        required: true
+        type: string
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run: |
+        cd qa/terraform/branchterraform
+        terraform init
+
+    # Checks that all Terraform configuration files adhere to a canonical format
+    #- name: Terraform Format
+    #  run: |
+    #    cd qa/terraform/branchterraform
+    #    terraform fmt -check
+
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh/
+        echo "$SSH_KEY" > ~/.ssh/deploy.key
+        chmod 600 ~/.ssh/deploy.key 
+        cat >>~/.ssh/config <<END
+        Host *
+          User root
+          IdentityFile ~/.ssh/deploy.key
+          StrictHostKeyChecking no
+        END
+      env:
+          SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
+    # Generates an execution plan for Terraform
+    - name: Terraform Plan
+      run: |
+        cd qa/terraform/branchterraform
+        terraform plan -v "do_token=${{ secrets.DO_TOKEN }} -var key=~/.ssh/deploy.key -var branch=${{ inputs.netmakerbranch }} -var clientbranch=${{ inputs.netclientbranch }} "
+    
+    - name: Terraform Apply
+      run: |
+        cd qa/terraform/branchterraform
+        terraform apply -v -auto-approve "do_token=${{ secrets.DO_TOKEN }} -var key=~/.ssh/deploy.key -var branch=${{ inputs.netmakerbranch }} -var clientbranch=${{ inputs.netclientbranch }} "
+   
+    

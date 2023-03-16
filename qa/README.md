@@ -1,0 +1,1 @@
+This is the repo where all resources related to QA go. For anything specific to a type of testing (branch, develop, release, out-of-cycle), put it in that directory. For anything general to all of these, put it in the base of the repo (here).

@@ -1,0 +1,129 @@
+name: Run All Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: true
+        description: Digital Ocean tag
+        default: "devops"
+      network:
+        required: true
+        description: network name
+        default: "devops"
+      masterkey:
+        description: masterkey of netmaker server
+        default: "secretkey"
+  schedule:
+    - cron: '00 11 * * *'
+
+
+jobs:
+
+  binary:
+    name: build test binary
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: build binary
+        run: |
+          mkdir bin
+          go build -o bin/test test/main.go
+      - name: save binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: binary
+          path: bin
+          retention-days: 1
+
+  clean:
+    needs: [binary]
+    name: remove all gateways
+    runs-on: ubuntu-latest
+    steps:
+      - name: get binary
+        uses: actions/download-artifact@v3
+        with:
+          name: binary
+          path: bin
+      - name: run tests
+        run: |
+          chmod +x bin/test
+          bin/test clean
+        env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          TAG: ${{ github.event.inputs.tag }}
+          NETWORK: ${{ github.event.inputs.network }}
+          MASTERKEY: ${{ github.event.inputs.masterkey }}
+          KEY: ${{ secrets.TESTING_SSH_KEY }}
+
+  initial-ping:
+    needs: [binary, clean]
+    name: initial ping
+    runs-on: ubuntu-latest
+    steps:
+      - name: get binary
+        uses: actions/download-artifact@v3
+        with:
+          name: binary
+          path: bin
+      - name: run tests
+        run: |
+          chmod +x bin/test
+          bin/test ping
+        env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          TAG: ${{ github.event.inputs.tag }}
+          NETWORK: ${{ github.event.inputs.network }}
+          MASTERKEY: ${{ github.event.inputs.masterkey }}
+          KEY: ${{ secrets.TESTING_SSH_KEY }}
+
+  tests:
+    needs: [binary, initial-ping, clean]
+    name: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: get binary
+        uses: actions/download-artifact@v3
+        with:
+          name: binary
+          path: bin
+      - name: run tests
+        run: |
+          chmod +x bin/test
+          bin/test peerUpdate
+          bin/test egress
+          bin/test ingress
+          bin/test relay
+        env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          TAG: ${{ github.event.inputs.tag }}
+          NETWORK: ${{ github.event.inputs.network }}
+          MASTERKEY: ${{ github.event.inputs.masterkey }}
+          KEY: ${{ secrets.TESTING_SSH_KEY }}
+
+  final-ping:
+    needs: [binary, tests]
+    name: final ping
+    runs-on: ubuntu-latest
+    steps:
+      - name: get binary
+        uses: actions/download-artifact@v3
+        with:
+          name: binary
+          path: bin
+      - name: run tests
+        run: |
+          chmod +x bin/test
+          bin/test ping
+        env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          TAG: ${{ github.event.inputs.tag }}
+          NETWORK: ${{ github.event.inputs.network }}
+          MASTERKEY: ${{ github.event.inputs.masterkey }}
+          KEY: ${{ secrets.TESTING_SSH_KEY }}

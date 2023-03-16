@@ -1,0 +1,154 @@
+name: Run All Tests on Branch
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+      network: 
+        type: string
+        required: true
+
+jobs:
+
+  binary:
+    name: build test binary
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: build binary
+        run: |
+          mkdir bin
+          go build -o bin/test test/main.go
+      - name: save binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: binary
+          path: bin
+          retention-days: 1
+
+  vars:
+    runs-on: ubuntu-latest
+    needs: [binary]
+    outputs:
+      api: ${{ steps.data.outputs.api }}
+      masterkey: ${{ steps.data.outputs.masterkey }}
+    steps:
+      - name: get binary
+        uses: actions/download-artifact@v3
+        with:
+          name: binary
+          path: bin
+      - name: get vars
+        id: data
+        run: |
+          chmod +x bin/test
+          api=$(bin/test getapi) 
+          masterkey=$(bin/test getmasterkey) 
+          echo "api=${api}" >> $GITHUB_OUTPUT
+          echo "masterkey=${masterkey}" >> $GITHUB_OUTPUT
+          echo api ${api}
+          echo masterkey ${masterkey}    
+        env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          KEY: ${{ secrets.TESTING_SSH_KEY }}
+          TAG: ${{ inputs.tag }}
+          NETWORK: ${{ inputs.network}}
+
+  clean:
+    needs: [binary, vars]
+    name: remove all gateways
+    runs-on: ubuntu-latest
+    steps:
+      - name: get binary
+        uses: actions/download-artifact@v3
+        with:
+          name: binary
+          path: bin
+      - name: run tests
+        run: |
+          chmod +x bin/test
+          bin/test clean 
+        env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          KEY: ${{ secrets.TESTING_SSH_KEY }}
+          TAG: ${{ inputs.tag }}
+          NETWORK: ${{ inputs.network}}
+          MASTERKEY: ${{ needs.vars.outputs.masterkey }}
+          API: ${{ needs.vars.outputs.api }}
+
+
+  initial-ping:
+    needs: [binary, vars, clean]
+    name: initial ping
+    runs-on: ubuntu-latest
+    steps:
+      - name: get binary
+        uses: actions/download-artifact@v3
+        with:
+          name: binary
+          path: bin
+      - name: run tests
+        run: |
+          chmod +x bin/test
+          bin/test ping 
+        env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          KEY: ${{ secrets.TESTING_SSH_KEY }}
+          TAG: ${{ inputs.tag }}
+          NETWORK: ${{ inputs.network }}
+          MASTERKEY: ${{ needs.vars.outputs.masterkey }}
+          API: ${{ needs.vars.outputs.api }}
+
+  tests:
+    needs: [binary, vars, initial-ping, clean]
+    name: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: get binary
+        uses: actions/download-artifact@v3
+        with:
+          name: binary
+          path: bin
+      - name: run tests
+        run: |
+          chmod +x bin/test
+          bin/test peerUpdate 
+          bin/test egress 
+          bin/test ingress 
+          bin/test relay 
+        env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          KEY: ${{ secrets.TESTING_SSH_KEY }}
+          TAG: ${{ inputs.tag }}
+          NETWORK: ${{ inputs.network }}
+          MASTERKEY: ${{ needs.vars.outputs.masterkey }}
+          API: ${{ needs.vars.outputs.api }}
+
+  final-ping:
+    needs: [binary, vars, tests]
+    name: final ping
+    runs-on: ubuntu-latest
+    steps:
+      - name: get binary
+        uses: actions/download-artifact@v3
+        with:
+          name: binary
+          path: bin
+      - name: run tests
+        run: |
+          chmod +x bin/test
+          bin/test ping 
+        env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          KEY: ${{ secrets.TESTING_SSH_KEY }}
+          TAG: ${{ inputs.tag }}
+          NETWORK: ${{ inputs.network }}
+          MASTERKEY: ${{ needs.vars.outputs.masterkey }}
+          API: ${{ needs.vars.outputs.api }}
