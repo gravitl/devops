@@ -8,18 +8,13 @@ jobs:
   deploy:
     name: Update Test Network
     runs-on: ubuntu-latest
-    environment: testing
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Setup go
       uses: actions/setup-go@v3
       with:
-        go-version: 1.18
+        go-version: 1.19
     - name: build binaries  # avoids library mismatches between build machine and github runner
       run: |
         go build -o bin/updateNetwork src/updateNetwork/updateNetwork.go
