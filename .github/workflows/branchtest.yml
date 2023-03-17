@@ -18,6 +18,9 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3
+        with:
+          respository: gravitl/devops
+          ref: master
       - name: setup go
         uses: actions/setup-go@v3
         with:
