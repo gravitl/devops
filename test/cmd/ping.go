@@ -16,14 +16,12 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-	"log"
-	"os"
 	"strings"
 
 	"github.com/gravitl/devops/netmaker"
 	"github.com/gravitl/devops/ssh"
 	"github.com/spf13/cobra"
+	"golang.org/x/exp/slog"
 )
 
 // pingCmd represents the ping command
@@ -32,7 +30,7 @@ var pingCmd = &cobra.Command{
 	Short: "run a ping test",
 	Long:  `ping all nodes on network and reports result`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("ping called")
+		setupLoging("ping")
 		pingtest(&config)
 	},
 }
@@ -55,33 +53,31 @@ func pingtest(config *netmaker.Config) {
 	netclient := netmaker.GetNetclient(config.Network)
 	destinations, err := netmaker.GetWireGuardIPs(config.Network)
 	if err != nil {
-		log.Fatal("unable to get wireguard IP for network ", config.Network, err)
+		slog.Error("unable to get wireguard IP for network", "network", config.Network, "test", "ping", "err", err)
 	}
 	failures := make(map[string]string)
 	for _, hosts := range netclient {
 		source := hosts.Host.EndpointIP
-		log.Println("ping from ", hosts.Host.Name, " ip:", source)
+		slog.Info("ping from", "host", hosts.Host.Name, "ip", source)
 		for _, destination := range destinations {
 			out, err := ssh.Run([]byte(config.Key), source, "ping -c 3 "+destination.String())
 			if err != nil {
-				log.Printf("error connecting to %s\n", hosts.Host.Name)
-				log.Println(out, err)
+				slog.Error("error connecting to host", "host", hosts.Host.Name, "test", "ping", "err", err)
 				failures[hosts.Host.Name] = "unable to connect"
 				break
 			}
 			if !strings.Contains(out, "3 received") {
-				log.Printf("failed to ping %s %s\n", destination, out)
+				slog.Error("failed to ping", "destination", destination, "output", out)
 				failures[hosts.Host.Name] = failures[hosts.Host.Name] + " " + destination.String()
 				continue
 			}
 		}
 	}
 	if len(failures) > 0 {
-		log.Println("ping results")
 		for k, v := range failures {
-			fmt.Printf("%s: %s\n", k, v)
+			slog.Error("ping failues", "host", k, "failure", v, "test", "ping")
 		}
-		os.Exit(1)
+		return
 	}
-	log.Println("all nodes can ping each other")
+	slog.Info("all nodes can ping each other")
 }
