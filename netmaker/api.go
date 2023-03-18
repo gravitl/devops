@@ -119,28 +119,25 @@ func GetWireGuardIPs(network string) ([]net.IP, error) {
 	if nodes == nil {
 		return ips, errors.New("failled to retrieve network nodes")
 	}
-	for _, apinode := range *nodes {
-		log.Println("network nodes", apinode.ID)
-	}
 	for _, node := range *nodes {
-		log.Println("checking node ", node.ID)
+		slog.Info("checking node ", "node", node.ID)
 		if node.Network != network {
 			continue
 		}
-		log.Println(node.Address)
+		slog.Info("node", "Address", node.Address)
 		if node.Address != "" {
 			ip, _, err := net.ParseCIDR(node.Address)
 			if err != nil {
-				log.Println("error parsing cidr ", node.Address, err)
+				slog.Error("error parsing cidr ", "node", node.Address, "err", err)
 			} else {
 				ips = append(ips, ip)
 			}
 		}
-		log.Println(node.Address6)
+		slog.Info("node", "Address6", node.Address6)
 		if node.Address6 != "" {
 			ip, _, err := net.ParseCIDR(node.Address6)
 			if err != nil {
-				log.Println("error parsing cidr ", node.Address, err)
+				slog.Error("error parsing cidr ", "node", node.Address, "err", err)
 			} else {
 				ips = append(ips, ip)
 			}
