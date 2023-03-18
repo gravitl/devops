@@ -64,8 +64,8 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: clean.log
-          path: tmp/testing-clean.log
-          retention-days: 1
+          path: /tmp/testing-clean.log
+          retention-days: 3
 
   initial-ping:
     needs: [binary, clean]
@@ -91,8 +91,8 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ping.log
-          path: tmp/testing-ping.log
-          retention-days: 1
+          path: /tmp/testing-ping.log
+          retention-days: 3
 
   tests:
     needs: [binary, initial-ping, clean]
@@ -121,8 +121,8 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: tests.log
-          path: tmp/testing-*.log
-          retention-days: 1
+          path: /tmp/testing-*.log
+          retention-days: 3
 
   final-ping:
     needs: [binary, tests]
@@ -148,5 +148,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ping2.log
-          path: tmp/testing-ping.log
-          retention-days: 1
+          path: /tmp/testing-ping.log
+          retention-days: 3
