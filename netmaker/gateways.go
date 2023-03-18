@@ -1,16 +1,15 @@
 package netmaker
 
 import (
-	"log"
 	"net/http"
 	"os"
 
 	"github.com/gravitl/netmaker/models"
-	"github.com/kr/pretty"
+	"golang.org/x/exp/slog"
 )
 
 func CreateIngress(name Netclient) {
-	log.Println("creating ingress on node", name.Node.ID)
+	slog.Info("creating ingress on node", "node", name.Node.ID)
 	callapi[models.ApiNode](http.MethodPost, "/api/nodes/"+name.Node.Network+"/"+name.Node.ID+"/createingress", nil)
 }
 
@@ -19,7 +18,7 @@ func GetExtClient(m Netclient) *models.ExtClient {
 }
 
 func CreateExtClient(client Netclient) {
-	log.Println("creating ingress on node", client.Node.ID)
+	slog.Info("creating ingress on node", "node", client.Node.ID)
 	data := struct {
 		Clientid string
 	}{
@@ -30,9 +29,7 @@ func CreateExtClient(client Netclient) {
 
 func DownloadExtClientConfig(client Netclient) error {
 	file := download(http.MethodGet, "/api/extclients/"+client.Node.Network+"/road-warrior/file", nil)
-	if Debug {
-		log.Println("received file \n", string(file))
-	}
+	slog.Debug("received file", "file", string(file))
 	save, err := os.Create("/tmp/netmaker.conf")
 	if err != nil {
 		return err
@@ -44,7 +41,7 @@ func DownloadExtClientConfig(client Netclient) error {
 }
 
 func CreateEgress(client Netclient, ranges []string) *models.ApiNode {
-	log.Println("creatting egress on node", client.Node.ID)
+	slog.Info("creatting egress on node", client.Node.ID)
 	data := models.EgressGatewayRequest{
 		NodeID:     client.Node.ID,
 		NetID:      client.Node.Network,
@@ -59,8 +56,6 @@ func CreateRelay(relay, relayed *Netclient) {
 		HostID:       relay.Host.ID,
 		RelayedHosts: []string{relayed.Host.ID},
 	}
-	if Debug {
-		pretty.Println(data)
-	}
+	slog.Debug("debuging", "data", data)
 	callapi[models.ApiHost](http.MethodPost, "/api/hosts/"+relay.Host.ID+"/relay", data)
 }
