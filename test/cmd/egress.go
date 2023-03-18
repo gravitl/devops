@@ -18,13 +18,12 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/gravitl/devops/netmaker"
 	"github.com/gravitl/devops/ssh"
-	"github.com/kr/pretty"
 	"github.com/spf13/cobra"
+	"golang.org/x/exp/slog"
 )
 
 // egressCmd represents the egress command
@@ -38,7 +37,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("egress called")
+		setupLoging("egress")
 		egresstest(&config)
 	},
 }
@@ -62,9 +61,10 @@ func egresstest(config *netmaker.Config) {
 	netclient := netmaker.GetNetclient(config.Network)
 	egress := netmaker.GetHost("egress", netclient)
 	if egress == nil {
-		log.Fatal("did not find egress host/node")
+		slog.Error("did not find egress host/node")
+		return
 	}
-	pretty.Println(egress)
+	slog.Debug("debuging", "egress", egress)
 	//create egress
 	log.Println("creating egress gateway")
 	netmaker.CreateEgress(*egress, config.Ranges)
@@ -79,22 +79,23 @@ func egresstest(config *netmaker.Config) {
 		log.Printf("checking that %s @ %s received the update", machine.Host.Name, machine.Host.EndpointIP)
 		out, err := ssh.Run([]byte(config.Key), machine.Host.EndpointIP, "wg show netmaker allowed-ips | grep "+ip)
 		if err != nil {
-			log.Printf("err connecting to %s\n", machine.Host.Name)
-			log.Println(out, err)
+			slog.Error("err connecting to", "host", machine.Host.Name)
+			slog.Error(err.Error())
 			failedmachines = append(failedmachines, machine.Host.Name)
 			continue
 		}
 		if !strings.Contains(out, ip) {
-			log.Printf("%s did not receive the update %s\n", machine.Host.Name, out)
+			slog.Error(fmt.Sprintf("%s did not receive the update %s\n", machine.Host.Name, out))
 			failedmachines = append(failedmachines, machine.Host.Name)
 			continue
 		}
 	}
 	if len(failedmachines) > 0 {
-		log.Println("not all machines were updated")
+		slog.Error("not all machines were updated")
 		for _, machine := range failedmachines {
-			log.Printf("%s ", machine)
+			slog.Error("Failures", "machine", machine)
 		}
-		os.Exit(1)
+		return
 	}
+	log.Println("all nodes received the egress range")
 }

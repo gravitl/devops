@@ -17,7 +17,7 @@ package cmd
 
 import (
 	"fmt"
-	"log"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -28,9 +28,12 @@ import (
 )
 
 var (
-	cfgFile string
-	debug   bool
-	config  netmaker.Config
+	cfgFile  string
+	debug    bool
+	config   netmaker.Config
+	logger   *slog.Logger
+	logLevel *slog.LevelVar
+	replace  func(groups []string, a slog.Attr) slog.Attr
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -104,19 +107,30 @@ func initConfig() {
 	if config.Key == "" {
 		key, err := os.ReadFile(os.Getenv("HOME") + "/.ssh/id_ed25519")
 		if err != nil {
-			log.Fatal("invalid configuration, ssh key not set", err)
+			cobra.CheckErr("invalid configuration, ssh key not set" + err.Error())
 		}
 		config.Key = string(key)
 	}
 	netmaker.SetCxt(config.Api, config.Masterkey)
-	replace := func(groups []string, a slog.Attr) slog.Attr {
+}
+
+func setupLoging(name string) {
+	// setup logging
+	f, err := os.Create(os.TempDir() + "/testing-" + name + ".log")
+	if err != nil {
+		cobra.CheckErr("err")
+	}
+	//defer f.Close() -- don't close file here
+	logLevel = &slog.LevelVar{}
+	replace = func(groups []string, a slog.Attr) slog.Attr {
 		if a.Key == slog.SourceKey {
 			a.Value = slog.StringValue(filepath.Base(a.Value.String()))
 		}
 		return a
 	}
-	logger := slog.New(slog.HandlerOptions{AddSource: true, ReplaceAttr: replace}.NewJSONHandler(os.Stdout))
+	logger = slog.New(slog.HandlerOptions{AddSource: true, ReplaceAttr: replace, Level: logLevel}.NewJSONHandler(io.MultiWriter(os.Stdout, f)))
 	slog.SetDefault(logger)
-	slog.Info("logging set up")
-
+	if config.Debug {
+		logLevel.Set(slog.LevelDebug)
+	}
 }

@@ -16,12 +16,10 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/gravitl/devops/netmaker"
 	"github.com/gravitl/devops/ssh"
 	"github.com/spf13/cobra"
+	"golang.org/x/exp/slog"
 )
 
 // cleanCmd represents the clean command
@@ -31,7 +29,7 @@ var cleanCmd = &cobra.Command{
 	Long: `cleans up network to facilitate tests
 	remove all gateways and removes interface/conf file on extclients`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("clean called")
+		setupLoging("clean")
 		cleanNetwork(&config)
 	},
 }
@@ -54,29 +52,40 @@ func cleanNetwork(config *netmaker.Config) {
 	netclient := netmaker.GetNetclient(config.Network)
 	for _, machine := range netclient {
 		if machine.Node.IsEgressGateway {
-			log.Println("deleting egress ", machine.Host.Name)
+			slog.Info("deleting egress ", machine.Host.Name)
 			netmaker.DeleteEgress(machine.Node.ID, machine.Node.Network)
 		}
 		if machine.Node.IsIngressGateway {
-			log.Println("deleting ingress", machine.Host.Name)
+			slog.Info("deleting ingress", machine.Host.Name)
 			netmaker.DeleteIngress(machine.Node.ID, machine.Node.Network)
 		}
 		if machine.Host.IsRelay {
-			log.Println("deleting relay", machine.Host.Name)
+			slog.Info("deleting relay", machine.Host.Name)
 			netmaker.DeleteRelay(machine.Host.ID)
 		}
 	}
-	log.Println("reseting extclient")
-	netmaker.RestoreExtClient(config)
+	slog.Info("reseting extclient")
+	logger.Info("resteting extclient")
+	if err := netmaker.RestoreExtClient(config); err != nil {
+		slog.Error("restoring extclient", "err", err)
+	}
 	relayed := netmaker.GetHost("relayed", netclient)
 	if relayed == nil {
-		log.Fatal("did not find relayed netclient")
+		slog.Error("did not find relayed netclient")
 	}
 	egress := netmaker.GetHost("egress", netclient)
 	if egress == nil {
-		log.Fatal("did not find egress netclient")
+		slog.Error("did not find egress netclient")
 	}
-	log.Println("reseting firewall on relayed/egress")
-	ssh.Run([]byte(config.Key), relayed.Host.EndpointIP, "iptables -D OUTPUT -d "+egress.Host.EndpointIP+" -j DROP")
-	ssh.Run([]byte(config.Key), egress.Host.EndpointIP, "iptables -D OUTPUT -d "+relayed.Host.EndpointIP+" -j DROP")
+	if relayed != nil && egress != nil {
+		slog.Info("reseting firewall on relayed/egress")
+		_, err := ssh.Run([]byte(config.Key), relayed.Host.EndpointIP, "iptables -D OUTPUT -d "+egress.Host.EndpointIP+" -j DROP")
+		if err != nil {
+			slog.Warn("error resetting egress firewall" + err.Error())
+		}
+		_, err = ssh.Run([]byte(config.Key), egress.Host.EndpointIP, "iptables -D OUTPUT -d "+relayed.Host.EndpointIP+" -j DROP")
+		if err != nil {
+			slog.Warn("error resetting egress firewall" + err.Error())
+		}
+	}
 }
