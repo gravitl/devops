@@ -91,11 +91,11 @@ func egresstest(config *netmaker.Config) {
 		}
 	}
 	if len(failedmachines) > 0 {
-		slog.Error("not all machines were updated")
+		slog.Error("not all machines were updated", "test", "eggress")
 		for _, machine := range failedmachines {
 			slog.Error("Failures", "machine", machine)
 		}
 		return
 	}
-	log.Println("all nodes received the egress range")
+	slog.Info("all nodes received the egress range")
 }

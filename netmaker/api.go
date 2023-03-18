@@ -64,30 +64,31 @@ func DeleteRelay(id string) {
 func DeleteIngress(id, network string) {
 	api := "/api/nodes/" + network + "/" + id + "/deleteingress"
 	callapi[models.ApiNode](http.MethodDelete, api, nil)
-	log.Println("deleted ingress from node ", id)
+	slog.Info("deleted ingress from node ", "node", id)
 }
 
 func DeleteEgress(id, network string) {
 	api := "/api/nodes/" + network + "/" + id + "/deletegateway"
 	callapi[models.ApiNode](http.MethodDelete, api, nil)
-	log.Println("deleted egress from node ", id)
+	slog.Info("deleted egress from node ", "node", id)
 }
 
-func StartExtClient(config *Config) {
+func StartExtClient(config *Config) error {
 	client, err := do.Name("extclient", config.Tag, config.DigitalOcean_Token)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("failed to get extcient %w", err)
 	}
 	clientip, err := client.PublicIPv4()
 	if err != nil {
-		log.Fatal("error retrieving extclient ip address")
+		return fmt.Errorf("error retrieving extclient ip address %w", err)
 	}
 	if err := ssh.CopyTo([]byte(config.Key), clientip, "/tmp/netmaker.conf", "/etc/wireguard"); err != nil {
-		log.Fatal("error copying config to extclient", err)
+		return fmt.Errorf("error copying config to extclient %w", err)
 	}
 	if _, err := ssh.Run([]byte(config.Key), clientip, "wg-quick up netmaker"); err != nil {
-		log.Fatal("error starting wireguard on extclient", err)
+		return fmt.Errorf("error starting wireguard on extclient %w", err)
 	}
+	return nil
 }
 
 func RestoreExtClient(config *Config) error {

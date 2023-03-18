@@ -41,7 +41,7 @@ func DownloadExtClientConfig(client Netclient) error {
 }
 
 func CreateEgress(client Netclient, ranges []string) *models.ApiNode {
-	slog.Info("creatting egress on node", client.Node.ID)
+	slog.Info("creatting egress", "node", client.Node.ID)
 	data := models.EgressGatewayRequest{
 		NodeID:     client.Node.ID,
 		NetID:      client.Node.Network,
