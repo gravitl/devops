@@ -17,15 +17,13 @@ package cmd
 
 import (
 	"fmt"
-	"log"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/gravitl/devops/netmaker"
 	"github.com/gravitl/devops/ssh"
-	"github.com/kr/pretty"
 	"github.com/spf13/cobra"
+	"golang.org/x/exp/slog"
 )
 
 // ingessCmd represents the ingess command
@@ -35,7 +33,7 @@ var ingressCmd = &cobra.Command{
 	Long: `create an ingress gateway and extclient;
 	verify all nodes received update`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("ingess called")
+		setupLoging("ingress")
 		ingresstest(&config)
 	},
 }
@@ -58,48 +56,54 @@ func ingresstest(config *netmaker.Config) {
 	netclient := netmaker.GetNetclient(config.Network)
 	ingress := netmaker.GetHost("ingress", netclient)
 	if ingress == nil {
-		log.Fatal("did not find ingress host/node")
+		slog.Error("did not find ingress host/node")
+		return
 	}
-	pretty.Println(ingress)
+	slog.Debug("debuging", "ingess", ingress)
 	//create ingress
-	log.Println("creating ingress node")
+	slog.Info("creating ingress node")
 	netmaker.CreateIngress(*ingress)
 	//create extclient
-	log.Println("creating extclient")
+	slog.Info("creating extclient")
 	netmaker.CreateExtClient(*ingress)
-	log.Println("downloading client config")
+	slog.Info("downloading client config")
 	if err := netmaker.DownloadExtClientConfig(*ingress); err != nil {
-		log.Fatal(err)
+		slog.Error("failed to download extclient config", "test", "ingress", "err", err)
+		return
 	}
-	log.Println("copying file to extclient")
-	netmaker.StartExtClient(config)
+	slog.Info("copying file to extclient")
+	if err := netmaker.StartExtClient(config); err != nil {
+		slog.Error("failed to start extclient", "test", "ingres", "err", err)
+		return
+	}
 	//verify
 	failedmachines := []string{}
 	extclient := netmaker.GetExtClient(*ingress)
 	ip := extclient.Address
-	log.Println("waiting for update to propogate")
-	time.Sleep(time.Second * 30)
 	for _, machine := range netclient {
-
-		log.Printf("checking that %s @ %s received the update", machine.Host.Name, machine.Host.EndpointIP)
+		if machine.Host.Name == "ingress" {
+			slog.Info("waiting for ingress to be updated")
+			time.Sleep(time.Second * 30)
+		}
+		slog.Info(fmt.Sprintf("checking that %s @ %s received the update", machine.Host.Name, machine.Host.EndpointIP))
 		out, err := ssh.Run([]byte(config.Key), machine.Host.EndpointIP, "wg show netmaker allowed-ips | grep "+ip)
 		if err != nil {
-			log.Printf("err connecting to %s\n", machine.Host.Name)
-			log.Println(out, err)
+			slog.Error("err connecting", "machine", machine.Host.Name, "test", "ingress", "err", err)
 			failedmachines = append(failedmachines, machine.Host.Name)
 			continue
 		}
 		if !strings.Contains(out, ip) {
-			log.Printf("%s did not receive the update %s\n", machine.Host.Name, out)
+			slog.Error("update not received", "host", machine.Host.Name, "test", "ingress", "output", out)
 			failedmachines = append(failedmachines, machine.Host.Name)
 			continue
 		}
 	}
 	if len(failedmachines) > 0 {
-		log.Println("not all machines were updated")
+		slog.Error("not all machines were updated", "test", "ingress")
 		for _, machine := range failedmachines {
-			log.Printf("%s ", machine)
+			slog.Error("failures", "machine", machine)
 		}
-		os.Exit(1)
+		return
 	}
+	slog.Info("all nodes received the ingress ips")
 }

@@ -14,7 +14,7 @@ import (
 	"github.com/gravitl/devops/do"
 	"github.com/gravitl/devops/ssh"
 	"github.com/gravitl/netmaker/models"
-	"github.com/kr/pretty"
+	"golang.org/x/exp/slog"
 )
 
 var Debug bool
@@ -64,48 +64,49 @@ func DeleteRelay(id string) {
 func DeleteIngress(id, network string) {
 	api := "/api/nodes/" + network + "/" + id + "/deleteingress"
 	callapi[models.ApiNode](http.MethodDelete, api, nil)
-	log.Println("deleted ingress from node ", id)
+	slog.Info("deleted ingress from node ", "node", id)
 }
 
 func DeleteEgress(id, network string) {
 	api := "/api/nodes/" + network + "/" + id + "/deletegateway"
 	callapi[models.ApiNode](http.MethodDelete, api, nil)
-	log.Println("deleted egress from node ", id)
+	slog.Info("deleted egress from node ", "node", id)
 }
 
-func StartExtClient(config *Config) {
-	client, err := do.Name("extclient", config.DigitalOcean_Token)
+func StartExtClient(config *Config) error {
+	client, err := do.Name("extclient", config.Tag, config.DigitalOcean_Token)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("failed to get extcient %w", err)
 	}
 	clientip, err := client.PublicIPv4()
 	if err != nil {
-		log.Fatal("error retrieving extclient ip address")
+		return fmt.Errorf("error retrieving extclient ip address %w", err)
 	}
 	if err := ssh.CopyTo([]byte(config.Key), clientip, "/tmp/netmaker.conf", "/etc/wireguard"); err != nil {
-		log.Fatal("error copying config to extclient", err)
+		return fmt.Errorf("error copying config to extclient %w", err)
 	}
 	if _, err := ssh.Run([]byte(config.Key), clientip, "wg-quick up netmaker"); err != nil {
-		log.Fatal("error starting wireguard on extclient", err)
+		return fmt.Errorf("error starting wireguard on extclient %w", err)
 	}
+	return nil
 }
 
-func RestoreExtClient(config *Config) {
-	client, err := do.Name("extclient", config.DigitalOcean_Token)
+func RestoreExtClient(config *Config) error {
+	client, err := do.Name("extclient", config.Tag, config.DigitalOcean_Token)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("error getting DO client %w", err)
 	}
 	clientip, err := client.PublicIPv4()
 	if err != nil {
-		log.Fatal("error retrieving extclient ip address")
+		return fmt.Errorf("error retrieving extclient ip address %w", err)
 	}
 	if out, err := ssh.Run([]byte(config.Key), clientip, "wg-quick down netmaker"); err != nil {
-		log.Println("error stopping wireguard on extclient", out, err)
+		slog.Warn("error stopping wireguard on extclient", out, err)
 	}
 	if out, err := ssh.Run([]byte(config.Key), clientip, "rm /etc/wireguard/netmaker.conf"); err != nil {
-		log.Println("error removing wireguard conf on extclient", out, err)
+		slog.Warn("error removing wireguard conf on extclient", out, err)
 	}
-
+	return nil
 }
 
 func GetNetworkNodes(network string) *[]models.ApiNode {
@@ -118,28 +119,25 @@ func GetWireGuardIPs(network string) ([]net.IP, error) {
 	if nodes == nil {
 		return ips, errors.New("failled to retrieve network nodes")
 	}
-	for _, apinode := range *nodes {
-		log.Println("network nodes", apinode.ID)
-	}
 	for _, node := range *nodes {
-		log.Println("checking node ", node.ID)
+		slog.Info("checking node ", "node", node.ID)
 		if node.Network != network {
 			continue
 		}
-		log.Println(node.Address)
+		slog.Info("node", "Address", node.Address)
 		if node.Address != "" {
 			ip, _, err := net.ParseCIDR(node.Address)
 			if err != nil {
-				log.Println("error parsing cidr ", node.Address, err)
+				slog.Error("error parsing cidr ", "node", node.Address, "err", err)
 			} else {
 				ips = append(ips, ip)
 			}
 		}
-		log.Println(node.Address6)
+		slog.Info("node", "Address6", node.Address6)
 		if node.Address6 != "" {
 			ip, _, err := net.ParseCIDR(node.Address6)
 			if err != nil {
-				log.Println("error parsing cidr ", node.Address, err)
+				slog.Error("error parsing cidr ", "node", node.Address, "err", err)
 			} else {
 				ips = append(ips, ip)
 			}
@@ -284,42 +282,47 @@ func callapi[T any](method, route string, payload any) *T {
 		req *http.Request
 		err error
 	)
-	log.Println("calling api", ctx.Endpoint+route)
+	slog.Debug("calling api", slog.String("endpoint", ctx.Endpoint+route))
 	if payload == nil {
 		req, err = http.NewRequest(method, ctx.Endpoint+route, nil)
 		if err != nil {
-			log.Fatalf("Client could not create request: %s", err)
+			slog.Error("Client could not create request:", "err", err)
+			return nil
 		}
 	} else {
-		if Debug {
-			pretty.Println(payload)
-		}
+		slog.Debug("debugging", "payload", payload)
 		payloadBytes, jsonErr := json.Marshal(payload)
 		if jsonErr != nil {
-			log.Fatalf("Error in request JSON marshalling: %s", err)
+			slog.Error("Error in request JSON marshalling:", "err", err)
+			return nil
 		}
 		req, err = http.NewRequest(method, ctx.Endpoint+route, bytes.NewReader(payloadBytes))
 		if err != nil {
-			log.Fatalf("Client could not create request: %s", err)
+			slog.Error("Client could not create request:", "err", err)
+			return nil
 		}
 		req.Header.Set("Content-Type", "application/json")
 	}
 	req.Header.Set("Authorization", "Bearer "+ctx.MasterKey)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Fatalf("Client error making http request: %s", err)
+		slog.Error("Client error making http request:", "err", err)
+		return nil
 	}
 	resBodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		log.Fatalf("Client could not read response body: %s", err)
+		slog.Error("Client could not read response body:", "err", err)
+		return nil
 	}
 	if res.StatusCode != http.StatusOK {
-		log.Fatalf("Error Status: %d Response: %s", res.StatusCode, string(resBodyBytes))
+		slog.Error(fmt.Sprintf("Error Status: %d Response: %s", res.StatusCode, string(resBodyBytes)))
+		return nil
 	}
 	body := new(T)
 	if len(resBodyBytes) > 0 {
 		if err := json.Unmarshal(resBodyBytes, body); err != nil {
-			log.Fatalf("Error unmarshalling JSON: %s", err)
+			slog.Error("Error unmarshalling JSON:", "err", err)
+			return nil
 		}
 	}
 	return body
@@ -330,37 +333,41 @@ func download(method, route string, payload any) []byte {
 		req *http.Request
 		err error
 	)
-	log.Println("calling api", ctx.Endpoint+route)
+	slog.Debug("calling api", slog.String("endpoint", ctx.Endpoint+route))
 	if payload == nil {
 		req, err = http.NewRequest(method, ctx.Endpoint+route, nil)
 		if err != nil {
-			log.Fatalf("Client could not create request: %s", err)
+			slog.Error("Client could not create request:", "err", err)
+			return []byte{}
 		}
 	} else {
 		payloadBytes, jsonErr := json.Marshal(payload)
 		if jsonErr != nil {
-			log.Fatalf("Error in request JSON marshalling: %s", err)
+			slog.Error("Error in request JSON marshalling:", "err", err)
+			return []byte{}
 		}
 		req, err = http.NewRequest(method, ctx.Endpoint+route, bytes.NewReader(payloadBytes))
 		if err != nil {
-			log.Fatalf("Client could not create request: %s", err)
+			slog.Error("Client could not create request:", "err", err)
+			return []byte{}
 		}
 		req.Header.Set("Content-Type", "application/json")
 	}
-	if Debug {
-		pretty.Println(req)
-	}
+	slog.Debug("debuging", "request", req)
 	req.Header.Set("Authorization", "Bearer "+ctx.MasterKey)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Fatalf("Client error making http request: %s", err)
+		slog.Error("Client error making http request:", "err", err)
+		return []byte{}
 	}
 	resBodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		log.Fatalf("Client could not read response body: %s", err)
+		slog.Error("Client could not read response body:", "err", err)
+		return []byte{}
 	}
 	if res.StatusCode != http.StatusOK {
-		log.Fatalf("Error Status: %d Response: %s", res.StatusCode, string(resBodyBytes))
+		slog.Error(fmt.Sprintf("Error Status: %d Response: %s", res.StatusCode, string(resBodyBytes)))
+		return []byte{}
 	}
 	return resBodyBytes
 }

@@ -1,10 +1,10 @@
 package netmaker
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gravitl/netmaker/models"
+	"golang.org/x/exp/slog"
 )
 
 func GetHostByName(name string) *models.ApiHost {
@@ -14,7 +14,7 @@ func GetHostByName(name string) *models.ApiHost {
 			return &host
 		}
 	}
-	log.Println("failed to find host")
+	slog.Error("failed to find host", "func", "GetHostByName")
 	return nil
 }
 
@@ -28,5 +28,6 @@ func GetHostByID(id string, hosts *[]models.ApiHost) *models.ApiHost {
 			return &host
 		}
 	}
+	slog.Error("failed to find host", "func", "GetHostByID")
 	return nil
 }

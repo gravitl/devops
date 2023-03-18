@@ -51,7 +51,7 @@ func init() {
 }
 
 func getMasterkey(config *netmaker.Config) string {
-	client, err := do.Name("server", config.DigitalOcean_Token)
+	client, err := do.Name("server", config.Tag, config.DigitalOcean_Token)
 	cobra.CheckErr(err)
 	serverip, err := client.PublicIPv4()
 	cobra.CheckErr(err)
