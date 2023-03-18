@@ -30,11 +30,10 @@ jobs:
           mkdir bin
           go build -o bin/test test/main.go
       - name: save binary
-        uses: actions/upload-artifact@v3
+        uses: actions/cache/save@v3
         with:
-          name: binary
-          path: bin
-          retention-days: 1
+          path: bin/test
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
   vars:
     runs-on: ubuntu-latest
@@ -44,10 +43,10 @@ jobs:
       masterkey: ${{ steps.data.outputs.masterkey }}
     steps:
       - name: get binary
-        uses: actions/download-artifact@v3
+        uses: actions/cache/restore@v3
         with:
-          name: binary
-          path: bin
+          path: bin/test
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - name: get vars
         id: data
         run: |
@@ -70,10 +69,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: get binary
-        uses: actions/download-artifact@v3
+        uses: actions/cache/restore@v3
         with:
-          name: binary
-          path: bin
+          path: bin/test
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - name: run tests
         run: |
           chmod +x bin/test
@@ -93,10 +92,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: get binary
-        uses: actions/download-artifact@v3
+        uses: actions/cache/restore@v3
         with:
-          name: binary
-          path: bin
+          path: bin/test
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - name: run tests
         run: |
           chmod +x bin/test
@@ -115,10 +114,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: get binary
-        uses: actions/download-artifact@v3
+        uses: actions/cache/restore@v3
         with:
-          name: binary
-          path: bin
+          path: bin/test
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - name: run tests
         run: |
           chmod +x bin/test
@@ -140,10 +139,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: get binary
-        uses: actions/download-artifact@v3
+        uses: actions/cache/restore@v3
         with:
-          name: binary
-          path: bin
+          path: bin/test
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - name: run tests
         run: |
           chmod +x bin/test
