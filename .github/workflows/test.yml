@@ -39,7 +39,6 @@ jobs:
         with:
           path: bin/test
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-          retention-days: 1
 
   clean:
     needs: [binary]
