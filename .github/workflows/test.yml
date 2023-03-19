@@ -14,9 +14,6 @@ on:
       masterkey:
         description: masterkey of netmaker server
         default: "secretkey"
-  schedule:
-    - cron: '00 11 * * *'
-
 
 jobs:
 
