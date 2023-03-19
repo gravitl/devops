@@ -41,5 +41,6 @@ jobs:
           color: "#990000"
           username: "GitHub Bot"
           message: "Devops: ${{ github.event.workflow_run.name }} failed"
-          file: ./results.log/results.log
-          file: ./results.log/errors.log
+          file: |
+            ./results.log/results.log
+            ./results.log/errors.log
