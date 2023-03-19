@@ -23,6 +23,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: test.yml
+          run_id: 4454966058
       - name: list
         run: |
           ls -R    
