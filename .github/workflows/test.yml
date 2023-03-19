@@ -41,11 +41,7 @@ jobs:
     needs: [binary]
     name: remove all gateways
     outputs:
-<<<<<<< HEAD
       clean: ${{ steps.clean.outputs.clean }}
-=======
-      clean: ${{ steps.clean.ouputs.clean }}
->>>>>>> ec3e731 (save test results as job outputs)
     runs-on: ubuntu-latest
     steps:
       - name: get binary
@@ -57,12 +53,7 @@ jobs:
         id: clean
         run: |
           chmod +x bin/test
-<<<<<<< HEAD
           echo "clean=$(bin/test clean)" >> "$GITHUB_OUTPUT"
-=======
-          clean=$(bin/test clean)
-          echo "clean=$clean" >> $GITHUB_OUTPUT
->>>>>>> ec3e731 (save test results as job outputs)
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -104,24 +95,17 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ping.log
-          path: /tmp/initial-ping.log
+          path: /tmp/testing-ping.log
           retention-days: 3
 
   tests:
     needs: [binary, initial-ping, clean]
     name: tests
     outputs:
-<<<<<<< HEAD
       peers: ${{ steps.test.outputs.peers }}
       egress: ${{ steps.test.outputs.egress }}
       ingress: ${{ steps.test.outputs.ingress }}
       relay: ${{ steps.test.outputs.relay }}
-=======
-      peers: ${{ github.outputs.test.peers }}
-      egress: ${{ github.output.test.egress }}
-      ingress: ${{ github.output.test.ingress }}
-      relay: ${{ github.output.test.relay }}
->>>>>>> ec3e731 (save test results as job outputs)
     runs-on: ubuntu-latest
     steps:
       - name: get binary
@@ -133,19 +117,10 @@ jobs:
         id: test
         run: |
           chmod +x bin/test
-<<<<<<< HEAD
           echo "peers=$(bin/test peerUpdate)" >> "$GITHUB_OUTPUT"
           echo "ingress=$(bin/test ingress)" >> "$GITHUB_OUTPUT"
           echo "egress=$(bin/test egress)" >> "$GITHUB_OUTPUT"
           echo "relay=$(bin/test relay)" >> "$GITHUB_OUTPUT"
-=======
-          peers=$(bin/test peerUpdate)
-          egress=$(bin/test egress)
-          ingress=$(bin/test ingress)
-          relay=$(bin/test relay)
-          echo "peers=$peers" >> $GITHUB_OUTPUT
-          echo "egress=$egress" >> $GITHUB_OUTPUT
->>>>>>> ec3e731 (save test results as job outputs)
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -187,7 +162,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ping2.log
-          path: /tmp/final-ping.log
+          path: /tmp/testing-ping.log
           retention-days: 3
 
   results:
@@ -203,17 +178,10 @@ jobs:
         env:
           clean: ${{ needs.clean.outputs.clean }}
           ping1: ${{ needs.initial-ping.outputs.ping }}
-<<<<<<< HEAD
           peers: ${{ needs.tests.outputs.peers }}
           ingress: ${{ needs.tests.outputs.ingress }}
           egress: ${{ needs.tests.outputs.egress }}
           relay: ${{ needs.tests.outputs.relay }}
-=======
-          peers: ${{ needs.tests.ouputs.peers }}
-          ingress: ${{ needs.tests.ouputs.ingress }}
-          egress: ${{ needs.tests.ouputs.egress }}
-          relay: ${{ needs.tests.ouputs.relay }}
->>>>>>> ec3e731 (save test results as job outputs)
           ping2: ${{ needs.final-ping.outputs.ping }}
         run: |
           finalresult="PASS"
@@ -273,14 +241,7 @@ jobs:
             grep ERROR /tmp/ping2.log/testing-ping.log >> /tmp/errors.log
             finalresult="FAIL"
           fi
-<<<<<<< HEAD
           echo "finalresult=$finalresult" >> $GITHUB_ENV
-=======
-          if [ $finalresult==FAIL ]
-          then
-            exit(1)
-          fi
->>>>>>> ec3e731 (save test results as job outputs)
       - name: upload results
         uses: actions/upload-artifact@v3
         with:
@@ -289,13 +250,10 @@ jobs:
             /tmp/results.log
             /tmp/errors.log
           retention-days: 3
-<<<<<<< HEAD
       - name: final result
         run: |
           if [ "$finalresult" == "FAIL" ]
           then
             exit 1
           fi
-=======
->>>>>>> ec3e731 (save test results as job outputs)
 
