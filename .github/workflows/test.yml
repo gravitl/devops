@@ -44,7 +44,7 @@ jobs:
     needs: [binary]
     name: remove all gateways
     outputs:
-      clean: ${{ steps.clean.ouputs.clean }}
+      clean: ${{ steps.clean.outputs.clean }}
     runs-on: ubuntu-latest
     steps:
       - name: get binary
@@ -56,8 +56,7 @@ jobs:
         id: clean
         run: |
           chmod +x bin/test
-          clean=$(bin/test clean)
-          echo "clean=$clean" >> $GITHUB_OUTPUT
+          echo "clean=$(bin/test clean)" >> "$GITHUB_OUTPUT"
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -106,10 +105,10 @@ jobs:
     needs: [binary, initial-ping, clean]
     name: tests
     outputs:
-      peers: ${{ github.outputs.test.peers }}
-      egress: ${{ github.output.test.egress }}
-      ingress: ${{ github.output.test.ingress }}
-      relay: ${{ github.output.test.relay }}
+      peers: ${{ steps.test.outputs.peers }}
+      egress: ${{ steps.test.outputs.egress }}
+      ingress: ${{ steps.test.outputs.ingress }}
+      relay: ${{ steps.test.outputs.relay }}
     runs-on: ubuntu-latest
     steps:
       - name: get binary
@@ -121,15 +120,10 @@ jobs:
         id: test
         run: |
           chmod +x bin/test
-          peers=$(bin/test peerUpdate)
-          egress=$(bin/test egress)
-          ingress=$(bin/test ingress)
-          relay=$(bin/test relay)
-          echo "peers=$peers" >> $GITHUB_OUTPUT
-          echo "egress=$egress" >> $GITHUB_OUTPUT
-          echo "ingress=$ingress" >> $GITHUB_OUTPUT
-          echo "relay=$relay" >> $GITHUB_OUTPUT
-          echo $peers $egress $ingress $relay
+          echo "peers=$(bin/test peerUpdate)" >> "$GITHUB_OUTPUT"
+          echo "ingress=$(bin/test ingress)" >> "$GITHUB_OUTPUT"
+          echo "egress=$(bin/test egress)" >> "$GITHUB_OUTPUT"
+          echo "relay=$(bin/test relay)" >> "$GITHUB_OUTPUT"
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -187,10 +181,10 @@ jobs:
         env:
           clean: ${{ needs.clean.outputs.clean }}
           ping1: ${{ needs.initial-ping.outputs.ping }}
-          peers: ${{ needs.tests.ouputs.peers }}
-          ingress: ${{ needs.tests.ouputs.ingress }}
-          egress: ${{ needs.tests.ouputs.egress }}
-          relay: ${{ needs.tests.ouputs.relay }}
+          peers: ${{ needs.tests.outputs.peers }}
+          ingress: ${{ needs.tests.outputs.ingress }}
+          egress: ${{ needs.tests.outputs.egress }}
+          relay: ${{ needs.tests.outputs.relay }}
           ping2: ${{ needs.final-ping.outputs.ping }}
         run: |
           finalresult="PASS"
@@ -261,7 +255,7 @@ jobs:
           retention-days: 3
       - name: final result
         run: |
-          if [ $finalresult==FAIL ]
+          if [ "$finalresult" == "FAIL" ]
           then
             exit 1
           fi
