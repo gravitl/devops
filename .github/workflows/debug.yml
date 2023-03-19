@@ -1,0 +1,28 @@
+name: Run All Tests -- debug
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+
+  vars:
+    runs-on: ubuntu-latest
+    steps:
+      - name: echo
+        run: |
+          echo branch ${{ github.ref_name}}
+          echo KEY ${KEY}
+          echo TOKEN ${TOKEN}
+          echo DO_TOKEN ${DOTOKEN}
+        env:
+          KEY: ${{ secrets.TESTING_SSH_KEY }}
+          TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          DO_TOKEN: ${{ secrets.DO_TOKEN }}
+      - name: get logs
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: test.yml
+      - name: list
+        run: |
+          ls -R    
