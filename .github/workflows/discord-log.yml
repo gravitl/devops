@@ -23,7 +23,7 @@ jobs:
           color: "#42f545"
           username: "GitHub Bot"
           message: "Devops: ${{ github.event.workflow_run.name }} was successful"
-          file: ./results.log/results.log
+          file: ./results/results.log
 
 
   on-failure:
@@ -44,5 +44,5 @@ jobs:
           username: "GitHub Bot"
           message: "Devops: ${{ github.event.workflow_run.name }} failed"
           file: |
-            ./results.log/results.log
-            ./results.log/errors.log
+            ./results/results.log
+            ./results/errors.log
