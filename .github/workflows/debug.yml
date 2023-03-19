@@ -99,10 +99,10 @@ jobs:
           echo ingress result is $result3
           echo egress result is $result2
           echo relay result is $result4
-          echo "peers=$result1" >> $GITHUB_OUTPUT
-          echo "egress=$result2" >> $GITHUB_OUTPUT
-          echo "ingress=$result3" >> $GITHUB_OUTPUT
-          echo "relay=$result4" >> $GITHUB_OUTPUT
+          echo "peers=$result1" >> "$GITHUB_OUTPUT"
+          echo "egress=$result2" >> "$GITHUB_OUTPUT"
+          echo "ingress=$result3" >> "$GITHUB_OUTPUT"
+          echo "relay=$result4" >> "$GITHUB_OUTPUT"
           echo $peers $egress $ingress $relay
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
