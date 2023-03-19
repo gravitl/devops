@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"net"
 	"strings"
 
@@ -33,7 +34,7 @@ var relayCmd = &cobra.Command{
 	verifies all other nodes have received the update`,
 	Run: func(cmd *cobra.Command, args []string) {
 		setupLoging("relay")
-		relaytest(&config)
+		fmt.Println(relaytest(&config))
 	},
 }
 
@@ -51,17 +52,19 @@ func init() {
 	// relayCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func relaytest(config *netmaker.Config) {
+func relaytest(config *netmaker.Config) bool {
+	pass := true
 	netmaker.SetCxt(config.Api, config.Masterkey)
 	netclient := netmaker.GetNetclient(config.Network)
 	relay := netmaker.GetHost("relay", netclient)
 	if relay == nil {
 		slog.Error("did not find relay netclient", "test", "relay")
-		return
+		return false
 	}
 	relayed := netmaker.GetHost("relayed", netclient)
 	if relayed == nil {
 		slog.Error("did not find relayed netclient", "test", "relay")
+		return false
 	}
 	slog.Info("creating relay")
 	netmaker.CreateRelay(relay, relayed)
@@ -69,48 +72,52 @@ func relaytest(config *netmaker.Config) {
 	egress := netmaker.GetHost("egress", netclient)
 	if egress == nil {
 		slog.Error("did not find egress netclient", "test", "relay")
-		return
+		return false
 	}
 	_, err := ssh.Run([]byte(config.Key), relayed.Host.EndpointIP, "iptables -A OUTPUT -d "+egress.Host.EndpointIP+" -j DROP")
 	if err != nil {
 		slog.Error("failed to set firewall rule on relayed", "test", "relay")
-		return
+		return false
 	}
 	_, err = ssh.Run([]byte(config.Key), egress.Host.EndpointIP, "iptables -A OUTPUT -d "+relayed.Host.EndpointIP+" -j DROP")
 	if err != nil {
 		slog.Error("failed to set firewall rule on relayed", "test", "relay")
-		return
+		return false
 	}
 	defer resetFirewall(relayed, egress)
 	slog.Info("ping egress from relayed")
 	ip, _, err := net.ParseCIDR(egress.Node.Address)
 	if err != nil {
 		slog.Error("failed to parse egress address", egress.Node.Address)
-		return
+		return false
 	}
 	out, err := ssh.Run([]byte(config.Key), relayed.Host.EndpointIP, "ping -c 3 "+ip.String())
 	if err != nil {
 		slog.Error("error connecting to relayed", "test", "relay", "err", err)
+		pass = false
 	} else {
 		if !strings.Contains(out, "3 received") {
 			slog.Error("failed to ping egress from relayed", "test", "relay", "output", out)
+			pass = false
 		}
 	}
 	slog.Info("ping relayed from egress")
 	ip, _, err = net.ParseCIDR(relayed.Node.Address)
 	if err != nil {
 		slog.Error("failed to parse relayed address", "address", relayed.Node.Address, "test", "relay")
-		return
+		return false
 	}
 	out, err = ssh.Run([]byte(config.Key), egress.Host.EndpointIP, "ping -c 3 "+ip.String())
 	if err != nil {
 		slog.Error("error connecting to egress", "test", "relay", "err", err)
+		pass = true
 	} else {
 		if !strings.Contains(out, "3 received") {
 			slog.Error("failed to ping relayed from egress", "test", "relay", "output", out)
-			return
+			pass = true
 		}
 	}
+	return pass
 }
 
 func resetFirewall(relayed, egress *netmaker.Netclient) {
