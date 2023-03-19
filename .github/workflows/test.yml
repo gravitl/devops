@@ -252,7 +252,7 @@ jobs:
           fi
           if [ $finalresult==FAIL ]
           then
-            exit(1)
+            exit 1
           fi
       - name: upload results
         uses: actions/upload-artifact@v3
