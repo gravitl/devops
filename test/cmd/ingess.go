@@ -34,7 +34,7 @@ var ingressCmd = &cobra.Command{
 	verify all nodes received update`,
 	Run: func(cmd *cobra.Command, args []string) {
 		setupLoging("ingress")
-		ingresstest(&config)
+		fmt.Println(ingresstest(&config))
 	},
 }
 
@@ -52,12 +52,13 @@ func init() {
 	// ingessCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func ingresstest(config *netmaker.Config) {
+func ingresstest(config *netmaker.Config) bool {
+	pass := true
 	netclient := netmaker.GetNetclient(config.Network)
 	ingress := netmaker.GetHost("ingress", netclient)
 	if ingress == nil {
 		slog.Error("did not find ingress host/node")
-		return
+		return false
 	}
 	slog.Debug("debuging", "ingess", ingress)
 	//create ingress
@@ -69,12 +70,12 @@ func ingresstest(config *netmaker.Config) {
 	slog.Info("downloading client config")
 	if err := netmaker.DownloadExtClientConfig(*ingress); err != nil {
 		slog.Error("failed to download extclient config", "test", "ingress", "err", err)
-		return
+		return false
 	}
 	slog.Info("copying file to extclient")
 	if err := netmaker.StartExtClient(config); err != nil {
 		slog.Error("failed to start extclient", "test", "ingres", "err", err)
-		return
+		return false
 	}
 	//verify
 	failedmachines := []string{}
@@ -90,11 +91,13 @@ func ingresstest(config *netmaker.Config) {
 		if err != nil {
 			slog.Error("err connecting", "machine", machine.Host.Name, "test", "ingress", "err", err)
 			failedmachines = append(failedmachines, machine.Host.Name)
+			pass = false
 			continue
 		}
 		if !strings.Contains(out, ip) {
 			slog.Error("update not received", "host", machine.Host.Name, "test", "ingress", "output", out)
 			failedmachines = append(failedmachines, machine.Host.Name)
+			pass = false
 			continue
 		}
 	}
@@ -103,7 +106,8 @@ func ingresstest(config *netmaker.Config) {
 		for _, machine := range failedmachines {
 			slog.Error("failures", "machine", machine)
 		}
-		return
+		return false
 	}
 	slog.Info("all nodes received the ingress ips")
+	return pass
 }

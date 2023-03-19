@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gravitl/devops/netmaker"
@@ -31,7 +32,7 @@ var pingCmd = &cobra.Command{
 	Long:  `ping all nodes on network and reports result`,
 	Run: func(cmd *cobra.Command, args []string) {
 		setupLoging("ping")
-		pingtest(&config)
+		fmt.Println(pingtest(&config))
 	},
 }
 
@@ -49,7 +50,7 @@ func init() {
 	// pingCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func pingtest(config *netmaker.Config) {
+func pingtest(config *netmaker.Config) bool {
 	netclient := netmaker.GetNetclient(config.Network)
 	destinations, err := netmaker.GetWireGuardIPs(config.Network)
 	if err != nil {
@@ -77,7 +78,8 @@ func pingtest(config *netmaker.Config) {
 		for k, v := range failures {
 			slog.Error("ping failues", "host", k, "failure", v, "test", "ping")
 		}
-		return
+		return false
 	}
 	slog.Info("all nodes can ping each other")
+	return true
 }

@@ -1,29 +1,194 @@
-name: Run All Tests -- debug
+name: Debugging Workflow
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        required: true
+        description: Digital Ocean tag
+        default: "devops"
+      network:
+        required: true
+        description: network name
+        default: "devops"
+      masterkey:
+        description: masterkey of netmaker server
+        default: "secretkey"
+  schedule:
+    - cron: '00 11 * * *'
 
 
 jobs:
 
-  vars:
+  binary:
+    name: build test binary
     runs-on: ubuntu-latest
     steps:
-      - name: echo
-        run: |
-          echo branch ${{ github.ref_name}}
-          echo KEY ${KEY}
-          echo TOKEN ${TOKEN}
-          echo DO_TOKEN ${DOTOKEN}
-        env:
-          KEY: ${{ secrets.TESTING_SSH_KEY }}
-          TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-          DO_TOKEN: ${{ secrets.DO_TOKEN }}
-      - name: get logs
-        uses: dawidd6/action-download-artifact@v2
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup go
+        uses: actions/setup-go@v3
         with:
-          workflow: test.yml
-          run_id: 4454966058
-      - name: list
+          go-version: 1.19
+      - name: build binary
         run: |
-          ls -R    
+          mkdir bin
+          go build -o bin/test test/main.go
+      - name: save binary
+        uses: actions/cache/save@v3
+        with:
+          path: bin/test
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+
+  clean:
+    needs: [binary]
+    name: remove all gateways
+    outputs:
+      clean: ${{ steps.clean.outputs.clean }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: get binary
+        uses: actions/cache/restore@v3
+        with:
+          path: bin/test
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: run tests
+        id: clean
+        run: |
+          chmod +x bin/test
+          echo "clean=$(bin/test clean)" >> "$GITHUB_OUTPUT"
+          #echo test result is $result
+          #echo "clean=$result" >> $GITHUB_OUTPUT
+        env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          TAG: ${{ github.event.inputs.tag }}
+          NETWORK: ${{ github.event.inputs.network }}
+          MASTERKEY: ${{ github.event.inputs.masterkey }}
+          KEY: ${{ secrets.TESTING_SSH_KEY }}
+      - name: save logs
+        uses: actions/upload-artifact@v3
+        with:
+          name: clean.log
+          path: /tmp/testing-clean.log
+          retention-days: 3
+
+  tests:
+    needs: [binary, clean]
+    name: tests
+    outputs:
+      peers: ${{ steps.test.outputs.peers }}
+      egress: ${{ steps.test.outputs.egress }}
+      ingress: ${{ steps.test.outputs.ingress }}
+      relay: ${{ steps.test.outputs.relay }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: get binary
+        uses: actions/cache/restore@v3
+        with:
+          path: bin/test
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: run tests
+        id: test
+        run: |
+          chmod +x bin/test
+          echo "peers=$(bin/test peerUpdate)" >> "$GITHUB_OUTPUT"
+          echo "ingress=$(bin/test ingress)" >> "$GITHUB_OUTPUT"
+          echo "egress=$(bin/test egress)" >> "$GITHUB_OUTPUT"
+          echo "relay=$(bin/test relay)" >> "$GITHUB_OUTPUT"
+        env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          TAG: ${{ github.event.inputs.tag }}
+          NETWORK: ${{ github.event.inputs.network }}
+          MASTERKEY: ${{ github.event.inputs.masterkey }}
+          KEY: ${{ secrets.TESTING_SSH_KEY }}
+      - name: save logs
+        uses: actions/upload-artifact@v3
+        with:
+          name: tests.log
+          path: /tmp/testing-*.log
+          retention-days: 3
+
+  results:
+    needs: [clean,  tests]
+    name: sumarize results
+    runs-on: ubuntu-latest
+    steps:
+      - name: get logs
+        uses: actions/download-artifact@v3
+        with:
+          path: /tmp
+      - name: generate results
+        env:
+          clean: ${{ needs.clean.outputs.clean }}
+          peers: ${{ needs.tests.outputs.peers }}
+          ingress: ${{ needs.tests.outputs.ingress }}
+          egress: ${{ needs.tests.outputs.egress }}
+          relay: ${{ needs.tests.outputs.relay }}
+        run: |
+          finalresult="PASS"
+          if $clean 
+          then
+            echo clean passed
+            echo "removing gateways: PASSED" >> /tmp/results.log
+          else
+            echo clean failed
+            echo "removing gateways: FAILED" >> /tmp/results.log
+            grep ERROR /tmp/clean.log/testing-clean.log >> /tmp/errors.log
+            finalresult="FAIL"
+          fi
+          if $peer
+          then
+            echo peer passed
+            echo "peer update: PASSED" >> /tmp/results.log
+          else
+            echo peer failed
+            echo "peer update: FAILED" >> /tmp/results.log
+            grep ERROR /tmp/tests.log/testing-peerupdate.log >> /tmp/errors.log
+            finalresult="FAIL"
+          fi
+          if $ingress
+          then
+            echo ingress passed
+            echo "ingress: PASSED" >> /tmp/results.log
+          else
+            echo ingress failed
+            echo "ingress: FAILED" >> /tmp/results.log
+            grep ERROR /tmp/tests.log/testing-ingress.log >> /tmp/errors.log
+            finalresult="FAIL"
+          fi
+          if $egress
+          then
+            echo egress passed
+            echo "egress: PASSED" >> /tmp/results.log
+          else
+            echo egress failed
+            echo "egress: FAILED" >> /tmp/results.log
+            grep ERROR /tmp/tests.log/testing-egress.log >> /tmp/errors.log
+            finalresult="FAIL"
+          fi
+          if $relay
+          then
+            echo relay passed
+            echo "relay: PASSED" >> /tmp/results.log
+          else
+            echo relay failed
+            echo "relay: FAILED" >> /tmp/results.log
+            grep ERROR /tmp/tests.log/testing-relay.log >> /tmp/errors.log
+            finalresult="FAIL"
+          fi
+          echo "finalresult=$finalresult" >> $GITHUB_ENV
+      - name: upload results
+        uses: actions/upload-artifact@v3
+        with:
+          name: results
+          path: |
+            /tmp/results.log
+            /tmp/errors.log
+          retention-days: 3
+      - name: final result
+        run: |
+          if [ "$finalresult" == "FAIL" ]
+          then
+            exit 1
+          fi
+

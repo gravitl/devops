@@ -37,7 +37,7 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		setupLoging("egress")
-		egresstest(&config)
+		fmt.Println(egresstest(&config))
 	},
 }
 
@@ -55,13 +55,14 @@ func init() {
 	// egressCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func egresstest(config *netmaker.Config) {
+func egresstest(config *netmaker.Config) bool {
+	pass := true
 	netmaker.SetCxt(config.Api, config.Masterkey)
 	netclient := netmaker.GetNetclient(config.Network)
 	egress := netmaker.GetHost("egress", netclient)
 	if egress == nil {
 		slog.Error("did not find egress host/node")
-		return
+		return false
 	}
 	slog.Debug("debuging", "egress", egress)
 	//create egress
@@ -80,11 +81,13 @@ func egresstest(config *netmaker.Config) {
 		if err != nil {
 			slog.Error("err connecting to", "host", machine.Host.Name, "test", "egress", "err", err)
 			failedmachines = append(failedmachines, machine.Host.Name)
+			pass = false
 			continue
 		}
 		if !strings.Contains(out, ip) {
 			slog.Error("update not received", "machine", machine.Host.Name, "output", out)
 			failedmachines = append(failedmachines, machine.Host.Name)
+			pass = false
 			continue
 		}
 	}
@@ -93,7 +96,8 @@ func egresstest(config *netmaker.Config) {
 		for _, machine := range failedmachines {
 			slog.Error("Failures", "machine", machine)
 		}
-		return
+		return pass
 	}
 	slog.Info("all nodes received the egress range")
+	return pass
 }

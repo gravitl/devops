@@ -39,7 +39,7 @@ var peerUpdateCmd = &cobra.Command{
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		setupLoging("peerupdate")
-		peerupdatetest(&config)
+		fmt.Println(peerupdatetest(&config))
 	},
 }
 
@@ -57,12 +57,13 @@ func init() {
 	// peerUpdateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func peerupdatetest(config *netmaker.Config) {
+func peerupdatetest(config *netmaker.Config) bool {
+	pass := true
 	if config.Key == "" {
 		key, err := os.ReadFile(os.Getenv("HOME") + "/.ssh/id_ed25519")
 		if err != nil {
 			slog.Error("invalid configuration, ssh key not set", "test", "peerupdate", "err", err)
-			return
+			return false
 		}
 		config.Key = string(key)
 	}
@@ -71,7 +72,7 @@ func peerupdatetest(config *netmaker.Config) {
 	server := netmaker.GetHost("server", netclient)
 	if server == nil {
 		slog.Error("did not find server", "test", "peerupdate")
-		return
+		return false
 	}
 	slog.Info("updating wg ip on server node")
 	taken := make(map[string]bool)
@@ -82,7 +83,7 @@ func peerupdatetest(config *netmaker.Config) {
 
 	newip := getNextIP(server.Node.Address, taken)
 	if newip == "" {
-		return
+		return false
 	}
 	server.Node.Address = newip
 	slog.Info(fmt.Sprintf("updating wg address of %s to %s", server.Host.Name, newip))
@@ -94,7 +95,7 @@ func peerupdatetest(config *netmaker.Config) {
 	ip, _, err := net.ParseCIDR(newip)
 	if err != nil {
 		slog.Error("could not parse newip", "test", "peerupdate", "ip", ip, "err", err)
-		return
+		return false
 	}
 	for _, machine := range netclient {
 		time.Sleep(time.Second)
@@ -109,11 +110,13 @@ func peerupdatetest(config *netmaker.Config) {
 		if err != nil {
 			slog.Error("err connecting", "machine", machine.Host.Name, "test", "peerupdate", "err", err)
 			failedmachines = append(failedmachines, machine.Host.Name)
+			pass = false
 			continue
 		}
 		if !strings.Contains(out, ip.String()) {
 			slog.Error("node did not receive the update", "machine", machine.Host.Name, "test", "peerupdate", "ouput", out)
 			failedmachines = append(failedmachines, machine.Host.Name)
+			pass = false
 			continue
 		}
 	}
@@ -122,9 +125,10 @@ func peerupdatetest(config *netmaker.Config) {
 		for _, machine := range failedmachines {
 			slog.Error(machine, "test", "peerupdate")
 		}
-		return
+		return false
 	}
 	slog.Info("all netclients received the update")
+	return pass
 }
 
 func getNextIP(current string, taken map[string]bool) string {

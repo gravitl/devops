@@ -16,6 +16,8 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/gravitl/devops/netmaker"
 	"github.com/gravitl/devops/ssh"
 	"github.com/spf13/cobra"
@@ -30,7 +32,7 @@ var cleanCmd = &cobra.Command{
 	remove all gateways and removes interface/conf file on extclients`,
 	Run: func(cmd *cobra.Command, args []string) {
 		setupLoging("clean")
-		cleanNetwork(&config)
+		fmt.Println(cleanNetwork(&config))
 	},
 }
 
@@ -48,7 +50,8 @@ func init() {
 	// cleanCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func cleanNetwork(config *netmaker.Config) {
+func cleanNetwork(config *netmaker.Config) bool {
+	pass := true
 	netclient := netmaker.GetNetclient(config.Network)
 	for _, machine := range netclient {
 		if machine.Node.IsEgressGateway {
@@ -68,14 +71,17 @@ func cleanNetwork(config *netmaker.Config) {
 	logger.Info("resteting extclient")
 	if err := netmaker.RestoreExtClient(config); err != nil {
 		slog.Error("restoring extclient", "err", err)
+		pass = false
 	}
 	relayed := netmaker.GetHost("relayed", netclient)
 	if relayed == nil {
 		slog.Error("did not find relayed netclient")
+		pass = false
 	}
 	egress := netmaker.GetHost("egress", netclient)
 	if egress == nil {
 		slog.Error("did not find egress netclient")
+		pass = false
 	}
 	if relayed != nil && egress != nil {
 		slog.Info("reseting firewall on relayed/egress")
@@ -88,4 +94,5 @@ func cleanNetwork(config *netmaker.Config) {
 			slog.Warn("error resetting egress firewall" + err.Error())
 		}
 	}
+	return pass
 }
