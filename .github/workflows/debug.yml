@@ -56,9 +56,9 @@ jobs:
         id: clean
         run: |
           chmod +x bin/test
-          result=$(bin/test clean)
-          echo test result is $result
-          echo "clean=$result" >> $GITHUB_OUTPUT
+          echo "clean=$(bin/test clean)" >> $GITHUB_OUTPUT
+          #echo test result is $result
+          #echo "clean=$result" >> $GITHUB_OUTPUT
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
