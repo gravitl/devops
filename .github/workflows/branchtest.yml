@@ -177,7 +177,7 @@ jobs:
       - name: run tests
         run: |
           chmod +x bin/test
-          echo "ping=$(bin/test ping) >> "$GITHUB_OUTPUT" 
+          echo "ping=$(bin/test ping)" >> "$GITHUB_OUTPUT" 
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}
