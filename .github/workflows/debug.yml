@@ -57,6 +57,7 @@ jobs:
         run: |
           chmod +x bin/test
           clean=$(bin/test clean)
+          echo test result is $clean
           echo "clean=$clean" >> $GITHUB_OUTPUT
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
@@ -94,6 +95,10 @@ jobs:
           egress=$(bin/test egress)
           ingress=$(bin/test ingress)
           relay=$(bin/test relay)
+          echo peer result is $peers
+          echo ingress result is $ingres
+          echo egress result is $egress
+          echo relay result is $relay
           echo "peers=$peers" >> $GITHUB_OUTPUT
           echo "egress=$egress" >> $GITHUB_OUTPUT
           echo "ingress=$ingress" >> $GITHUB_OUTPUT
@@ -181,7 +186,7 @@ jobs:
           retention-days: 3
       - name: final result
         run: |
-          if [ $finalresult==FAIL ]
+          if [ "$finalresult" == "FAIL" ]
           then
             exit 1
           fi
