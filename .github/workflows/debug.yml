@@ -44,7 +44,7 @@ jobs:
     needs: [binary]
     name: remove all gateways
     outputs:
-      clean: ${{ steps.clean.ouputs.clean }}
+      clean: ${{ steps.clean.outputs.clean }}
     runs-on: ubuntu-latest
     steps:
       - name: get binary
@@ -76,10 +76,10 @@ jobs:
     needs: [binary, clean]
     name: tests
     outputs:
-      peers: ${{ github.outputs.test.peers }}
-      egress: ${{ github.output.test.egress }}
-      ingress: ${{ github.output.test.ingress }}
-      relay: ${{ github.output.test.relay }}
+      peers: ${{ steps.test.outputs.peers }}
+      egress: ${{ steps.test.outputs.egress }}
+      ingress: ${{ steps.test.outputs.ingress }}
+      relay: ${{ steps.test.outputs.relay }}
     runs-on: ubuntu-latest
     steps:
       - name: get binary
