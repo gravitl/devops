@@ -1,4 +1,4 @@
-name: Run All Tests
+name: Debugging Workflow
 
 on:
   workflow_dispatch:
@@ -72,7 +72,7 @@ jobs:
           retention-days: 3
 
   tests:
-    needs: [binary, initial-ping, clean]
+    needs: [binary, clean]
     name: tests
     outputs:
       peers: ${{ github.outputs.test.peers }}
