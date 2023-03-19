@@ -2,7 +2,7 @@ name: Discord
 
 on:
   workflow_run:
-    workflows: [Daily Test, Run All Tests, Update Network, Delete Test Network, Build artifacts for deployment testing ]
+    workflows: [Update Network, Delete Test Network, Build artifacts for deployment testing ]
     types:
       - completed
 jobs:
