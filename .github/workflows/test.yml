@@ -250,10 +250,7 @@ jobs:
             grep ERROR /tmp/ping2.log/testing-ping.log >> /tmp/errors.log
             finalresult="FAIL"
           fi
-          if [ $finalresult==FAIL ]
-          then
-            exit 1
-          fi
+          echo "finalresult=$finalresult" >> $GITHUB_ENV
       - name: upload results
         uses: actions/upload-artifact@v3
         with:
@@ -262,4 +259,12 @@ jobs:
             /tmp/results.log
             /tmp/errors.log
           retention-days: 3
+      - name: final result
+        run: |
+          if [ $finalresult==FAIL ]
+          then
+            exit 1
+          fi
+        env:
+          finalresult: ${{GITHUB_ENV.finalresult }}
 
