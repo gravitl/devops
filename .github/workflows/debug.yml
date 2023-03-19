@@ -56,9 +56,9 @@ jobs:
         id: clean
         run: |
           chmod +x bin/test
-          clean=$(bin/test clean)
-          echo test result is $clean
-          echo "clean=$clean" >> $GITHUB_OUTPUT
+          result=$(bin/test clean)
+          echo test result is $result
+          echo "clean=$result" >> $GITHUB_OUTPUT
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -91,18 +91,18 @@ jobs:
         id: test
         run: |
           chmod +x bin/test
-          peers=$(bin/test peerUpdate)
-          egress=$(bin/test egress)
-          ingress=$(bin/test ingress)
-          relay=$(bin/test relay)
-          echo peer result is $peers
-          echo ingress result is $ingres
-          echo egress result is $egress
-          echo relay result is $relay
-          echo "peers=$peers" >> $GITHUB_OUTPUT
-          echo "egress=$egress" >> $GITHUB_OUTPUT
-          echo "ingress=$ingress" >> $GITHUB_OUTPUT
-          echo "relay=$relay" >> $GITHUB_OUTPUT
+          result1=$(bin/test peerUpdate)
+          result2=$(bin/test egress)
+          result3=$(bin/test ingress)
+          result4=$(bin/test relay)
+          echo peer result is $result1
+          echo ingress result is $result3
+          echo egress result is $result2
+          echo relay result is $result4
+          echo "peers=$result1" >> $GITHUB_OUTPUT
+          echo "egress=$result2" >> $GITHUB_OUTPUT
+          echo "ingress=$result3" >> $GITHUB_OUTPUT
+          echo "relay=$result4" >> $GITHUB_OUTPUT
           echo $peers $egress $ingress $relay
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
@@ -137,40 +137,50 @@ jobs:
           finalresult="PASS"
           if $clean 
           then
+            echo clean passed
             echo "removing gateways: PASSED" >> /tmp/results.log
           else
+            echo clean failed
             echo "removing gateways: FAILED" >> /tmp/results.log
             grep ERROR /tmp/clean.log/testing-clean.log >> /tmp/errors.log
             finalresult="FAIL"
           fi
           if $peer
           then
+            echo peer passed
             echo "peer update: PASSED" >> /tmp/results.log
           else
+            echo peer failed
             echo "peer update: FAILED" >> /tmp/results.log
             grep ERROR /tmp/tests.log/testing-peerupdate.log >> /tmp/errors.log
             finalresult="FAIL"
           fi
           if $ingress
           then
+            echo ingress passed
             echo "ingress: PASSED" >> /tmp/results.log
           else
+            echo ingress failed
             echo "ingress: FAILED" >> /tmp/results.log
             grep ERROR /tmp/tests.log/testing-ingress.log >> /tmp/errors.log
             finalresult="FAIL"
           fi
           if $egress
           then
+            echo egress passed
             echo "egress: PASSED" >> /tmp/results.log
           else
+            echo egress failed
             echo "egress: FAILED" >> /tmp/results.log
             grep ERROR /tmp/tests.log/testing-egress.log >> /tmp/errors.log
             finalresult="FAIL"
           fi
           if $relay
           then
+            echo relay passed
             echo "relay: PASSED" >> /tmp/results.log
           else
+            echo relay failed
             echo "relay: FAILED" >> /tmp/results.log
             grep ERROR /tmp/tests.log/testing-relay.log >> /tmp/errors.log
             finalresult="FAIL"
