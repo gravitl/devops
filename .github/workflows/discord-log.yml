@@ -22,7 +22,7 @@ jobs:
           color: "#42f545"
           username: "GitHub Bot"
           message: "Devops: ${{ github.event.workflow_run.name }} was successful"
-          file: ./results.log/results.log
+          file: ./results/results.log
 
 
   on-failure:
@@ -41,6 +41,13 @@ jobs:
           color: "#990000"
           username: "GitHub Bot"
           message: "Devops: ${{ github.event.workflow_run.name }} failed"
-          file: |
-            ./results.log/results.log
-            ./results.log/errors.log
+          file: ./results/results.log
+      - name: discord error message
+        uses: appleboy/discord-action@master
+        with:
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+          color: "#990000"
+          username: "GitHub Bot"
+          message: "Devops: errors from ${{ github.event.workflow_run.name }}"
+          file: ./results/errors.log
