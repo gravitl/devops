@@ -43,6 +43,8 @@ jobs:
   clean:
     needs: [binary]
     name: remove all gateways
+    outputs:
+      clean: ${{ steps.clean.ouputs.clean }}
     runs-on: ubuntu-latest
     steps:
       - name: get binary
@@ -51,9 +53,11 @@ jobs:
           path: bin/test
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - name: run tests
+        id: clean
         run: |
           chmod +x bin/test
-          bin/test clean
+          clean=$(bin/test clean)
+          echo "clean=$clean" >> $GITHUB_OUTPUT
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -70,6 +74,8 @@ jobs:
   initial-ping:
     needs: [binary, clean]
     name: initial ping
+    outputs:
+      ping: ${{ steps.ping.outputs.ping }}
     runs-on: ubuntu-latest
     steps:
       - name: get binary
@@ -78,9 +84,11 @@ jobs:
           path: bin/test
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - name: run tests
+        id: ping
         run: |
           chmod +x bin/test
-          bin/test ping
+          ping=$(bin/test ping)
+          echo "ping=$ping" >> $GITHUB_OUTPUT
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -91,12 +99,17 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ping.log
-          path: /tmp/testing-ping.log
+          path: /tmp/initial-ping.log
           retention-days: 3
 
   tests:
     needs: [binary, initial-ping, clean]
     name: tests
+    outputs:
+      peers: ${{ github.outputs.test.peers }}
+      egress: ${{ github.output.test.egress }}
+      ingress: ${{ github.output.test.ingress }}
+      relay: ${{ github.output.test.relay }}
     runs-on: ubuntu-latest
     steps:
       - name: get binary
@@ -105,12 +118,15 @@ jobs:
           path: bin/test
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - name: run tests
+        id: test
         run: |
           chmod +x bin/test
-          bin/test peerUpdate
-          bin/test egress
-          bin/test ingress
-          bin/test relay
+          peers=$(bin/test peerUpdate)
+          egress=$(bin/test egress)
+          ingress=$(bin/test ingress)
+          relay=$(bin/test relay)
+          echo "peers=$peers" >> $GITHUB_OUTPUT
+          echo "egress=$egress" >> $GITHUB_OUTPUT
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -127,6 +143,8 @@ jobs:
   final-ping:
     needs: [binary, tests]
     name: final ping
+    outputs:
+      ping: ${{ steps.ping.outputs.ping }}
     runs-on: ubuntu-latest
     steps:
       - name: get binary
@@ -135,9 +153,11 @@ jobs:
           path: bin/test
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - name: run tests
+        id: ping
         run: |
           chmod +x bin/test
-          bin/test ping
+          ping=$(bin/test ping)
+          echo "ping=ping" >> $GITHUB_OUTPUT
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -148,5 +168,95 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ping2.log
-          path: /tmp/testing-ping.log
+          path: /tmp/final-ping.log
           retention-days: 3
+
+  results:
+    needs: [clean, initial-ping, tests, final-ping]
+    name: sumarize results
+    runs-on: ubuntu-latest
+    steps:
+      - name: get logs
+        uses: actions/download-artifact@v3
+        with:
+          path: /tmp
+      - name: generate results
+        env:
+          clean: ${{ needs.clean.outputs.clean }}
+          ping1: ${{ needs.initial-ping.outputs.ping }}
+          peers: ${{ needs.tests.ouputs.peers }}
+          ingress: ${{ needs.tests.ouputs.ingress }}
+          egress: ${{ needs.tests.ouputs.egress }}
+          relay: ${{ needs.tests.ouputs.relay }}
+          ping2: ${{ needs.final-ping.outputs.ping }}
+        run: |
+          finalresult="PASS"
+          if $clean 
+          then
+            echo "removing gateways: PASSED" >> /tmp/results.log
+          else
+            echo "removing gateways: FAILED" >> /tmp/results.log
+            grep ERROR /tmp/clean.log/testing-clean.log >> /tmp/errors.log
+            finalresult="FAIL"
+          fi
+          if $ping1
+          then
+            echo "initial ping: PASSED" >> /tmp/results.log
+          else
+            echo "initial ping: FAILED" >> /tmp/results.log
+            grep ERROR /tmp/ping.log/testing-ping.log >> /tmp/errors.log
+            finalresult="FAIL"
+          fi
+          if $peer
+          then
+            echo "peer update: PASSED" >> /tmp/results.log
+          else
+            echo "peer update: FAILED" >> /tmp/results.log
+            grep ERROR /tmp/tests.log/testing-peerupdate.log >> /tmp/errors.log
+            finalresult="FAIL"
+          fi
+          if $ingress
+          then
+            echo "ingress: PASSED" >> /tmp/results.log
+          else
+            echo "ingress: FAILED" >> /tmp/results.log
+            grep ERROR /tmp/tests.log/testing-ingress.log >> /tmp/errors.log
+            finalresult="FAIL"
+          fi
+          if $egress
+          then
+            echo "egress: PASSED" >> /tmp/results.log
+          else
+            echo "egress: FAILED" >> /tmp/results.log
+            grep ERROR /tmp/tests.log/testing-egress.log >> /tmp/errors.log
+            finalresult="FAIL"
+          fi
+          if $relay
+          then
+            echo "relay: PASSED" >> /tmp/results.log
+          else
+            echo "relay: FAILED" >> /tmp/results.log
+            grep ERROR /tmp/tests.log/testing-relay.log >> /tmp/errors.log
+            finalresult="FAIL"
+          fi
+          if $ping2
+          then
+            echo "final ping: PASSED" >> /tmp/results.log
+          else
+            echo "final ping: FAILED" >> /tmp/results.log
+            grep ERROR /tmp/ping2.log/testing-ping.log >> /tmp/errors.log
+            finalresult="FAIL"
+          fi
+          if [ $finalresult==FAIL ]
+          then
+            exit(1)
+          fi
+      - name: upload results
+        uses: actions/upload-artifact@v3
+        with:
+          name: results
+          path: |
+            /tmp/results.log
+            /tmp/errors.log
+          retention-days: 3
+
