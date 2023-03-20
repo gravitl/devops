@@ -44,7 +44,7 @@ accesstoken=$(cat serverinfo.txt | grep accessstring | awk '{print$2;}' | tr -d 
 echo "theaccesstoken is: ${accesstoken}"
 
 # install netclient locally and send the binary to the different clients.
-bash updatenetclient.sh $1 $1
+bash updatenetclient.sh $2 $1
 
 host1key=$(cat ipaddresshost1.txt)
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null netclient/netclient  root@$host1key:~ 

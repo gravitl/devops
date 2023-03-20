@@ -1,29 +1,27 @@
-
-# right now this points to clientQA. needs the droplet id for the egress client to make a snapshot
 resource "digitalocean_droplet_snapshot" "egress_snapshot" {
-  droplet_id = "344553038"
-  name       = "clientQA-1678592527249"
+  droplet_id = "125228358"
+  name = "egresssnapshot${var.clientbranch}"
 }
 
 resource "digitalocean_droplet" "egress" {
   image = digitalocean_droplet_snapshot.egress_snapshot.id
   #image = "lxc-1674164060623"
   name = var.egress
-  size = "s-2vcpu-2gb-intel"
+  size = "s-1vcpu-1gb"
   ipv6 = true
   ssh_keys = [
-    data.digitalocean_ssh_key.terraform.id
+    for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id
   ]
-  tags = [var.egress, var.branch]
+  tags = [var.egress ,var.branch != "develop" ? var.branch : var.clientbranch]  
 
   connection {
-    host        = self.ipv4_address
-    user        = "root"
-    type        = "ssh"
+    host = self.ipv4_address
+    user = "root"
+    type = "ssh"
     private_key = file(var.pvt_key)
-    timeout     = "2m"
+    timeout = "2m"
   }
-
+  
   provisioner "remote-exec" {
     inline = [
       "export PATH=$PATH:/usr/bin",
@@ -39,13 +37,13 @@ resource "digitalocean_droplet" "egress" {
 }
 
 data "digitalocean_droplet" "egressserverip" {
-  name       = var.egress
-  depends_on = [digitalocean_droplet.egress]
+   id = digitalocean_droplet.egress.id
+   depends_on = [digitalocean_droplet.egress]
 }
 
 resource "local_file" "egressipaddresses" {
-  depends_on = [data.digitalocean_droplet.egressserverip]
-  content    = data.digitalocean_droplet.egressserverip.ipv4_address
-  filename   = "ipaddress${var.egress}.txt"
+   depends_on = [data.digitalocean_droplet.egressserverip]
+   content = data.digitalocean_droplet.egressserverip.ipv4_address
+   filename = "ipaddress${var.egress}.txt"
 
 }

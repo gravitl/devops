@@ -7,24 +7,25 @@ resource "digitalocean_tag" "server_tag" {
 # Create the droplet. This will create the droplet and
 # setup netmaker locally on the droplet
 resource "digitalocean_droplet" "terraformnetmakerserver" {
-  image  = "ubuntu-22-10-x64"
-  name   = "server"
+  image = "ubuntu-22-10-x64"
+  name = "server"
   region = "nyc3"
-  size   = "s-2vcpu-2gb-intel"
+  size = "s-2vcpu-2gb-intel"
+  #ssh_keys = concat([
   ssh_keys = [
-    data.digitalocean_ssh_key.terraform.id
-  ]
-  tags = [digitalocean_tag.server_tag.id, var.branch]
-
+    for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id] 
+    #[for v in local.keys : file("/root/.ssh/${v}")]    )
+  tags   = [digitalocean_tag.server_tag.id ,var.clientbranch != "develop" ? var.clientbranch : var.branch]
+  
   #get a connection to the created droplet
   connection {
-    host        = self.ipv4_address
-    user        = "root"
-    type        = "ssh"
+    host = self.ipv4_address
+    user = "root"
+    type = "ssh"
     private_key = file(var.pvt_key)
-    timeout     = "2m"
+    timeout = "2m"
   }
-
+  
   #use remote-exec to install netmaker onto the server
   provisioner "remote-exec" {
     inline = [
@@ -42,9 +43,8 @@ resource "digitalocean_droplet" "terraformnetmakerserver" {
 
 #this will get a reference to the ip of the droplet
 data "digitalocean_droplet" "serverip" {
-
-  name       = "server"
-  depends_on = [digitalocean_droplet.terraformnetmakerserver]
+   id = digitalocean_droplet.terraformnetmakerserver.id
+   depends_on = [digitalocean_droplet.terraformnetmakerserver]
 }
 
 # This null resource will scp the docker-compose over to the terraform server to gather required information
@@ -53,16 +53,16 @@ resource "null_resource" "getdockercompose" {
   depends_on = [data.digitalocean_droplet.serverip, digitalocean_droplet.terraformnetmakerserver]
 
   provisioner "local-exec" {
-    command = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@${data.digitalocean_droplet.serverip.ipv4_address}:/root/docker-compose.yml ."
+     command = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@${digitalocean_droplet.terraformnetmakerserver.ipv4_address}:/root/docker-compose.yml ."
   }
 }
 
 # This null_resource will run a shell script that will extract the information from the docker-compose and populate a txt file
 resource "null_resource" "getserverinfo" {
-
+  
   depends_on = [data.digitalocean_droplet.serverip, digitalocean_droplet.terraformnetmakerserver, null_resource.getdockercompose, local_file.ipaddresses, local_file.extipaddresses, local_file.dockeripaddresses, local_file.egressipaddresses]
   provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command     = "bash getserverinfo.sh ${var.branch}"
+    interpreter = ["/bin/bash" ,"-c"]
+    command = "bash getserverinfo.sh ${var.branch} ${var.clientbranch}"
   }
 }
