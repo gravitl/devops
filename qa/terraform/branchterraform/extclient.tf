@@ -1,21 +1,21 @@
 resource "digitalocean_droplet" "extclient" {
-  image  = "ubuntu-22-10-x64"
-  name   = var.extclient
+  image = "ubuntu-22-10-x64"
+  name = var.extclient
   region = "nyc3"
-  size   = "s-1vcpu-1gb"
-  ipv6   = true
+  size = "s-1vcpu-1gb"
+  ipv6 = true
   ssh_keys = [
-    data.digitalocean_ssh_key.terraform.id
+    for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id
   ]
-  tags = [var.extclient, var.branch]
+  tags = [var.extclient ,var.branch != "develop" ? var.branch : var.clientbranch]  
   connection {
-    host        = self.ipv4_address
-    user        = "root"
-    type        = "ssh"
+    host = self.ipv4_address
+    user = "root"
+    type = "ssh"
     private_key = file(var.pvt_key)
-    timeout     = "2m"
+    timeout = "2m"
   }
-
+  
   provisioner "remote-exec" {
     inline = [
       "export PATH=$PATH:/usr/bin",
@@ -30,13 +30,13 @@ resource "digitalocean_droplet" "extclient" {
 }
 
 data "digitalocean_droplet" "extserverip" {
-  name       = var.extclient
-  depends_on = [digitalocean_droplet.extclient]
+   id = digitalocean_droplet.extclient.id
+   depends_on = [digitalocean_droplet.extclient]
 }
 
 resource "local_file" "extipaddresses" {
-  depends_on = [data.digitalocean_droplet.extserverip]
-  content    = data.digitalocean_droplet.extserverip.ipv4_address
-  filename   = "ipaddress${var.extclient}.txt"
+   depends_on = [data.digitalocean_droplet.extserverip]
+   content = data.digitalocean_droplet.extserverip.ipv4_address
+   filename = "ipaddress${var.extclient}.txt"
 
 }
