@@ -66,7 +66,7 @@ jobs:
         TF_VAR_do_token: "${{ secrets.DO_TOKEN }}"
         TF_VAR_pvt_key: "./ssh/deploy.key"
         TF_VAR_branch: "${{ inputs.netmakerbranch }}"
-        TF_VAR_clientbranch: "${{ inputs.clientbranch }}"
+        TF_VAR_clientbranch: "${{ inputs.netclientbranch }}"
 
 
 
