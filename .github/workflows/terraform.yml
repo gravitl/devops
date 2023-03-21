@@ -32,23 +32,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-    #- name: Setup Terraform
-    #  uses: hashicorp/setup-terraform@v2
-
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    #- name: Terraform Init
-    #  run: |
-    #    cd qa/terraform/branchterraform
-    #    pwd 
-    #    terraform init
-
-    # Checks that all Terraform configuration files adhere to a canonical format
-    #- name: Terraform Format
-    #  run: |
-    #    cd qa/terraform/branchterraform
-    #    terraform fmt -check
-
     #- name: Setup SSH
     #  run: |
     #    mkdir -p ~/.ssh/
@@ -74,10 +57,10 @@ jobs:
       with:
         path: qa/terraform/branchterraform
         variables: |
-          do_token = ${{ secrets.DO_TOKEN }}
-          key = ${{ secrets.TESTING_SSH_KEY }}
-          branch = ${{ inputs.netmakerbranch }}
-          clientbranch = ${{ inputs.clientbranch }}
+          do_token = "${{ secrets.DO_TOKEN }}"
+          key = "${{ secrets.TESTING_SSH_KEY }}"
+          branch = "${{ inputs.netmakerbranch }}"
+          clientbranch = "${{ inputs.clientbranch }}"
         auto_approve: true
    
     
