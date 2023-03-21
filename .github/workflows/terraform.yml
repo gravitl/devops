@@ -32,19 +32,19 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    #- name: Setup SSH
-    #  run: |
-    #    mkdir -p ~/.ssh/
-    #   echo "$SSH_KEY" > ~/.ssh/deploy.key
-    #   chmod 600 ~/.ssh/deploy.key 
-    #   cat >>~/.ssh/config <<END
-    #   Host *
-    #      User root
-    #     IdentityFile ~/.ssh/deploy.key
-    #     StrictHostKeyChecking no
-    #    END
-    #  env:
-    #      SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh/
+       echo "$SSH_KEY" > ~/.ssh/deploy.key
+       chmod 600 ~/.ssh/deploy.key 
+       cat >>~/.ssh/config <<END
+       Host *
+          User root
+         IdentityFile ~/.ssh/deploy.key
+         StrictHostKeyChecking no
+        END
+      env:
+          SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
     # Generates an execution plan for Terraform
     #- name: Terraform Plan
     #  run: |
@@ -58,7 +58,7 @@ jobs:
         path: qa/terraform/branchterraform
         variables: |
           do_token = "${{ secrets.DO_TOKEN }}"
-          key = "${{ secrets.TESTING_SSH_KEY }}"
+          key = "./ssh/deploy.key"
           branch = "${{ inputs.netmakerbranch }}"
           clientbranch = "${{ inputs.clientbranch }}"
         auto_approve: true
