@@ -34,7 +34,7 @@ jobs:
 
     - name: Setup SSH
       run: |
-        mkdir -p ~/.ssh/
+       mkdir -p ~/.ssh/
        echo "$SSH_KEY" > ~/.ssh/deploy.key
        chmod 600 ~/.ssh/deploy.key 
        cat >>~/.ssh/config <<END
