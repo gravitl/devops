@@ -38,6 +38,7 @@ jobs:
     - name: Terraform Init
       run: |
         cd qa/terraform/branchterraform
+        pwd 
         terraform init
 
     # Checks that all Terraform configuration files adhere to a canonical format
@@ -63,11 +64,13 @@ jobs:
     - name: Terraform Plan
       run: |
         cd qa/terraform/branchterraform
+        pwd
         terraform plan -v "do_token=${{ secrets.DO_TOKEN }} -var key=~/.ssh/deploy.key -var branch=${{ inputs.netmakerbranch }} -var clientbranch=${{ inputs.netclientbranch }} "
     
     - name: Terraform Apply
       run: |
         cd qa/terraform/branchterraform
+        pwd
         terraform apply -v -auto-approve "do_token=${{ secrets.DO_TOKEN }} -var key=~/.ssh/deploy.key -var branch=${{ inputs.netmakerbranch }} -var clientbranch=${{ inputs.netclientbranch }} "
    
     
