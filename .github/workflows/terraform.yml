@@ -45,40 +45,33 @@ jobs:
         END
       env:
           SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
-    # Generates an execution plan for Terraform
-    #- name: Terraform Plan
-    #  run: |
-    #    cd qa/terraform/branchterraform
-    #    pwd
-    #    terraform plan -v "do_token=${{ secrets.DO_TOKEN }} -var key=~/.ssh/deploy.key -var branch=${{ inputs.netmakerbranch }} -var clientbranch=${{ inputs.netclientbranch }} "
-    
-    
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+
+    - name: Terraform Init
+      run: |
+        cd qa/terraform/branchterraform
+        terraform init
+
     - name: Terraform Plan
-      uses: dflook/terraform-plan@v1
-      with:
-        path: qa/terraform/branchterraform
-        variables: |
-          do_token = "${{ secrets.DO_TOKEN }}"
-          pvt_key = "./ssh/deploy.key"
-          branch = "${{ inputs.netmakerbranch }}"
-          clientbranch = "${{ inputs.clientbranch }}"
-        label: branch
-        var_file: qa/terraform/branchterraform/terraform.tfvars
-
-   
+      run: |
+        cd qa/terraform/branchterraform
+        terraform plan
+      env:
+        TF_VAR_do_token = "${{ secrets.DO_TOKEN }}"
+        TF_VAR_pvt_key = "./ssh/deploy.key"
+        TF_VAR_branch = "${{ inputs.netmakerbranch }}"
+        TF_VAR_clientbranch = "${{ inputs.clientbranch }}"
     
-
     - name: Terraform Apply
-      uses: dflook/terraform-apply@v1
-      with:
-        path: qa/terraform/branchterraform
-        variables: |
-          do_token = "${{ secrets.DO_TOKEN }}"
-          pvt_key = "./ssh/deploy.key"
-          branch = "${{ inputs.netmakerbranch }}"
-          clientbranch = "${{ inputs.clientbranch }}"
-        auto_approve: true
-        label: branch
-        var_file: qa/terraform/branchterraform/terraform.tfvars
+      run: |
+        cd qa/terraform/branchterraform
+        terraform apply
+      env: 
+        TF_VAR_do_token = "${{ secrets.DO_TOKEN }}"
+        TF_VAR_pvt_key = "./ssh/deploy.key"
+        TF_VAR_branch = "${{ inputs.netmakerbranch }}"
+        TF_VAR_clientbranch = "${{ inputs.clientbranch }}"
    
     
