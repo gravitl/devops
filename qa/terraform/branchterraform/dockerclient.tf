@@ -7,7 +7,7 @@ resource "digitalocean_droplet" "dockerclient" {
   ssh_keys = [
     for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id
   ]
-  tags = [var.clients[count.index] ,var.clientbranch]  
+  tags = [var.clientbranch]  
   connection {
     host = self.ipv4_address
     user = "root"
