@@ -58,7 +58,7 @@ jobs:
         path: qa/terraform/branchterraform
         variables: |
           do_token = "${{ secrets.DO_TOKEN }}"
-          key = "./ssh/deploy.key"
+          pvt_key = "./ssh/deploy.key"
           branch = "${{ inputs.netmakerbranch }}"
           clientbranch = "${{ inputs.clientbranch }}"
         auto_approve: true
