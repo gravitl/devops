@@ -12,4 +12,3 @@ variable "ssh_public_key_path" {
   description = "Local public ssh key"
   default = "/root/.ssh/"
 }
-variable "branch" { default = "develop" }
