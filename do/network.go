@@ -312,9 +312,11 @@ func (request *Request) UpdateNodes(tag, branch string) (bool, []string) {
 		failednodes = append(failednodes, err.Error())
 		return false, failednodes
 	}
+	wg := sync.WaitGroup{}
 	for _, droplet := range droplets {
 		log.Println("updating droplet", droplet.Name)
-		go func(droplet godo.Droplet) {
+		wg.Add(1)
+		go func(wg *sync.WaitGroup, droplet godo.Droplet) {
 			ssh.Server, err = droplet.PublicIPv4()
 			if err != nil {
 				log.Println("unable to get public ip for droplet ", droplet.Name, err)
@@ -329,8 +331,10 @@ func (request *Request) UpdateNodes(tag, branch string) (bool, []string) {
 				failednodes = append(failednodes, droplet.Name)
 			}
 			log.Println("update result: \n", out)
-		}(droplet)
+			wg.Done()
+		}(&wg, droplet)
 	}
+	wg.Wait()
 	return success, failednodes
 }
 
