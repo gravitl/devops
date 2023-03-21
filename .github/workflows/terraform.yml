@@ -59,7 +59,7 @@ jobs:
       run: |
         cd qa/terraform/branchterraform
         terraform init
-        terrafrom validate
+        terraform validate
         terraform plan
         terraform apply
       env:
