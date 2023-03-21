@@ -5,12 +5,6 @@ variable "clients" {
 
 variable "do_token" {}
 variable "pvt_key" {}
-variable "branch" {
-   default = "develop"
-}
-variable "clientbranch" {
-   default = "develop"
-}
 variable "extclient" {}
 variable "docker" {}
 variable "egress" {}

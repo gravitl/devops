@@ -46,6 +46,12 @@ jobs:
       env:
           SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
 
+    - name: Set Branches
+      run: |
+        cd qa/terraform/branchterraform
+        echo variable "branch" { default = "${{ inputs.netmakerbranch }}"} >> variables.tf
+        echo variable "clientbranch" { default = "${{ inputs.netclientranch }}"} >> variables.tf
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
 

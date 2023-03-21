@@ -8,7 +8,7 @@ resource "digitalocean_droplet" "clients" {
   ssh_keys = [
     for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id
   ]
-  tags = [var.clients[count.index] ,var.branch != "develop" ? var.branch : var.clientbranch]  
+  tags = [var.clients[count.index] ,var.clientbranch]  
   connection {
     host = self.ipv4_address
     user = "root"

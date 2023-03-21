@@ -15,7 +15,7 @@ resource "digitalocean_droplet" "terraformnetmakerserver" {
   ssh_keys = [
     for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id] 
     #[for v in local.keys : file("/root/.ssh/${v}")]    )
-  tags   = [digitalocean_tag.server_tag.id ,var.clientbranch != "develop" ? var.clientbranch : var.branch]
+  tags = [var.clients[count.index] ,var.branch]  
   
   #get a connection to the created droplet
   connection {
