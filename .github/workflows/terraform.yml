@@ -52,6 +52,22 @@ jobs:
     #    pwd
     #    terraform plan -v "do_token=${{ secrets.DO_TOKEN }} -var key=~/.ssh/deploy.key -var branch=${{ inputs.netmakerbranch }} -var clientbranch=${{ inputs.netclientbranch }} "
     
+    
+    - name: Terraform Plan
+      uses: dflook/terraform-plan@v1
+      with:
+        path: qa/terraform/branchterraform
+        variables: |
+          do_token = "${{ secrets.DO_TOKEN }}"
+          pvt_key = "./ssh/deploy.key"
+          branch = "${{ inputs.netmakerbranch }}"
+          clientbranch = "${{ inputs.clientbranch }}"
+        label: branch
+        var_file: qa/terraform/branchterraform/terraform.tfvars
+
+   
+    
+
     - name: Terraform Apply
       uses: dflook/terraform-apply@v1
       with:
@@ -62,5 +78,7 @@ jobs:
           branch = "${{ inputs.netmakerbranch }}"
           clientbranch = "${{ inputs.clientbranch }}"
         auto_approve: true
+        label: branch
+        var_file: qa/terraform/branchterraform/terraform.tfvars
    
     
