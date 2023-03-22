@@ -31,7 +31,7 @@ resource "digitalocean_droplet" "terraformnetmakerserver" {
     inline = [
       "export PATH=$PATH:/usr/bin",
       # install netmaker
-      "wget https://raw.githubusercontent.com/gravitl/netmaker/story/GRA-1252/scripts/nm-quick.sh",
+      "wget https://raw.githubusercontent.com/gravitl/netmaker/story/GRA-1431/scripts/nm-quick.sh",
       "apt-get -y update",
       "apt-get -y update",
       "apt install -y docker-compose docker.io",
