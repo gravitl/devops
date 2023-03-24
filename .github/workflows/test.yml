@@ -222,8 +222,9 @@ jobs:
           grep ERROR /tmp/errors.log
           if [ $? -eq 0 ]
           then
-            echo "finalresult=FAIL" 
+            finalresult=FAIL
           fi 
+          echo $finalresult
 
       - name: upload results
         uses: actions/upload-artifact@v3
