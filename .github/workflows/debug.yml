@@ -26,8 +26,7 @@ jobs:
       - name: run tests
         id: clean
         run: |
-          chmod +x bin/test
-          bin/test clean
+          test/test clean
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -51,11 +50,10 @@ jobs:
       - name: run tests
         id: test
         run: |
-          chmod +x bin/test
-          bin/test peerUpdate
-          bin/test ingress
-          bin/test egress
-          bin/test relay
+          test/test peerUpdate
+          test/test ingress
+          test/test egress
+          test/test relay
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
