@@ -14,51 +14,20 @@ on:
       masterkey:
         description: masterkey of netmaker server
         default: "secretkey"
-  schedule:
-    - cron: '00 11 * * *'
-
 
 jobs:
 
-  binary:
-    name: build test binary
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
-      - name: setup go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
-      - name: build binary
-        run: |
-          mkdir bin
-          go build -o bin/test test/main.go
-      - name: save binary
-        uses: actions/cache/save@v3
-        with:
-          path: bin/test
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
   clean:
-    needs: [binary]
     name: remove all gateways
-    outputs:
-      clean: ${{ steps.clean.outputs.clean }}
     runs-on: ubuntu-latest
     steps:
       - name: get binary
-        uses: actions/cache/restore@v3
-        with:
-          path: bin/test
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+        uses: actions/checkout@v3
       - name: run tests
         id: clean
         run: |
           chmod +x bin/test
-          echo "clean=$(bin/test clean)" >> "$GITHUB_OUTPUT"
-          #echo test result is $result
-          #echo "clean=$result" >> $GITHUB_OUTPUT
+          bin/test clean
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -73,28 +42,20 @@ jobs:
           retention-days: 3
 
   tests:
-    needs: [binary, clean]
+    needs: [clean]
     name: tests
-    outputs:
-      peers: ${{ steps.test.outputs.peers }}
-      egress: ${{ steps.test.outputs.egress }}
-      ingress: ${{ steps.test.outputs.ingress }}
-      relay: ${{ steps.test.outputs.relay }}
     runs-on: ubuntu-latest
     steps:
       - name: get binary
-        uses: actions/cache/restore@v3
-        with:
-          path: bin/test
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+        uses: actions/checkout@v3
       - name: run tests
         id: test
         run: |
           chmod +x bin/test
-          echo "peers=$(bin/test peerUpdate)" >> "$GITHUB_OUTPUT"
-          echo "ingress=$(bin/test ingress)" >> "$GITHUB_OUTPUT"
-          echo "egress=$(bin/test egress)" >> "$GITHUB_OUTPUT"
-          echo "relay=$(bin/test relay)" >> "$GITHUB_OUTPUT"
+          bin/test peerUpdate
+          bin/test ingress
+          bin/test egress
+          bin/test relay
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -109,74 +70,20 @@ jobs:
           retention-days: 3
 
   results:
-    needs: [clean,  tests]
+    needs: [clean, tests]
     name: sumarize results
     runs-on: ubuntu-latest
     steps:
+      - name: checkout
+        uses: actions/checkout@v3
       - name: get logs
         uses: actions/download-artifact@v3
         with:
           path: /tmp
       - name: generate results
-        env:
-          clean: ${{ needs.clean.outputs.clean }}
-          peers: ${{ needs.tests.outputs.peers }}
-          ingress: ${{ needs.tests.outputs.ingress }}
-          egress: ${{ needs.tests.outputs.egress }}
-          relay: ${{ needs.tests.outputs.relay }}
         run: |
-          finalresult="PASS"
-          if $clean 
-          then
-            echo clean passed
-            echo "removing gateways: PASSED" >> /tmp/results.log
-          else
-            echo clean failed
-            echo "removing gateways: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/clean.log/testing-clean.log >> /tmp/errors.log
-            finalresult="FAIL"
-          fi
-          if $peer
-          then
-            echo peer passed
-            echo "peer update: PASSED" >> /tmp/results.log
-          else
-            echo peer failed
-            echo "peer update: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/tests.log/testing-peerupdate.log >> /tmp/errors.log
-            finalresult="FAIL"
-          fi
-          if $ingress
-          then
-            echo ingress passed
-            echo "ingress: PASSED" >> /tmp/results.log
-          else
-            echo ingress failed
-            echo "ingress: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/tests.log/testing-ingress.log >> /tmp/errors.log
-            finalresult="FAIL"
-          fi
-          if $egress
-          then
-            echo egress passed
-            echo "egress: PASSED" >> /tmp/results.log
-          else
-            echo egress failed
-            echo "egress: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/tests.log/testing-egress.log >> /tmp/errors.log
-            finalresult="FAIL"
-          fi
-          if $relay
-          then
-            echo relay passed
-            echo "relay: PASSED" >> /tmp/results.log
-          else
-            echo relay failed
-            echo "relay: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/tests.log/testing-relay.log >> /tmp/errors.log
-            finalresult="FAIL"
-          fi
-          echo "finalresult=$finalresult" >> $GITHUB_ENV
+          test/scripts/results.sh
+
       - name: upload results
         uses: actions/upload-artifact@v3
         with:
