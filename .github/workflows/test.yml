@@ -163,120 +163,63 @@ jobs:
           path: /tmp
       - name: generate results
         run: |
-          grep ERROR testing-clean.log >> errors.log
+          grep ERROR /tmp/clean.log/testing-clean.log >> /tmp/errors.log
           if [ $? -eq 0 ]
           then
-              echo "removing gateways: FAILED" >> results.log
+              echo "removing gateways: FAILED" >> /tmp/results.log
           else
-              echo "removing gateways: PASSED" >> results.log
+              echo "removing gateways: PASSED" >> /tmp/results.log
           fi
           
-          grep ERROR testing-ping.log >> errors.log
+          grep ERROR /tmp/ping.log/testing-ping.log >> /tmp/errors.log
           if [ $? -eq 0 ]
           then
-              echo "initial ping: FAILED" >> results.log
+              echo "initial ping: FAILED" >> /tmp/results.log
           else
-              echo "initial ping: PASSED" >> results.log
+              echo "initial ping: PASSED" >> /tmp/results.log
           fi
           
-          grep ERROR testing-peerupdate.log >> errors.log
+          grep ERROR /tmp/tests.log/testing-peerupdate.log >> /tmp/errors.log
           if [ $? -eq 0 ]
           then
-              echo "peerupdate: FAILED" >> results.log
+              echo "peerupdate: FAILED" >> /tmp/results.log
           else
-              echo "peerupdate: PASSED" >> results.log
+              echo "peerupdate: PASSED" >> /tmp/results.log
           fi
           
-          grep ERROR testing-ingress.log >> errors.log
+          grep ERROR /tmp/tests.log/testing-ingress.log >> /tmp/errors.log
           if [ $? -eq 0 ]
           then
-              echo "ingress: FAILED" >> results.log
+              echo "ingress: FAILED" >> /tmp/results.log
           else
-              echo "ingress: PASSED" >> results.log
+              echo "ingress: PASSED" >> /tmp/results.log
           fi
           
-          grep ERROR testing-egress.log >> errors.log
+          grep ERROR /tmp/tests.log/testing-egress.log >> /tmp/errors.log
           if [ $? -eq 0 ]
           then
-              echo "egress: FAILED" >> results.log
+              echo "egress: FAILED" >> /tmp/results.log
           else
-              echo "egress: PASSED" >> results.log
+              echo "egress: PASSED" >> /tmp/results.log
           fi
           
-          grep ERROR testing-relay.log >> errors.log
+          grep ERROR /tmp/tests.log/testing-relay.log >> /tmp/errors.log
           if [ $? -eq 0 ]
           then
-              echo "relay: FAILED" >> results.log
+              echo "relay: FAILED" >> /tmp/results.log
           else
-              echo "relay: PASSED" >> results.log
+              echo "relay: PASSED" >> /tmp/results.log
           fi
           
-          grep ERROR testing-ping.log >> errors2.log
+          grep ERROR /tmp/tests.log/testing-ping.log >> /tmp/errors.log
           if [ $? -eq 0 ]
           then
-              echo "final ping: FAILED" >> results.log
+              echo "final ping: FAILED" >> /tmp/results.log
           else
-              echo "final ping: PASSED" >> results.log
+              echo "final ping: PASSED" >> /tmp/results.log
           fi
           
-          grep ERROR errors.log
-          if [ $? -eq 0grep ERROR testing-clean.log >> errors.log
-          if [ $? -eq 0 ]
-          then
-              echo "removing gateways: FAILED" >> results.log
-          else
-              echo "removing gateways: PASSED" >> results.log
-          fi
-          
-          grep ERROR testing-ping.log >> errors.log
-          if [ $? -eq 0 ]
-          then
-              echo "initial ping: FAILED" >> results.log
-          else
-              echo "initial ping: PASSED" >> results.log
-          fi
-          
-          grep ERROR testing-peerupdate.log >> errors.log
-          if [ $? -eq 0 ]
-          then
-              echo "peerupdate: FAILED" >> results.log
-          else
-              echo "peerupdate: PASSED" >> results.log
-          fi
-          
-          grep ERROR testing-ingress.log >> errors.log
-          if [ $? -eq 0 ]
-          then
-              echo "ingress: FAILED" >> results.log
-          else
-              echo "ingress: PASSED" >> results.log
-          fi
-          
-          grep ERROR testing-egress.log >> errors.log
-          if [ $? -eq 0 ]
-          then
-              echo "egress: FAILED" >> results.log
-          else
-              echo "egress: PASSED" >> results.log
-          fi
-          
-          grep ERROR testing-relay.log >> errors.log
-          if [ $? -eq 0 ]
-          then
-              echo "relay: FAILED" >> results.log
-          else
-              echo "relay: PASSED" >> results.log
-          fi
-          
-          grep ERROR testing-ping.log >> errors2.log
-          if [ $? -eq 0 ]
-          then
-              echo "final ping: FAILED" >> results.log
-          else
-              echo "final ping: PASSED" >> results.log
-          fi
-          
-          grep ERROR errors.log
+          grep ERROR /tmp/errors.log
           if [ $? -eq 0 ]
           then
             echo "finalresult=FAIL" 
