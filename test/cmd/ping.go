@@ -63,7 +63,7 @@ func pingtest(config *netmaker.Config) bool {
 		for _, destination := range destinations {
 			out, err := ssh.Run([]byte(config.Key), source, "ping -c 3 "+destination.String())
 			if err != nil {
-				slog.Error("error connecting to host", "host", hosts.Host.Name, "test", "ping", "err", err)
+				slog.Error("error connecting to host", "host", hosts.Host.Name, "ip", source, "test", "ping", "err", err)
 				failures[hosts.Host.Name] = "unable to connect"
 				break
 			}
