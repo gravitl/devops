@@ -1,24 +1,24 @@
 resource "digitalocean_droplet_snapshot" "egress_snapshot" {
-  droplet_id = "125228358"
+  droplet_id = "347216123"
   name = "egresssnapshot${var.clientbranch}"
 }
 
 resource "digitalocean_droplet" "egress" {
   image = digitalocean_droplet_snapshot.egress_snapshot.id
-  #image = "lxc-1674164060623"
   name = var.egress
-  size = "s-1vcpu-1gb"
+  size = "s-2vcpu-2gb"
   ipv6 = true
   ssh_keys = [
     for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id
   ]
-  tags = [var.clientbranch]  
+  tags = [var.egress, var.branch]
+  # ,var.branch != "develop" ? var.branch : var.clientbranch]  
 
   connection {
     host = self.ipv4_address
     user = "root"
     type = "ssh"
-    private_key = var.pvt_key
+    private_key = file(var.pvt_key)
     timeout = "2m"
   }
   
