@@ -197,6 +197,8 @@ jobs:
     name: sumarize results
     runs-on: ubuntu-latest
     steps:
+      - name: checkout
+        uses: actions/checkout@v3
       - name: get logs
         uses: actions/download-artifact@v3
         with:
@@ -211,64 +213,7 @@ jobs:
           relay: ${{ needs.tests.outputs.relay }}
           ping2: ${{ needs.final-ping.outputs.ping }}
         run: |
-          finalresult="PASS"
-          if $clean 
-          then
-            echo "removing gateways: PASSED" >> /tmp/results.log
-          else
-            echo "removing gateways: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/clean.log/testing-clean.log >> /tmp/errors.log
-            finalresult="FAIL"
-          fi
-          if $ping1
-          then
-            echo "initial ping: PASSED" >> /tmp/results.log
-          else
-            echo "initial ping: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/ping.log/testing-ping.log >> /tmp/errors.log
-            finalresult="FAIL"
-          fi
-          if $peer
-          then
-            echo "peer update: PASSED" >> /tmp/results.log
-          else
-            echo "peer update: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/tests.log/testing-peerupdate.log >> /tmp/errors.log
-            finalresult="FAIL"
-          fi
-          if $ingress
-          then
-            echo "ingress: PASSED" >> /tmp/results.log
-          else
-            echo "ingress: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/tests.log/testing-ingress.log >> /tmp/errors.log
-            finalresult="FAIL"
-          fi
-          if $egress
-          then
-            echo "egress: PASSED" >> /tmp/results.log
-          else
-            echo "egress: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/tests.log/testing-egress.log >> /tmp/errors.log
-            finalresult="FAIL"
-          fi
-          if $relay
-          then
-            echo "relay: PASSED" >> /tmp/results.log
-          else
-            echo "relay: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/tests.log/testing-relay.log >> /tmp/errors.log
-            finalresult="FAIL"
-          fi
-          if $ping2
-          then
-            echo "final ping: PASSED" >> /tmp/results.log
-          else
-            echo "final ping: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/ping2.log/testing-ping.log >> /tmp/errors.log
-            finalresult="FAIL"
-          fi
-          echo "finalresult=$finalresult" >> $GITHUB_ENV
+          test/scripts/results.sh
       - name: upload results
         uses: actions/upload-artifact@v3
         with:
@@ -279,8 +224,5 @@ jobs:
           retention-days: 3
       - name: final result
         run: |
-          if [ "$finalresult" == "FAIL" ]
-          then
-            exit 1
-          fi
+          grep -v ERROR /tmp/errors.log
 
