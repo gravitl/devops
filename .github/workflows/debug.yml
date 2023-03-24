@@ -83,7 +83,7 @@ jobs:
           test/scripts/results.sh
           if [ $? eq  1 ]
           then
-            echo "finalresult=FAIL" >> GITHUB_OUTPUT
+            echo "finalresult=FAIL" >> GITHUB_ENV
           fi
 
       - name: upload results
