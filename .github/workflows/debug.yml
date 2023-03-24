@@ -81,11 +81,6 @@ jobs:
       - name: generate results
         run: |
           test/scripts/results.sh
-          if [ $? eq  1 ]
-          then
-            echo "finalresult=FAIL" >> GITHUB_ENV
-          fi
-
       - name: upload results
         uses: actions/upload-artifact@v3
         with:
@@ -96,8 +91,8 @@ jobs:
           retention-days: 3
       - name: final result
         run: |
-          echo final result is $finalresult
-          if [ "$finalresult" == "FAIL" ]
+          grep ERROR /tmp/errors.log
+          if [ $? -eq 0 ]
           then
             exit 1
           fi

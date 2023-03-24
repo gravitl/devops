@@ -48,7 +48,7 @@ else
     echo "relay: PASSED" >> /tmp/results.log
 fi
 
-grep ERROR /tmp/tests.log/testing-ping.log >> /tmp/errors.log
+grep ERROR /tmp/ping2.log/testing-ping.log >> /tmp/errors.log
 if [ $? -eq 0 ]
 then
     echo "final ping: FAILED" >> /tmp/results.log
@@ -56,8 +56,3 @@ else
     echo "final ping: PASSED" >> /tmp/results.log
 fi
 
-grep ERROR /tmp/errors.log
-if [ $? -eq 0 ]
-then
-  exit 1 
-fi 
