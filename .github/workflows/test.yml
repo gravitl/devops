@@ -40,8 +40,6 @@ jobs:
   clean:
     needs: [binary]
     name: remove all gateways
-    outputs:
-      clean: ${{ steps.clean.outputs.clean }}
     runs-on: ubuntu-latest
     steps:
       - name: get binary
@@ -53,7 +51,7 @@ jobs:
         id: clean
         run: |
           chmod +x bin/test
-          echo "clean=$(bin/test clean)" >> "$GITHUB_OUTPUT"
+          bin/test clean
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -70,8 +68,6 @@ jobs:
   initial-ping:
     needs: [binary, clean]
     name: initial ping
-    outputs:
-      ping: ${{ steps.ping.outputs.ping }}
     runs-on: ubuntu-latest
     steps:
       - name: get binary
@@ -83,8 +79,7 @@ jobs:
         id: ping
         run: |
           chmod +x bin/test
-          ping=$(bin/test ping)
-          echo "ping=$ping" >> $GITHUB_OUTPUT
+          bin/test ping
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -101,11 +96,6 @@ jobs:
   tests:
     needs: [binary, initial-ping, clean]
     name: tests
-    outputs:
-      peers: ${{ steps.test.outputs.peers }}
-      egress: ${{ steps.test.outputs.egress }}
-      ingress: ${{ steps.test.outputs.ingress }}
-      relay: ${{ steps.test.outputs.relay }}
     runs-on: ubuntu-latest
     steps:
       - name: get binary
@@ -117,10 +107,10 @@ jobs:
         id: test
         run: |
           chmod +x bin/test
-          echo "peers=$(bin/test peerUpdate)" >> "$GITHUB_OUTPUT"
-          echo "ingress=$(bin/test ingress)" >> "$GITHUB_OUTPUT"
-          echo "egress=$(bin/test egress)" >> "$GITHUB_OUTPUT"
-          echo "relay=$(bin/test relay)" >> "$GITHUB_OUTPUT"
+          bin/test peerUpdate
+          bin/test ingress
+          bin/test egress
+          bin/test relay
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -137,8 +127,6 @@ jobs:
   final-ping:
     needs: [binary, tests]
     name: final ping
-    outputs:
-      ping: ${{ steps.ping.outputs.ping }}
     runs-on: ubuntu-latest
     steps:
       - name: get binary
@@ -150,8 +138,7 @@ jobs:
         id: ping
         run: |
           chmod +x bin/test
-          ping=$(bin/test ping)
-          echo "ping=$ping" >> $GITHUB_OUTPUT
+          bin/test ping
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -175,73 +162,126 @@ jobs:
         with:
           path: /tmp
       - name: generate results
-        env:
-          clean: ${{ needs.clean.outputs.clean }}
-          ping1: ${{ needs.initial-ping.outputs.ping }}
-          peers: ${{ needs.tests.outputs.peers }}
-          ingress: ${{ needs.tests.outputs.ingress }}
-          egress: ${{ needs.tests.outputs.egress }}
-          relay: ${{ needs.tests.outputs.relay }}
-          ping2: ${{ needs.final-ping.outputs.ping }}
         run: |
-          finalresult="PASS"
-          if $clean 
+          grep ERROR testing-clean.log >> errors.log
+          if [ $? -eq 0 ]
           then
-            echo "removing gateways: PASSED" >> /tmp/results.log
+              echo "removing gateways: FAILED" >> results.log
           else
-            echo "removing gateways: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/clean.log/testing-clean.log >> /tmp/errors.log
-            finalresult="FAIL"
+              echo "removing gateways: PASSED" >> results.log
           fi
-          if $ping1
+          
+          grep ERROR testing-ping.log >> errors.log
+          if [ $? -eq 0 ]
           then
-            echo "initial ping: PASSED" >> /tmp/results.log
+              echo "initial ping: FAILED" >> results.log
           else
-            echo "initial ping: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/ping.log/testing-ping.log >> /tmp/errors.log
-            finalresult="FAIL"
+              echo "initial ping: PASSED" >> results.log
           fi
-          if $peer
+          
+          grep ERROR testing-peerupdate.log >> errors.log
+          if [ $? -eq 0 ]
           then
-            echo "peer update: PASSED" >> /tmp/results.log
+              echo "peerupdate: FAILED" >> results.log
           else
-            echo "peer update: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/tests.log/testing-peerupdate.log >> /tmp/errors.log
-            finalresult="FAIL"
+              echo "peerupdate: PASSED" >> results.log
           fi
-          if $ingress
+          
+          grep ERROR testing-ingress.log >> errors.log
+          if [ $? -eq 0 ]
           then
-            echo "ingress: PASSED" >> /tmp/results.log
+              echo "ingress: FAILED" >> results.log
           else
-            echo "ingress: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/tests.log/testing-ingress.log >> /tmp/errors.log
-            finalresult="FAIL"
+              echo "ingress: PASSED" >> results.log
           fi
-          if $egress
+          
+          grep ERROR testing-egress.log >> errors.log
+          if [ $? -eq 0 ]
           then
-            echo "egress: PASSED" >> /tmp/results.log
+              echo "egress: FAILED" >> results.log
           else
-            echo "egress: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/tests.log/testing-egress.log >> /tmp/errors.log
-            finalresult="FAIL"
+              echo "egress: PASSED" >> results.log
           fi
-          if $relay
+          
+          grep ERROR testing-relay.log >> errors.log
+          if [ $? -eq 0 ]
           then
-            echo "relay: PASSED" >> /tmp/results.log
+              echo "relay: FAILED" >> results.log
           else
-            echo "relay: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/tests.log/testing-relay.log >> /tmp/errors.log
-            finalresult="FAIL"
+              echo "relay: PASSED" >> results.log
           fi
-          if $ping2
+          
+          grep ERROR testing-ping.log >> errors2.log
+          if [ $? -eq 0 ]
           then
-            echo "final ping: PASSED" >> /tmp/results.log
+              echo "final ping: FAILED" >> results.log
           else
-            echo "final ping: FAILED" >> /tmp/results.log
-            grep ERROR /tmp/ping2.log/testing-ping.log >> /tmp/errors.log
-            finalresult="FAIL"
+              echo "final ping: PASSED" >> results.log
           fi
-          echo "finalresult=$finalresult" >> $GITHUB_ENV
+          
+          grep ERROR errors.log
+          if [ $? -eq 0grep ERROR testing-clean.log >> errors.log
+          if [ $? -eq 0 ]
+          then
+              echo "removing gateways: FAILED" >> results.log
+          else
+              echo "removing gateways: PASSED" >> results.log
+          fi
+          
+          grep ERROR testing-ping.log >> errors.log
+          if [ $? -eq 0 ]
+          then
+              echo "initial ping: FAILED" >> results.log
+          else
+              echo "initial ping: PASSED" >> results.log
+          fi
+          
+          grep ERROR testing-peerupdate.log >> errors.log
+          if [ $? -eq 0 ]
+          then
+              echo "peerupdate: FAILED" >> results.log
+          else
+              echo "peerupdate: PASSED" >> results.log
+          fi
+          
+          grep ERROR testing-ingress.log >> errors.log
+          if [ $? -eq 0 ]
+          then
+              echo "ingress: FAILED" >> results.log
+          else
+              echo "ingress: PASSED" >> results.log
+          fi
+          
+          grep ERROR testing-egress.log >> errors.log
+          if [ $? -eq 0 ]
+          then
+              echo "egress: FAILED" >> results.log
+          else
+              echo "egress: PASSED" >> results.log
+          fi
+          
+          grep ERROR testing-relay.log >> errors.log
+          if [ $? -eq 0 ]
+          then
+              echo "relay: FAILED" >> results.log
+          else
+              echo "relay: PASSED" >> results.log
+          fi
+          
+          grep ERROR testing-ping.log >> errors2.log
+          if [ $? -eq 0 ]
+          then
+              echo "final ping: FAILED" >> results.log
+          else
+              echo "final ping: PASSED" >> results.log
+          fi
+          
+          grep ERROR errors.log
+          if [ $? -eq 0 ]
+          then
+            echo "finalresult=FAIL" 
+          fi 
+
       - name: upload results
         uses: actions/upload-artifact@v3
         with:
