@@ -81,6 +81,10 @@ jobs:
       - name: generate results
         run: |
           test/scripts/results.sh
+          if [ $? eq  1 ]
+          then
+            echo "finalresult=FAIL" >> GITHUB_OUTPUT
+          fi
 
       - name: upload results
         uses: actions/upload-artifact@v3

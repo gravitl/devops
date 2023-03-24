@@ -59,5 +59,5 @@ fi
 grep ERROR /tmp/errors.log
 if [ $? -eq 0 ]
 then
-  echo "finalresult=FAIL" 
+  exit 1 
 fi 
