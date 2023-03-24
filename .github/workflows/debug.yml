@@ -92,6 +92,7 @@ jobs:
           retention-days: 3
       - name: final result
         run: |
+          echo final result is $finalresult
           if [ "$finalresult" == "FAIL" ]
           then
             exit 1
