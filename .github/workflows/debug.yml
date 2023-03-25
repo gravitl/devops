@@ -36,8 +36,8 @@ jobs:
       - name: save logs
         uses: actions/upload-artifact@v3
         with:
-          name: clean.log
-          path: /tmp/testing-clean.log
+          name: clean
+          path: /tmp/clean.log
           retention-days: 3
 
   tests:
@@ -63,8 +63,8 @@ jobs:
       - name: save logs
         uses: actions/upload-artifact@v3
         with:
-          name: tests.log
-          path: /tmp/testing-*.log
+          name: tests
+          path: /tmp/*.log
           retention-days: 3
 
   results:
