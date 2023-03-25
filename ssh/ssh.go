@@ -1,7 +1,6 @@
 package ssh
 
 import (
-	"bytes"
 	"fmt"
 	"time"
 
@@ -44,12 +43,11 @@ func Run(key []byte, host, cmd string) (string, error) {
 		return "", fmt.Errorf("error creating session %w", err)
 	}
 	defer session.Close()
-	var b bytes.Buffer
-	session.Stdout = &b
-	if err := session.Run(cmd); err != nil {
+	b, err := session.CombinedOutput(cmd)
+	if err != nil {
 		return "", fmt.Errorf("error running commmand %s %w", cmd, err)
 	}
-	return b.String(), nil
+	return string(b), nil
 }
 
 func CopyTo(key []byte, host, source, dest string) error {
