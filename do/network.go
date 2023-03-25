@@ -325,7 +325,7 @@ func (request *Request) UpdateNodes(tag, branch string) (bool, []string) {
 			}
 			log.Println("updating netclient on ", droplet.Name)
 			//ensure journalctl is working
-			out, err := ssh.Run("apt-get update; apt-get upgrade -y")
+			out, err := ssh.Run("apt-get update; apt-get upgrade -y; systemctl restart netclient")
 			if err != nil {
 				log.Println("update failed on ", droplet.Name, err)
 				failednodes = append(failednodes, droplet.Name)
