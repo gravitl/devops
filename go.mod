@@ -9,6 +9,7 @@ require (
 	github.com/gravitl/netmaker v0.18.3
 	github.com/guumaster/hostctl v1.1.3
 	github.com/kr/pretty v0.3.1
+	github.com/matryer/is v1.4.1
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.15.0
 	github.com/tmc/scp v0.0.0-20170824174625-f7b48647feef

@@ -52,6 +52,8 @@ func init() {
 
 func cleanNetwork(config *netmaker.Config) bool {
 	pass := true
+	slog.Info("resetting proxy enabled to false")
+	netmaker.ResetProxy()
 	netclient := netmaker.GetNetclient(config.Network)
 	for _, machine := range netclient {
 		if machine.Node.IsEgressGateway {
@@ -59,16 +61,15 @@ func cleanNetwork(config *netmaker.Config) bool {
 			netmaker.DeleteEgress(machine.Node.ID, machine.Node.Network)
 		}
 		if machine.Node.IsIngressGateway {
-			slog.Info("deleting ingress", machine.Host.Name)
+			slog.Info("deleting ingress", "host", machine.Host.Name)
 			netmaker.DeleteIngress(machine.Node.ID, machine.Node.Network)
 		}
 		if machine.Host.IsRelay {
-			slog.Info("deleting relay", machine.Host.Name)
+			slog.Info("deleting relay", "host", machine.Host.Name)
 			netmaker.DeleteRelay(machine.Host.ID)
 		}
 	}
 	slog.Info("reseting extclient")
-	logger.Info("resteting extclient")
 	if err := netmaker.RestoreExtClient(config); err != nil {
 		slog.Error("restoring extclient", "err", err)
 		pass = false

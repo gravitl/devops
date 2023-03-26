@@ -7,4 +7,3 @@ output
 bin/*
 src/experiment/*
 .vscode
-test/test

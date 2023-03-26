@@ -1,8 +1,8 @@
 package ssh
 
 import (
-	"bytes"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/tmc/scp"
@@ -44,12 +44,14 @@ func Run(key []byte, host, cmd string) (string, error) {
 		return "", fmt.Errorf("error creating session %w", err)
 	}
 	defer session.Close()
-	var b bytes.Buffer
-	session.Stdout = &b
-	if err := session.Run(cmd); err != nil {
+	b, err := session.CombinedOutput(cmd)
+	if err != nil {
+		if strings.Contains(err.Error(), "Process exited") {
+			return "", nil
+		}
 		return "", fmt.Errorf("error running commmand %s %w", cmd, err)
 	}
-	return b.String(), nil
+	return string(b), nil
 }
 
 func CopyTo(key []byte, host, source, dest string) error {

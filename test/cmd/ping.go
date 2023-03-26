@@ -17,7 +17,9 @@ package cmd
 
 import (
 	"fmt"
+	"net"
 	"strings"
+	"sync"
 
 	"github.com/gravitl/devops/netmaker"
 	"github.com/gravitl/devops/ssh"
@@ -52,34 +54,67 @@ func init() {
 
 func pingtest(config *netmaker.Config) bool {
 	netclient := netmaker.GetNetclient(config.Network)
+	hostmap := getMap(netclient)
 	destinations, err := netmaker.GetWireGuardIPs(config.Network)
 	if err != nil {
 		slog.Error("unable to get wireguard IP for network", "network", config.Network, "test", "ping", "err", err)
 	}
 	failures := make(map[string]string)
+	results := make(map[string]map[string]bool)
+	wg := sync.WaitGroup{}
 	for _, hosts := range netclient {
-		source := hosts.Host.EndpointIP
-		slog.Info("ping from", "host", hosts.Host.Name, "ip", source)
-		for _, destination := range destinations {
-			out, err := ssh.Run([]byte(config.Key), source, "ping -c 3 "+destination.String())
-			if err != nil {
-				slog.Error("error connecting to host", "host", hosts.Host.Name, "test", "ping", "err", err)
-				failures[hosts.Host.Name] = "unable to connect"
-				break
+		hosts := hosts
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			source := hosts.Host.EndpointIP
+			slog.Info("ping from", "host", hosts.Host.Name, "ip", source)
+			results[hosts.Host.Name] = make(map[string]bool)
+			for _, destination := range destinations {
+				if hostmap[destination.String()] == hosts.Host.Name {
+					//skip self
+					continue
+				}
+				out, err := ssh.Run([]byte(config.Key), source, "ping -c 3 "+destination.String())
+				if err != nil {
+					slog.Error("error connecting to host", "host", hosts.Host.Name, "ip", source, "test", "ping", "err", err)
+					failures[hosts.Host.Name] = "unable to connect"
+					break
+				}
+				if !strings.Contains(out, "3 received") {
+					slog.Error("failed to ping", "host", hosts.Host.Name, "destination", destination, "output", out)
+					failures[hosts.Host.Name] = failures[hosts.Host.Name] + " " + hostmap[destination.String()]
+					results[hosts.Host.Name][hostmap[destination.String()]] = false
+					continue
+				}
+				results[hosts.Host.Name][hostmap[destination.String()]] = true
 			}
-			if !strings.Contains(out, "3 received") {
-				slog.Error("failed to ping", "destination", destination, "output", out)
-				failures[hosts.Host.Name] = failures[hosts.Host.Name] + " " + destination.String()
-				continue
-			}
-		}
+		}()
 	}
+	wg.Wait()
 	if len(failures) > 0 {
 		for k, v := range failures {
-			slog.Error("ping failues", "host", k, "failure", v, "test", "ping")
+			slog.Error("ping failues", "host", k, "failure", v)
 		}
 		return false
 	}
 	slog.Info("all nodes can ping each other")
 	return true
+}
+
+func getMap(netclient []netmaker.Netclient) map[string]string {
+	hosts := make(map[string]string)
+	for _, client := range netclient {
+		ip, _, err := net.ParseCIDR(client.Node.Address)
+		if err != nil {
+			continue
+		}
+		hosts[ip.String()] = client.Host.Name
+		ip, _, err = net.ParseCIDR(client.Node.Address6)
+		if err != nil {
+			continue
+		}
+		hosts[ip.String()] = client.Host.Name + "6"
+	}
+	return hosts
 }
