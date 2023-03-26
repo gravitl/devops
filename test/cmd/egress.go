@@ -80,7 +80,7 @@ func egresstest(config *netmaker.Config) bool {
 		}
 
 		slog.Info(fmt.Sprintf("checking that %s @ %s received the update", machine.Host.Name, machine.Host.EndpointIP))
-		out, err := ssh.Run([]byte(config.Key), machine.Host.EndpointIP, "wg show netmaker allowed-ips | grep "+ip)
+		out, err := ssh.Run([]byte(config.Key), machine.Host.EndpointIP, "wg show netmaker allowed-ips")
 		if err != nil {
 			slog.Error("err connecting to", "host", machine.Host.Name, "err", err)
 			failedmachines = append(failedmachines, machine.Host.Name)

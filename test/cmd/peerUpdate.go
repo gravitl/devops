@@ -111,9 +111,9 @@ func peerupdatetest(config *netmaker.Config) bool {
 			continue
 		}
 		slog.Info(fmt.Sprintf("checking that %s @ %s received the update", machine.Host.Name, machine.Host.EndpointIP))
-		out, err := ssh.Run([]byte(config.Key), machine.Host.EndpointIP, "wg show netmaker allowed-ips | grep "+ip.String())
+		out, err := ssh.Run([]byte(config.Key), machine.Host.EndpointIP, "wg show netmaker allowed-ips")
 		if err != nil {
-			slog.Error("ssh connect err", "machine", machine.Host.Name, "cmd", "ssh "+machine.Host.EndpointIP+" wg show netmaker allowed-ips | grep "+ip.String(), "err", err)
+			slog.Error("ssh connect err", "machine", machine.Host.Name, "cmd", "ssh "+machine.Host.EndpointIP+" wg show netmaker allowed-ips ", "err", err)
 			failedmachines = append(failedmachines, machine.Host.Name)
 			pass = false
 			continue
