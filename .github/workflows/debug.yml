@@ -91,5 +91,9 @@ jobs:
           retention-days: 3
       - name: final result
         run: |
-          grep -v ERROR /tmp/errors.log
+          if [ -s /tmp/errors.log ] then
+            exit 0
+          else
+            exit 1
+          fi
 
