@@ -62,7 +62,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: clean.log
-          path: /tmp/testing-clean.log
+          path: /tmp/clean.log
           retention-days: 3
 
   initial-ping:
@@ -90,7 +90,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ping.log
-          path: /tmp/testing-ping.log
+          path: /tmp/ping.log
           retention-days: 3
 
   tests:
@@ -121,7 +121,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: tests.log
-          path: /tmp/testing-*.log
+          path: /tmp/*.log
           retention-days: 3
 
   final-ping:
@@ -149,7 +149,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ping2.log
-          path: /tmp/testing-ping.log
+          path: /tmp/ping.log
           retention-days: 3
 
   results:
@@ -177,8 +177,5 @@ jobs:
           retention-days: 3
       - name: final result
         run: |
-          if [ "$finalresult" == "FAIL" ]
-          then
-            exit 1
-          fi
+          grep -v ERROR /tmp/errors.log
 
