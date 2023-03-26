@@ -177,13 +177,10 @@ jobs:
           retention-days: 3
       - name: final result
         run: |
-<<<<<<< HEAD
           if [ -s /tmp/errors.log ] then
             exit 0
           else
             exit 1
           fi
-=======
-          grep -v ERROR /tmp/errors.log
->>>>>>> master
+
 
