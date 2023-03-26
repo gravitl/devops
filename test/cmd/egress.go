@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gravitl/devops/netmaker"
 	"github.com/gravitl/devops/ssh"
@@ -71,6 +72,8 @@ func egresstest(config *netmaker.Config) bool {
 	//verify
 	failedmachines := []string{}
 	ip := config.Ranges[0]
+	// wait for update to be propogated
+	time.Sleep(time.Second * 30)
 	for _, machine := range netclient {
 		if machine.Host.Name == "egress" {
 			continue
@@ -79,7 +82,7 @@ func egresstest(config *netmaker.Config) bool {
 		slog.Info(fmt.Sprintf("checking that %s @ %s received the update", machine.Host.Name, machine.Host.EndpointIP))
 		out, err := ssh.Run([]byte(config.Key), machine.Host.EndpointIP, "wg show netmaker allowed-ips | grep "+ip)
 		if err != nil {
-			slog.Error("err connecting to", "host", machine.Host.Name, "test", "egress", "err", err)
+			slog.Error("err connecting to", "host", machine.Host.Name, "err", err)
 			failedmachines = append(failedmachines, machine.Host.Name)
 			pass = false
 			continue
@@ -92,7 +95,7 @@ func egresstest(config *netmaker.Config) bool {
 		}
 	}
 	if len(failedmachines) > 0 {
-		slog.Error("not all machines were updated", "test", "eggress")
+		slog.Error("not all machines were updated")
 		for _, machine := range failedmachines {
 			slog.Error("Failures", "machine", machine)
 		}

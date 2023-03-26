@@ -81,28 +81,26 @@ func ingresstest(config *netmaker.Config) bool {
 	failedmachines := []string{}
 	extclient := netmaker.GetExtClient(*ingress)
 	ip := extclient.Address
+	// wait for update to be propoated
+	time.Sleep(time.Second * 30)
 	for _, machine := range netclient {
-		if machine.Host.Name == "ingress" {
-			slog.Info("waiting for ingress to be updated")
-			time.Sleep(time.Second * 30)
-		}
 		slog.Info(fmt.Sprintf("checking that %s @ %s received the update", machine.Host.Name, machine.Host.EndpointIP))
 		out, err := ssh.Run([]byte(config.Key), machine.Host.EndpointIP, "wg show netmaker allowed-ips | grep "+ip)
 		if err != nil {
-			slog.Error("err connecting", "machine", machine.Host.Name, "test", "ingress", "err", err)
+			slog.Error("err connecting", "machine", machine.Host.Name, "err", err)
 			failedmachines = append(failedmachines, machine.Host.Name)
 			pass = false
 			continue
 		}
 		if !strings.Contains(out, ip) {
-			slog.Error("update not received", "host", machine.Host.Name, "test", "ingress", "output", out)
+			slog.Error("update not received", "host", machine.Host.Name, "output", out)
 			failedmachines = append(failedmachines, machine.Host.Name)
 			pass = false
 			continue
 		}
 	}
 	if len(failedmachines) > 0 {
-		slog.Error("not all machines were updated", "test", "ingress")
+		slog.Error("not all machines were updated")
 		for _, machine := range failedmachines {
 			slog.Error("failures", "machine", machine)
 		}

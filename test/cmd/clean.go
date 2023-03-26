@@ -61,11 +61,11 @@ func cleanNetwork(config *netmaker.Config) bool {
 			netmaker.DeleteEgress(machine.Node.ID, machine.Node.Network)
 		}
 		if machine.Node.IsIngressGateway {
-			slog.Info("deleting ingress", machine.Host.Name)
+			slog.Info("deleting ingress", "host", machine.Host.Name)
 			netmaker.DeleteIngress(machine.Node.ID, machine.Node.Network)
 		}
 		if machine.Host.IsRelay {
-			slog.Info("deleting relay", machine.Host.Name)
+			slog.Info("deleting relay", "host", machine.Host.Name)
 			netmaker.DeleteRelay(machine.Host.ID)
 		}
 	}

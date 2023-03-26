@@ -93,11 +93,11 @@ func relaytest(config *netmaker.Config) bool {
 	}
 	out, err := ssh.Run([]byte(config.Key), relayed.Host.EndpointIP, "ping -c 3 "+ip.String())
 	if err != nil {
-		slog.Error("error connecting to relayed", "test", "relay", "err", err)
+		slog.Error("error connecting to relayed", "err", err)
 		pass = false
 	} else {
 		if !strings.Contains(out, "3 received") {
-			slog.Error("failed to ping egress from relayed", "test", "relay", "output", out)
+			slog.Error("failed to ping egress from relayed", "output", out)
 			pass = false
 		}
 	}

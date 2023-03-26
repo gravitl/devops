@@ -77,7 +77,11 @@ func peerupdatetest(config *netmaker.Config) bool {
 	slog.Info("updating wg ip on server node")
 	taken := make(map[string]bool)
 	for _, machine := range netclient {
-		taken[machine.Node.Address] = true
+		ip, _, err := net.ParseCIDR(machine.Node.Address)
+		if err != nil {
+			slog.Warn(fmt.Sprintf("%s is not a cidr", machine.Node.Address))
+		}
+		taken[ip.String()] = true
 	}
 	slog.Debug("debugging", "exclued ips ", taken)
 
@@ -97,8 +101,9 @@ func peerupdatetest(config *netmaker.Config) bool {
 		slog.Error("could not parse newip", "test", "peerupdate", "ip", ip, "err", err)
 		return false
 	}
+	// wait for update to be propogated
+	time.Sleep(time.Second * 30)
 	for _, machine := range netclient {
-		time.Sleep(time.Second)
 		if machine.Host.Name == "server" {
 			continue
 		}
@@ -108,22 +113,22 @@ func peerupdatetest(config *netmaker.Config) bool {
 		slog.Info(fmt.Sprintf("checking that %s @ %s received the update", machine.Host.Name, machine.Host.EndpointIP))
 		out, err := ssh.Run([]byte(config.Key), machine.Host.EndpointIP, "wg show netmaker allowed-ips | grep "+ip.String())
 		if err != nil {
-			slog.Error("err connecting", "machine", machine.Host.Name, "test", "peerupdate", "err", err)
+			slog.Error("ssh connect err", "machine", machine.Host.Name, "cmd", "ssh "+machine.Host.EndpointIP+" wg show netmaker allowed-ips | grep "+ip.String(), "err", err)
 			failedmachines = append(failedmachines, machine.Host.Name)
 			pass = false
 			continue
 		}
 		if !strings.Contains(out, ip.String()) {
-			slog.Error("node did not receive the update", "machine", machine.Host.Name, "test", "peerupdate", "ouput", out)
+			slog.Error("node did not receive the update", "machine", machine.Host.Name, "ouput", out)
 			failedmachines = append(failedmachines, machine.Host.Name)
 			pass = false
 			continue
 		}
 	}
 	if len(failedmachines) > 0 {
-		slog.Error("not all machines were updated", "test", "peerupdate")
+		slog.Error("not all machines were updated")
 		for _, machine := range failedmachines {
-			slog.Error(machine, "test", "peerupdate")
+			slog.Error(machine)
 		}
 		return false
 	}
@@ -134,28 +139,29 @@ func peerupdatetest(config *netmaker.Config) bool {
 func getNextIP(current string, taken map[string]bool) string {
 	var newip net.IP
 	if len(taken) > 253 {
-		slog.Error("no free ips", "test", "peerupdate")
+		slog.Error("no free ips")
 		return ""
 	}
 	ip, cidr, err := net.ParseCIDR(current)
 	if err != nil {
-		slog.Error("failed to parse cidr", "test", "peerupdate", "err", err)
+		slog.Error("failed to parse cidr", "err", err)
 		return ""
 	}
 	slog.Info("getting free ip")
 	net4 := iplib.Net4FromStr(current)
+	newip, err = net4.NextIP(ip)
 	for {
-		newip, err = net4.NextIP(ip)
 		if errors.Is(err, iplib.ErrBroadcastAddress) {
 			newip, err = net4.NextIP(net4.FirstAddress())
 		}
 		if err != nil {
-			slog.Error("NextIP", "test", "peerupdate", "err", err)
+			slog.Error("NextIP", "err", err)
 			return ""
 		}
 		if !taken[newip.String()] {
 			break
 		}
+		newip, err = net4.NextIP(newip)
 	}
 	cidr.IP = newip
 	return cidr.String()
