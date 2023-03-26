@@ -2,6 +2,7 @@ package ssh
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/tmc/scp"
@@ -45,6 +46,9 @@ func Run(key []byte, host, cmd string) (string, error) {
 	defer session.Close()
 	b, err := session.CombinedOutput(cmd)
 	if err != nil {
+		if strings.Contains(err.Error(), "Process exited") {
+			return "", nil
+		}
 		return "", fmt.Errorf("error running commmand %s %w", cmd, err)
 	}
 	return string(b), nil
