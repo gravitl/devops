@@ -29,7 +29,7 @@ resource "digitalocean_droplet" "dockerclient" {
       "cd netclient",
       "git checkout ${var.clientbranch}",
       "git pull origin ${var.clientbranch}",
-      "docker build --build-arg version=${var.clientbranch} -t terraform/test . "
+      "docker build -t terraform/test . "
     ]
   }
 }
