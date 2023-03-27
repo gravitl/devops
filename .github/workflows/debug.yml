@@ -43,7 +43,7 @@ jobs:
           User root
           IdentityFile ~/.ssh/deploy.key
           StrictHostKeyChecking no
-         END
+        END
         cat ~/.ssh/config
         cat ~/.ssh/deploy.key
       env:
