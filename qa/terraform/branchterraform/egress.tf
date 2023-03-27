@@ -11,8 +11,7 @@ resource "digitalocean_droplet" "egress" {
   ssh_keys = [
     for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id
   ]
-  tags = [var.egress, var.branch]
-  # ,var.branch != "develop" ? var.branch : var.clientbranch]  
+  tags = [var.egress, var.do_tag]
 
   connection {
     host = self.ipv4_address

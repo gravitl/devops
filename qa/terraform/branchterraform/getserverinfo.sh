@@ -41,7 +41,7 @@ tail -n +1 ipaddress*.txt | tr -d "=<>"  >> serverinfo.txt
 # ssh into each client and registers with the server
 regtoken=$(cat serverinfo.txt | grep token | awk '{print$2;}' | tr -d '",')
 #echo "regtoken: ${regtoken}"
-bash updatenetclient.sh $1 v0.18.4
+bash updatenetclient.sh $1 v0.18.5
 
 host1key=$(cat ipaddresshost1.txt)
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null netclient/netclient  root@$host1key:~ 

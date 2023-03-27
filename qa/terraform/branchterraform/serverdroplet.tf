@@ -12,8 +12,7 @@ resource "digitalocean_droplet" "terraformnetmakerserver" {
   region = "nyc3"
   size = "s-2vcpu-2gb-intel"
   ssh_keys = [    for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id ] 
-  tags   = [ digitalocean_tag.server_tag.id, var.branch ]
-   # ,var.clientbranch != "develop" ? var.clientbranch : var.branch]
+  tags   = [ digitalocean_tag.server_tag.id, var.do_tag]
   
   #get a connection to the created droplet
   connection {
@@ -61,6 +60,6 @@ resource "null_resource" "getserverinfo" {
   depends_on = [data.digitalocean_droplet.serverip, digitalocean_droplet.terraformnetmakerserver, null_resource.getdockercompose, local_file.ipaddresses, local_file.extipaddresses, local_file.dockeripaddresses, local_file.egressipaddresses]
   provisioner "local-exec" {
     interpreter = ["/bin/bash" ,"-c"]
-    command = "sudo bash getserverinfo.sh ${var.branch} ${var.clientbranch}"
+    command = "sudo bash getserverinfo.sh ${var.do_tag} ${var.clientbranch}"
   }
 }

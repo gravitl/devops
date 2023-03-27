@@ -1,16 +1,18 @@
 variable "clients" {
   type= list(string)
+}
 
+variable "branch" {
+   default = "develop"
+}
+
+variable "clientbranch" {
+   default = "develop"
 }
 
 variable "do_token" {}
-variable "pvt_key" {}
+variable "do_tag"{}
 variable "extclient" {}
 variable "docker" {}
 variable "egress" {}
-variable "ssh_public_key_path" {
-  description = "Local public ssh key"
-  default = "/root/.ssh/"
-}
-variable "branch" {}
-variable "clientbranch" {}
+variable "pvt_key" {}

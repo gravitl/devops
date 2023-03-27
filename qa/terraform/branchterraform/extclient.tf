@@ -7,7 +7,7 @@ resource "digitalocean_droplet" "extclient" {
   ssh_keys = [
     for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id
   ]
-  tags = [var.clientbranch]  
+  tags = [var.extclient, var.do_tag]
   connection {
     host = self.ipv4_address
     user = "root"
