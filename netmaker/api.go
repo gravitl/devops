@@ -379,3 +379,11 @@ func ResetProxy() {
 		callapi[models.ApiHost](http.MethodPut, "/api/hosts/"+host.ID, host)
 	}
 }
+
+func SetVerbosity(value int) {
+	hosts := callapi[[]models.ApiHost](http.MethodGet, "/api/hosts", nil)
+	for _, host := range *hosts {
+		host.Verbosity = value
+		callapi[models.ApiHost](http.MethodPut, "/api/hosts/"+host.ID, host)
+	}
+}

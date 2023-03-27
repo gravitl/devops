@@ -54,6 +54,7 @@ func cleanNetwork(config *netmaker.Config) bool {
 	pass := true
 	slog.Info("resetting proxy enabled to false")
 	netmaker.ResetProxy()
+	netmaker.SetVerbosity(4)
 	netclient := netmaker.GetNetclient(config.Network)
 	for _, machine := range netclient {
 		if machine.Node.IsEgressGateway {
