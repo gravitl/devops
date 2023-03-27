@@ -37,13 +37,14 @@ jobs:
        mkdir -p ~/.ssh/
        echo "$SSH_KEY" > ~/.ssh/deploy.key
        chmod 600 ~/.ssh/deploy.key 
+       ls ~/.ssh
        cat >>~/.ssh/config <<END
        Host *
-          User root
+         User root
          IdentityFile ~/.ssh/deploy.key
          StrictHostKeyChecking no
         END
-        ls ~/.ssh
+        
       env:
           SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
 
