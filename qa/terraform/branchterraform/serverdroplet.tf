@@ -50,7 +50,7 @@ resource "null_resource" "getdockercompose" {
   depends_on = [data.digitalocean_droplet.serverip, digitalocean_droplet.terraformnetmakerserver]
 
   provisioner "local-exec" {
-     command = "sudo ls /root/.ssh/ && sudo scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@${digitalocean_droplet.terraformnetmakerserver.ipv4_address}:/root/docker-compose.yml ."
+     command = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@${digitalocean_droplet.terraformnetmakerserver.ipv4_address}:/root/docker-compose.yml ."
   }
 }
 
