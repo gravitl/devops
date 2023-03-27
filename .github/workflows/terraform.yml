@@ -67,7 +67,7 @@ jobs:
         TF_VAR_pvt_key: "${{ secrets.TESTING_SSH_KEY }}"
         TF_VAR_branch: "${{ inputs.netmakerbranch }}"
         TF_VAR_clientbranch: "${{ inputs.netclientbranch }}"
-        tag=$(echo $RANDOM)
+        tag: $(echo $RANDOM)
         TF_VAR_do_tag: $tag
 
 
