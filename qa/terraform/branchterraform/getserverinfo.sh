@@ -45,21 +45,21 @@ bash updatenetclient.sh $1 v0.18.5
 
 cd /home/runner/
 
-host1key=$(cat ipaddresshost1.txt)
+host1key=$(cat /root/ipaddresshost1.txt)
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$host1key:~ 
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$host1key "./netclient install && netclient register -t ${regtoken}"
 
-ingresskey=$(cat ipaddressingress.txt)
+ingresskey=$(cat /root/ipaddressingress.txt)
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$ingresskey:~ 
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$ingresskey "./netclient install && netclient register -t ${regtoken}"
 
-egresskey=$(cat ipaddressegress.txt)
+egresskey=$(cat /root/ipaddressegress.txt)
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$egresskey:~ 
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$egresskey "./netclient install && netclient register -t ${regtoken}"
 
-relaykey=$(cat ipaddressrelay.txt)
+relaykey=$(cat /root/ipaddressrelay.txt)
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$relaykey:~ 
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$relaykey "./netclient install && netclient register -t ${regtoken}"
 
-dockerkey=$(cat ipaddressdocker.txt)
+dockerkey=$(cat /root/ipaddressdocker.txt)
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$dockerkey "docker run -d --network host  --privileged -e TOKEN=${regtoken} -v /etc/netclient:/etc/netclient --name netclient2 terraform/test"
