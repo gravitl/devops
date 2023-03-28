@@ -43,20 +43,22 @@ regtoken=$(cat serverinfo.txt | grep token | awk '{print$2;}' | tr -d '",')
 #echo "regtoken: ${regtoken}"
 bash updatenetclient.sh $1 v0.18.5
 
+cd /home/runner/
+
 host1key=$(cat ipaddresshost1.txt)
-scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null netclient/netclient  root@$host1key:~ 
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$host1key:~ 
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$host1key "./netclient install && netclient register -t ${regtoken}"
 
 ingresskey=$(cat ipaddressingress.txt)
-scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null netclient/netclient  root@$ingresskey:~ 
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$ingresskey:~ 
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$ingresskey "./netclient install && netclient register -t ${regtoken}"
 
 egresskey=$(cat ipaddressegress.txt)
-scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null netclient/netclient  root@$egresskey:~ 
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$egresskey:~ 
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$egresskey "./netclient install && netclient register -t ${regtoken}"
 
 relaykey=$(cat ipaddressrelay.txt)
-scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null netclient/netclient  root@$relaykey:~ 
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$relaykey:~ 
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$relaykey "./netclient install && netclient register -t ${regtoken}"
 
 dockerkey=$(cat ipaddressdocker.txt)
