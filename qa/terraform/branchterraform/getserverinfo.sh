@@ -49,23 +49,23 @@ egresskey=$(cat ipaddressegress.txt)
 relaykey=$(cat ipaddressrelay.txt)
 dockerkey=$(cat ipaddressdocker.txt)
 
-cd /home/runner/
 
 
-scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$host1key:~ 
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$host1key "./netclient install && netclient register -t ${regtoken}"
+
+scp -i /home/runner/.ssh/ -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$host1key:~ 
+ssh -i /home/runner/.ssh/ -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$host1key "./netclient install && netclient register -t ${regtoken}"
 
 
-scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$ingresskey:~ 
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$ingresskey "./netclient install && netclient register -t ${regtoken}"
+scp -i /home/runner/.ssh/ -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$ingresskey:~ 
+ssh -i /home/runner/.ssh/ -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$ingresskey "./netclient install && netclient register -t ${regtoken}"
 
 
-scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$egresskey:~ 
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$egresskey "./netclient install && netclient register -t ${regtoken}"
+scp -i /home/runner/.ssh/ -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$egresskey:~ 
+ssh -i /home/runner/.ssh/ -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$egresskey "./netclient install && netclient register -t ${regtoken}"
 
 
-scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$relaykey:~ 
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$relaykey "./netclient install && netclient register -t ${regtoken}"
+scp -i /home/runner/.ssh/ -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$relaykey:~ 
+ssh -i /home/runner/.ssh/ -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$relaykey "./netclient install && netclient register -t ${regtoken}"
 
 
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$dockerkey "docker run -d --network host  --privileged -e TOKEN=${regtoken} -v /etc/netclient:/etc/netclient --name netclient2 terraform/test"
+ssh -i /home/runner/.ssh/ -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$dockerkey "docker run -d --network host  --privileged -e TOKEN=${regtoken} -v /etc/netclient:/etc/netclient --name netclient2 terraform/test"
