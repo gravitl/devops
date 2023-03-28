@@ -1,6 +1,6 @@
 resource "digitalocean_droplet_snapshot" "egress_snapshot" {
   droplet_id = "347216123"
-  name = "egresssnapshot${var.clientbranch}"
+  name = "egresssnapshot${var.do_tag}"
 }
 
 resource "digitalocean_droplet" "egress" {
