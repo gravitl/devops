@@ -4,6 +4,9 @@ resource "digitalocean_droplet_snapshot" "egress_snapshot" {
 }
 
 resource "digitalocean_droplet" "egress" {
+  depends_on = [
+    digitalocean_droplet_snapshot.egress_snapshot
+  ]
   image = digitalocean_droplet_snapshot.egress_snapshot.id
   name = var.egress
   size = "s-2vcpu-2gb"
