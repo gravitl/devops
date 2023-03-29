@@ -102,7 +102,5 @@ jobs:
           retention-days: 3
       - name: final result
         run: |
-          if [ -s /tmp/errors.log ] then
-            exit 1
-          fi
+          if [ -s /tmp/errors.log ]; then exit 1; fi
 
