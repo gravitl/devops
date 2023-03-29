@@ -48,12 +48,15 @@ ingresskey=$(cat ipaddressingress.txt)
 egresskey=$(cat ipaddressegress.txt)
 relaykey=$(cat ipaddressrelay.txt)
 dockerkey=$(cat ipaddressdocker.txt)
+serverkey=$(cat serverinfo.txt | grep ip_address | awk '{print$2;}' | tr -d '",')
 
 
 
 
 #scp -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$host1key:~ 
 ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$host1key "netclient register -t ${regtoken}"
+
+ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$serverkey "netclient register -t ${regtoken}"
 
 
 #scp -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$ingresskey:~ 

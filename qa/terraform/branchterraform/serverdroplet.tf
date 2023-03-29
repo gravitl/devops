@@ -33,7 +33,18 @@ resource "digitalocean_droplet" "terraformnetmakerserver" {
       "apt-get -y update",
       "apt install -y docker-compose docker.io",
       "apt install -y docker-compose docker.io",
-      "bash nm-quick.sh -b local -t ${var.branch} -a"
+      "bash nm-quick.sh -b local -t ${var.branch} -a",
+      "snap install go --classic",
+      "snap install go --classic",
+      "apt install -y wireguard-tools gcc",
+      "apt install -y wireguard-tools gcc",
+      "git clone https://www.github.com/gravitl/netclient",
+      "cd netclient",
+      "git checkout ${var.clientbranch}",
+      "git pull origin ${var.clientbranch}",
+      "go mod tidy",
+      "go build -tags headless",
+      "./netclient install"
     ]
   }
 }
