@@ -51,7 +51,7 @@ else
     echo "ingress: NOT RUN" >> /tmp/results.log
 fi
 
-if [ -f /tmp/test/egress.log ]
+if [ -f /tmp/tests/egress.log ]
 then
     grep ERROR /tmp/tests/egress.log >> /tmp/errors.log
     if [ $? -eq 0 ]
