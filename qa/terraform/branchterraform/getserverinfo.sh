@@ -21,11 +21,9 @@ rm docker-compose.yml
 
 # sets some variables
 masterkey=$(cat serverinfo.txt | grep master_key | awk '{print $2;}' | tr -d '"')
-#echo $masterkey
 ipv6addr=7b65:4206:9653:2021::/64
 ipv4addr=10.22.145.0/24
 apiref=$(cat serverinfo.txt | grep api_addr | awk '{print$2;}' | tr -d '"')
-#echo "api reference: ${apiref}"
 netid='terranet'
 
 
@@ -54,5 +52,5 @@ ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHost
 ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$ingresskey "netclient register -t ${regtoken}"
 ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$egresskey "netclient register -t ${regtoken}"
 ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$relaykey "netclient register -t ${regtoken}"
-ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$dockerkey "docker run -d --network host --privileged -e TOKEN=${regtoken} -v /etc/netclient:/etc/netclient --name netclient2 terraform/test"
+ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$dockerkey "docker run -d --network host --privileged -v /etc/netclient:/etc/netclient --name netclient2 terraform/test -e TOKEN=${regtoken}"
 ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$serverkey "netclient register -t ${regtoken}"
