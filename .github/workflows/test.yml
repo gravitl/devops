@@ -63,14 +63,13 @@ jobs:
         id: run-test
         run: |
           chmod +x bin/test
-          bin/test ${{ GITHUB_ENV.TEST }}
+          bin/test ${{ github.event.inputs.test }}
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
           NETWORK: ${{ github.event.inputs.network }}
           MASTERKEY: ${{ github.event.inputs.masterkey }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}
-          TEST: ${{ github.event.inputs.test }}
       - name: save logs
         uses: actions/upload-artifact@v3
         with:
