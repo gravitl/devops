@@ -41,7 +41,7 @@ tail -n +1 ipaddress*.txt | tr -d "=<>"  >> serverinfo.txt
 # ssh into each client and registers with the server
 regtoken=$(cat serverinfo.txt | grep token | awk '{print$2;}' | tr -d '",')
 #echo "regtoken: ${regtoken}"
-bash updatenetclient.sh $1 v0.18.5
+#bash updatenetclient.sh $1 v0.18.5
 
 host1key=$(cat ipaddresshost1.txt)
 ingresskey=$(cat ipaddressingress.txt)
@@ -52,20 +52,20 @@ dockerkey=$(cat ipaddressdocker.txt)
 
 
 
-scp -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$host1key:~ 
-ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$host1key "./netclient install && netclient register -t ${regtoken}"
+#scp -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$host1key:~ 
+ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$host1key "netclient register -t ${regtoken}"
 
 
-scp -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$ingresskey:~ 
-ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$ingresskey "./netclient install && netclient register -t ${regtoken}"
+#scp -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$ingresskey:~ 
+ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$ingresskey "netclient register -t ${regtoken}"
 
 
-scp -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$egresskey:~ 
-ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$egresskey "./netclient install && netclient register -t ${regtoken}"
+#scp -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$egresskey:~ 
+ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$egresskey "netclient register -t ${regtoken}"
 
 
-scp -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$relaykey:~ 
-ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$relaykey "./netclient install && netclient register -t ${regtoken}"
+#scp -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /root/netclient/netclient  root@$relaykey:~ 
+ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$relaykey "netclient register -t ${regtoken}"
 
 
 ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$dockerkey "docker run -d --network host  --privileged -e TOKEN=${regtoken} -v /etc/netclient:/etc/netclient --name netclient2 terraform/test"
