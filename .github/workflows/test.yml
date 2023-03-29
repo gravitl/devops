@@ -1,4 +1,4 @@
-name: Run All Tests
+name: Run Test
 
 on:
   workflow_dispatch:
@@ -14,6 +14,18 @@ on:
       masterkey:
         description: masterkey of netmaker server
         default: "secretkey"
+        required: true
+      test:
+        description: "test to run"
+        required: true
+        type: choice
+        options:
+          - clean
+          - ping
+          - ingress
+          - egress
+          - relay
+
 
 jobs:
 
@@ -37,9 +49,9 @@ jobs:
           path: bin/test
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
-  clean:
+  run-test:
     needs: [binary]
-    name: remove all gateways
+    name: run-test
     runs-on: ubuntu-latest
     steps:
       - name: get binary
@@ -48,10 +60,10 @@ jobs:
           path: bin/test
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - name: run tests
-        id: clean
+        id: run-test
         run: |
           chmod +x bin/test
-          bin/test clean
+          bin/test ${{ github.event.inputs.test }}
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -61,99 +73,12 @@ jobs:
       - name: save logs
         uses: actions/upload-artifact@v3
         with:
-          name: clean.log
-          path: /tmp/clean.log
-          retention-days: 3
-
-  initial-ping:
-    needs: [binary, clean]
-    name: initial ping
-    runs-on: ubuntu-latest
-    steps:
-      - name: get binary
-        uses: actions/cache/restore@v3
-        with:
-          path: bin/test
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - name: run tests
-        id: ping
-        run: |
-          chmod +x bin/test
-          bin/test ping
-        env:
-          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
-          TAG: ${{ github.event.inputs.tag }}
-          NETWORK: ${{ github.event.inputs.network }}
-          MASTERKEY: ${{ github.event.inputs.masterkey }}
-          KEY: ${{ secrets.TESTING_SSH_KEY }}
-      - name: save logs
-        uses: actions/upload-artifact@v3
-        with:
-          name: ping.log
-          path: /tmp/ping.log
-          retention-days: 3
-
-  tests:
-    needs: [binary, initial-ping, clean]
-    name: tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: get binary
-        uses: actions/cache/restore@v3
-        with:
-          path: bin/test
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - name: run tests
-        id: test
-        run: |
-          chmod +x bin/test
-          bin/test peerUpdate
-          bin/test ingress
-          bin/test egress
-          bin/test relay
-        env:
-          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
-          TAG: ${{ github.event.inputs.tag }}
-          NETWORK: ${{ github.event.inputs.network }}
-          MASTERKEY: ${{ github.event.inputs.masterkey }}
-          KEY: ${{ secrets.TESTING_SSH_KEY }}
-      - name: save logs
-        uses: actions/upload-artifact@v3
-        with:
-          name: tests.log
+          name: logs
           path: /tmp/*.log
           retention-days: 3
 
-  final-ping:
-    needs: [binary, tests]
-    name: final ping
-    runs-on: ubuntu-latest
-    steps:
-      - name: get binary
-        uses: actions/cache/restore@v3
-        with:
-          path: bin/test
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - name: run tests
-        id: ping
-        run: |
-          chmod +x bin/test
-          bin/test ping
-        env:
-          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
-          TAG: ${{ github.event.inputs.tag }}
-          NETWORK: ${{ github.event.inputs.network }}
-          MASTERKEY: ${{ github.event.inputs.masterkey }}
-          KEY: ${{ secrets.TESTING_SSH_KEY }}
-      - name: save logs
-        uses: actions/upload-artifact@v3
-        with:
-          name: ping2.log
-          path: /tmp/ping.log
-          retention-days: 3
-
   results:
-    needs: [clean, initial-ping, tests, final-ping]
+    needs: [run-test]
     name: sumarize results
     runs-on: ubuntu-latest
     steps:
@@ -177,7 +102,5 @@ jobs:
           retention-days: 3
       - name: final result
         run: |
-          if [ -s /tmp/errors.log ] then
-            exit 1
-          fi
+          if [ -s /tmp/errors.log ]; then exit 1; fi
 
