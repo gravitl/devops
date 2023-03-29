@@ -1,5 +1,5 @@
 #! /bin/bash
-if [ -f /tmp/clean/log ]
+if [ -f /tmp/clean/clean.log ]
 then
     grep ERROR /tmp/clean/clean.log >> /tmp/errors.log
     if [ $? -eq 0 ]
