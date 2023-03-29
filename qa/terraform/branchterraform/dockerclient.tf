@@ -7,12 +7,12 @@ resource "digitalocean_droplet" "dockerclient" {
   ssh_keys = [
     for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id
   ]
-  tags = [var.docker ,var.branch != "develop" ? var.branch : var.clientbranch]  
+  tags = [var.docker ,var.do_tag]
   connection {
     host = self.ipv4_address
     user = "root"
     type = "ssh"
-    private_key = file(var.pvt_key)
+    private_key = var.pvt_key
     timeout = "2m"
   }
   
@@ -29,7 +29,7 @@ resource "digitalocean_droplet" "dockerclient" {
       "cd netclient",
       "git checkout ${var.clientbranch}",
       "git pull origin ${var.clientbranch}",
-      "docker build --build-arg version=${var.clientbranch} -t terraform/test . "
+      "docker build -t terraform/test . "
     ]
   }
 }

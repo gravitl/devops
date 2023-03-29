@@ -1,24 +1,26 @@
 resource "digitalocean_droplet_snapshot" "egress_snapshot" {
-  droplet_id = "125228358"
-  name = "egresssnapshot${var.clientbranch}"
+  droplet_id = "347216123"
+  name = "egresssnapshot${var.do_tag}"
 }
 
 resource "digitalocean_droplet" "egress" {
+  depends_on = [
+    digitalocean_droplet_snapshot.egress_snapshot
+  ]
   image = digitalocean_droplet_snapshot.egress_snapshot.id
-  #image = "lxc-1674164060623"
   name = var.egress
-  size = "s-1vcpu-1gb"
+  size = "s-2vcpu-2gb"
   ipv6 = true
   ssh_keys = [
     for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id
   ]
-  tags = [var.egress ,var.branch != "develop" ? var.branch : var.clientbranch]  
+  tags = [var.egress, var.do_tag]
 
   connection {
     host = self.ipv4_address
     user = "root"
     type = "ssh"
-    private_key = file(var.pvt_key)
+    private_key = var.pvt_key
     timeout = "2m"
   }
   
@@ -31,7 +33,15 @@ resource "digitalocean_droplet" "egress" {
       "snap install go --classic",
       "snap install go --classic",
       "apt install -y wireguard-tools gcc",
-      "apt install -y wireguard-tools gcc"
+      "apt install -y wireguard-tools gcc",
+      "git clone https://www.github.com/gravitl/netclient",
+      "cd netclient",
+      "git checkout ${var.clientbranch}",
+      "git pull origin ${var.clientbranch}",
+      "go mod tidy",
+      "go build -tags headless",
+      "./netclient install"
+
     ]
   }
 }

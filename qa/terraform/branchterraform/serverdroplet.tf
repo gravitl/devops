@@ -11,18 +11,15 @@ resource "digitalocean_droplet" "terraformnetmakerserver" {
   name = "server"
   region = "nyc3"
   size = "s-2vcpu-2gb-intel"
-  #ssh_keys = concat([
-  ssh_keys = [
-    for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id] 
-    #[for v in local.keys : file("/root/.ssh/${v}")]    )
-  tags   = [digitalocean_tag.server_tag.id ,var.clientbranch != "develop" ? var.clientbranch : var.branch]
+  ssh_keys = [    for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id ] 
+  tags   = [ digitalocean_tag.server_tag.id, var.do_tag]
   
   #get a connection to the created droplet
   connection {
     host = self.ipv4_address
     user = "root"
     type = "ssh"
-    private_key = file(var.pvt_key)
+    private_key = var.pvt_key
     timeout = "2m"
   }
   
@@ -31,12 +28,23 @@ resource "digitalocean_droplet" "terraformnetmakerserver" {
     inline = [
       "export PATH=$PATH:/usr/bin",
       # install netmaker
-      "wget https://raw.githubusercontent.com/gravitl/netmaker/story/GRA-1252/scripts/nm-quick.sh",
+      "wget https://raw.githubusercontent.com/gravitl/netmaker/keep-nm-quick-at-testing-for-terraform/scripts/nm-quick.sh",
       "apt-get -y update",
       "apt-get -y update",
       "apt install -y docker-compose docker.io",
       "apt install -y docker-compose docker.io",
-      "bash nm-quick.sh -b local -t ${var.branch} -a"
+      "bash nm-quick.sh -b local -t ${var.branch} -a",
+      "snap install go --classic",
+      "snap install go --classic",
+      "apt install -y wireguard-tools gcc",
+      "apt install -y wireguard-tools gcc",
+      "git clone https://www.github.com/gravitl/netclient",
+      "cd netclient",
+      "git checkout ${var.clientbranch}",
+      "git pull origin ${var.clientbranch}",
+      "go mod tidy",
+      "go build -tags headless",
+      "./netclient install"
     ]
   }
 }
@@ -63,6 +71,6 @@ resource "null_resource" "getserverinfo" {
   depends_on = [data.digitalocean_droplet.serverip, digitalocean_droplet.terraformnetmakerserver, null_resource.getdockercompose, local_file.ipaddresses, local_file.extipaddresses, local_file.dockeripaddresses, local_file.egressipaddresses]
   provisioner "local-exec" {
     interpreter = ["/bin/bash" ,"-c"]
-    command = "bash getserverinfo.sh ${var.branch} ${var.clientbranch}"
+    command = "sudo bash getserverinfo.sh ${var.do_tag} ${var.clientbranch}"
   }
 }

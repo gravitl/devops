@@ -7,12 +7,12 @@ resource "digitalocean_droplet" "extclient" {
   ssh_keys = [
     for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id
   ]
-  tags = [var.extclient ,var.branch != "develop" ? var.branch : var.clientbranch]  
+  tags = [var.extclient, var.do_tag]
   connection {
     host = self.ipv4_address
     user = "root"
     type = "ssh"
-    private_key = file(var.pvt_key)
+    private_key = var.pvt_key
     timeout = "2m"
   }
   

@@ -8,12 +8,12 @@ resource "digitalocean_droplet" "clients" {
   ssh_keys = [
     for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id
   ]
-  tags = [var.clients[count.index] ,var.branch != "develop" ? var.branch : var.clientbranch]  
+  tags = [var.clients[count.index], var.do_tag]
   connection {
     host = self.ipv4_address
     user = "root"
     type = "ssh"
-    private_key = file(var.pvt_key)
+    private_key = var.pvt_key
     timeout = "2m"
   }
   
@@ -26,7 +26,14 @@ resource "digitalocean_droplet" "clients" {
       "snap install go --classic",
       "snap install go --classic",
       "apt install -y wireguard-tools gcc",
-      "apt install -y wireguard-tools gcc"
+      "apt install -y wireguard-tools gcc",
+      "git clone https://www.github.com/gravitl/netclient",
+      "cd netclient",
+      "git checkout ${var.clientbranch}",
+      "git pull origin ${var.clientbranch}",
+      "go mod tidy",
+      "go build -tags headless",
+      "./netclient install"
     ]
   }
 }

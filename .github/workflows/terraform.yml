@@ -21,30 +21,34 @@ on:
         type: string
 
 jobs:
+  # go:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Setup go
+  #     uses: actions/setup-go@v3
+  #     with:
+  #       go-version: 1.19
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v3
+  
 
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+  
+  #  - name: Set Branches
+  #    run: |
+  #      cd qa/terraform/branchterraform
+  #      echo variable \"branch\" { default = \"${{ inputs.netmakerbranch }}\" } >> variables.tf
+  #      echo variable \"clientbranch\" { default = \"${{ inputs.netclientranch }}\" } >> variables.tf
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
-
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-      run: |
-        cd qa/terraform/branchterraform
-        terraform init
-
-    # Checks that all Terraform configuration files adhere to a canonical format
-    #- name: Terraform Format
-    #  run: |
-    #    cd qa/terraform/branchterraform
-    #    terraform fmt -check
 
     - name: Setup SSH
       run: |
@@ -59,15 +63,42 @@ jobs:
         END
       env:
           SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
-    # Generates an execution plan for Terraform
-    - name: Terraform Plan
-      run: |
-        cd qa/terraform/branchterraform
-        terraform plan -v "do_token=${{ secrets.DO_TOKEN }} -var key=~/.ssh/deploy.key -var branch=${{ inputs.netmakerbranch }} -var clientbranch=${{ inputs.netclientbranch }} "
     
-    - name: Terraform Apply
+    - name: Terraform Init
       run: |
         cd qa/terraform/branchterraform
-        terraform apply -v -auto-approve "do_token=${{ secrets.DO_TOKEN }} -var key=~/.ssh/deploy.key -var branch=${{ inputs.netmakerbranch }} -var clientbranch=${{ inputs.netclientbranch }} "
+        terraform init
+        terraform validate
+        terraform plan
+        terraform apply -auto-approve
+      env:
+        TF_VAR_do_token: "${{ secrets.DO_TOKEN }}"
+        TF_VAR_pvt_key: "${{ secrets.TESTING_SSH_KEY }}"
+        TF_VAR_branch: "${{ inputs.netmakerbranch }}"
+        TF_VAR_clientbranch: "${{ inputs.netclientbranch }}"
+        TF_VAR_do_tag: ${{ github.run_id }}-${{ github.run_attempt }}
+
+
+
+
+    # - name: Terraform Plan
+    #   run: |
+    #     cd qa/terraform/branchterraform
+    #     terraform plan
+    #   env:
+    #     TF_VAR_do_token: "${{ secrets.DO_TOKEN }}"
+    #     TF_VAR_pvt_key: "./ssh/deploy.key"
+    #     TF_VAR_branch: "${{ inputs.netmakerbranch }}"
+    #     TF_VAR_clientbranch: "${{ inputs.clientbranch }}"
+    
+    # - name: Terraform Apply
+    #   run: |
+    #     cd qa/terraform/branchterraform
+    #     terraform apply
+    #   env: 
+    #     TF_VAR_do_token: "${{ secrets.DO_TOKEN }}"
+    #     TF_VAR_pvt_key: "./ssh/deploy.key"
+    #     TF_VAR_branch: "${{ inputs.netmakerbranch }}"
+    #     TF_VAR_clientbranch: "${{ inputs.clientbranch }}"
    
     
