@@ -60,10 +60,10 @@ jobs:
           path: bin/test
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - name: run tests
-        id: clean
+        id: run-test
         run: |
           chmod +x bin/test
-          bin/test ${{ TEST }}
+          bin/test ${{ GITHUB_ENV.TEST }}
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           TAG: ${{ github.event.inputs.tag }}
@@ -79,7 +79,7 @@ jobs:
           retention-days: 3
 
   results:
-    needs: [run-tests]
+    needs: [run-test]
     name: sumarize results
     runs-on: ubuntu-latest
     steps:
