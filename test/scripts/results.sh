@@ -39,6 +39,7 @@ else
 fi
 
 if [ -f /tmp/tests/ingress.log ]
+then
     grep ERROR /tmp/tests/ingress.log >> /tmp/errors.log
     if [ $? -eq 0 ]
     then
