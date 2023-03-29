@@ -324,13 +324,19 @@ func (request *Request) UpdateNodes(tag, branch string) (bool, []string) {
 				return
 			}
 			log.Println("updating netclient on ", droplet.Name)
-			//ensure journalctl is working
-			out, err := ssh.Run("apt-get update; apt-get upgrade -y")
+			out, err := ssh.Run("apt-get update; apt-get upgrade -y; systemctl restart netclient")
 			if err != nil {
 				log.Println("update failed on ", droplet.Name, err)
 				failednodes = append(failednodes, droplet.Name)
 			}
-			log.Println("update result: \n", out)
+			out2, err := ssh.Run("journalctl --rotate; journalctl --vacuum-time=10s")
+			if err != nil {
+				log.Println("clearing logs failed on", droplet.Name, err)
+				failednodes = append(failednodes, droplet.Name)
+			}
+			//clear logs
+
+			log.Println("update result: \n", out, out2)
 			wg.Done()
 		}(&wg, droplet)
 	}

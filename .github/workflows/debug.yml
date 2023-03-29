@@ -11,6 +11,7 @@ on:
         description: netclient branch to run on.
         default: develop
         required: true
+
   workflow_call:
     inputs:
       netmakerbranch:
@@ -52,4 +53,3 @@ jobs:
     - name: test ssh
       run: |
         ssh server.clustercat.com "ls /tmp/"
-

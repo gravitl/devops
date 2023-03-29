@@ -76,7 +76,7 @@ func DeleteEgress(id, network string) {
 func StartExtClient(config *Config) error {
 	client, err := do.Name("extclient", config.Tag, config.DigitalOcean_Token)
 	if err != nil {
-		return fmt.Errorf("failed to get extcient %w", err)
+		return fmt.Errorf("failed to get extclient %w", err)
 	}
 	clientip, err := client.PublicIPv4()
 	if err != nil {
@@ -370,4 +370,20 @@ func download(method, route string, payload any) []byte {
 		return []byte{}
 	}
 	return resBodyBytes
+}
+
+func ResetProxy() {
+	hosts := callapi[[]models.ApiHost](http.MethodGet, "/api/hosts", nil)
+	for _, host := range *hosts {
+		host.ProxyEnabled = false
+		callapi[models.ApiHost](http.MethodPut, "/api/hosts/"+host.ID, host)
+	}
+}
+
+func SetVerbosity(value int) {
+	hosts := callapi[[]models.ApiHost](http.MethodGet, "/api/hosts", nil)
+	for _, host := range *hosts {
+		host.Verbosity = value
+		callapi[models.ApiHost](http.MethodPut, "/api/hosts/"+host.ID, host)
+	}
 }

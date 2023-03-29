@@ -2,7 +2,7 @@ name: Discord with Logs
 
 on:
   workflow_run:
-    workflows: [Daily Test, Run All Tests]
+    workflows: [Daily Test, Run Test]
     types:
       - completed
 jobs:

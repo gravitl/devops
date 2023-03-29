@@ -116,10 +116,8 @@ func initConfig() {
 
 func setupLoging(name string) {
 	// setup logging
-	f, err := os.Create(os.TempDir() + "/testing-" + name + ".log")
-	if err != nil {
-		cobra.CheckErr("err")
-	}
+	f, err := os.Create(os.TempDir() + "/" + name + ".log")
+	cobra.CheckErr(err)
 	//defer f.Close() -- don't close file here
 	logLevel = &slog.LevelVar{}
 	replace = func(groups []string, a slog.Attr) slog.Attr {
@@ -129,7 +127,8 @@ func setupLoging(name string) {
 		return a
 	}
 	logger = slog.New(slog.HandlerOptions{AddSource: true, ReplaceAttr: replace, Level: logLevel}.NewJSONHandler(io.MultiWriter(os.Stderr, f)))
-	slog.SetDefault(logger)
+	logger2 := logger.With("testname", name)
+	slog.SetDefault(logger2)
 	if config.Debug {
 		logLevel.Set(slog.LevelDebug)
 	}
