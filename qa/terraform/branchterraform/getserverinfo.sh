@@ -37,7 +37,7 @@ curl -H "Authorization: Bearer $masterkey" https://$apiref/api/v1/enrollment-key
 tail -n +1 ipaddress*.txt | tr -d "=<>"  >> serverinfo.txt
 
 # ssh into each client and registers with the server
-regtoken=$(cat serverinfo.txt | grep token | awk '{print$2;}' | tr -d '",\n')
+regtoken=$(cat serverinfo.txt | grep token | awk '{print$2;}' | tr -d '",')
 #get ip addresses
 host1key=$(cat ipaddresshost1.txt)
 ingresskey=$(cat ipaddressingress.txt)
