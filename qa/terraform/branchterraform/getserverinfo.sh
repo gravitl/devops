@@ -21,16 +21,12 @@ rm docker-compose.yml
 
 # sets some variables
 masterkey=$(cat serverinfo.txt | grep master_key | awk '{print $2;}' | tr -d '"')
-ipv6addr=7b65:4206:9653:2021::/64
-ipv4addr=10.22.145.0/24
 apiref=$(cat serverinfo.txt | grep api_addr | awk '{print$2;}' | tr -d '"')
-netid='terranet'
 
 
 
-# uses api calls to the server to setup a network and access key for docker and registration key for clients, then records those keys to serverinfo.txt
-curl -d '{"addressrange":"10.22.145.0/24","addressrange6":"7b65:4206:9653:2021::/64","netid":"terranet"}' -H "Authorization: Bearer ${masterkey}" -H 'Content-Type: application/json' https://$apiref/api/networks
-curl -X POST -H "Authorization: Bearer $masterkey" -d '{"expiration":0,"uses_remaining":10,"networks":["terranet"],"unlimited":false,"tags":[]}' https://$apiref/api/v1/enrollment-keys
+
+# uses an api call to get the netmaker enrollment key that was made during the nm-quick script and records that key to serverinfo.txt
 curl -H "Authorization: Bearer $masterkey" https://$apiref/api/v1/enrollment-keys | jq | grep token >> serverinfo.txt
 
 #grabs ip addresses from all created clients
