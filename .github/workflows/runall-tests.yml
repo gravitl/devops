@@ -1,0 +1,14 @@
+name: Run All Tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  tests:
+    uses: ./.github/workflows/branchtest.yml
+    with:
+      tag: devops
+      network: devops
+    secrets: inherit
+
