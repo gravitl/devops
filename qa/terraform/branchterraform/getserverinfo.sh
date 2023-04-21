@@ -35,7 +35,7 @@ tail -n +1 ipaddress*.txt | tr -d "=<>"  >> serverinfo.txt
 # ssh into each client and registers with the server
 regtoken=$(cat serverinfo.txt | grep token | awk '{print$2;}' | tr -d '",')
 #get ip addresses
-host1key=$(cat ipaddresshost1.txt)
+relayedkey=$(cat ipaddressrelayed.txt)
 ingresskey=$(cat ipaddressingress.txt)
 egresskey=$(cat ipaddressegress.txt)
 relaykey=$(cat ipaddressrelay.txt)
@@ -44,7 +44,7 @@ serverkey=$(cat serverinfo.txt | grep ip_address | awk '{print$2;}' | tr -d '",'
 
 
 #register with server.
-ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$host1key "netclient register -t ${regtoken}"
+ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$relayedkey "netclient register -t ${regtoken}"
 ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$ingresskey "netclient register -t ${regtoken}"
 ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$egresskey "netclient register -t ${regtoken}"
 ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$relaykey "netclient register -t ${regtoken}"
