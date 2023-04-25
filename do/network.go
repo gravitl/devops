@@ -313,9 +313,13 @@ func (request *Request) UpdateNodes(tag, branch string) (bool, []string) {
 		return false, failednodes
 	}
 	wg := sync.WaitGroup{}
+	cmd := "apt-get update; apt-get upgrade -y; systemctl restart netclient"
 	for _, droplet := range droplets {
 		log.Println("updating droplet", droplet.Name)
 		wg.Add(1)
+		if droplet.Name == "extclient" {
+			continue
+		}
 		go func(wg *sync.WaitGroup, droplet godo.Droplet) {
 			ssh.Server, err = droplet.PublicIPv4()
 			if err != nil {
@@ -324,7 +328,10 @@ func (request *Request) UpdateNodes(tag, branch string) (bool, []string) {
 				return
 			}
 			log.Println("updating netclient on ", droplet.Name)
-			out, err := ssh.Run("apt-get update; apt-get upgrade -y; systemctl restart netclient")
+			if droplet.Name == "docker" {
+				cmd = "docker-compose pull; docker-compose up -d"
+			}
+			out, err := ssh.Run(cmd)
 			if err != nil {
 				log.Println("update failed on ", droplet.Name, err)
 				failednodes = append(failednodes, droplet.Name)
