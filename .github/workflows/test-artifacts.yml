@@ -167,7 +167,7 @@ jobs:
       - name: Build
         uses: actions/setup-node@v3
         with:
-          node-version: '12'
+          node-version: '20'
           cache: 'npm'
       - run: npm install
       - run: npm install react-scripts@4.0.3 -g
