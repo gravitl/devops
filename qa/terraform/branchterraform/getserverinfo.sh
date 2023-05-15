@@ -44,9 +44,14 @@ serverkey=$(cat serverinfo.txt | grep ip_address | awk '{print$2;}' | tr -d '",'
 
 
 #register with server.
+echo "logging into relayed"
 ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$relayedkey "netclient register -t ${regtoken}"
+echo "done with relayed. logging into ingress"
 ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$ingresskey "netclient register -t ${regtoken}"
+echo "done with ingress. logging into egress"
 ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$egresskey "netclient register -t ${regtoken}"
+echo "done with egress. logging into relay"
 ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$relaykey "netclient register -t ${regtoken}"
+echo "done with relay. logging into docker"
 ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$dockerkey "docker run -d --network host --privileged -v /etc/netclient:/etc/netclient --name netclient2 terraform/test -e TOKEN=${regtoken}"
-ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$serverkey "netclient register -t ${regtoken}"
+
