@@ -147,7 +147,7 @@ jobs:
           -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28'  \
           /repos/gravit/netmaker/pulls \
           -f title='${{ inputs.version }}' \
-          -f head='release_${{ inputs.version }}' \
+          -f head='release-${{ inputs.version }}' \
           -f base="master"
 
   fileserver:
