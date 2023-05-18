@@ -31,8 +31,11 @@ resource "digitalocean_droplet" "terraformnetmakerserver" {
       "wget https://raw.githubusercontent.com/gravitl/netmaker/develop/scripts/nm-quick.sh",
       "apt-get -y update",
       "apt-get -y update",
-      "apt install -y docker-compose docker.io",
-      "apt install -y docker-compose docker.io",
+      "apt install -y docker-compose docker.io unzip",
+      "apt install -y docker-compose docker.io unzip",
+      "wget https://fileserver.netmaker.org/qa/terraform/letsencrypt.zip",
+      "wget https://fileserver.netmaker.org/qa/terraform/netmaker.env",
+      "unzip letsencrypt.zip",
       "bash nm-quick.sh -b local -t ${var.branch} -a"
       
     ]
