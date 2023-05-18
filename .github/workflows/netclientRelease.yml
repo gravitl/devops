@@ -74,7 +74,7 @@ jobs:
           script: |
             cd netclient
             git fetch
-            git switch release_${{ github.event.inputs.version }}
+            git switch release-${{ github.event.inputs.version }}
             git restore .
             git pull
             go build .
