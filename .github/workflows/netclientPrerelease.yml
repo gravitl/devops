@@ -33,6 +33,7 @@ jobs:
           go mod tidy
           git commit -am 'update go mod for release'
       - name: Update Release Branch
+        run: |
           git tag -f ${{ inputs.version }}
           git push origin release-${{ inputs.version }}
           git push origin ${{ inputs.version }}
