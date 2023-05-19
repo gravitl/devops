@@ -14,6 +14,3 @@ How to upgrade staging and prod environments:
   - `docker build -t gravitl/netmaker:saasprod . --push`
   - `docker build -t gravitl/netmaker:saasprod-ee --build-arg tags=ee . --push`
 - update instances, for every tenant namespace, with: `kubectl delete po nm-app-<id>-server-0 -n <id>`
-
-
-
