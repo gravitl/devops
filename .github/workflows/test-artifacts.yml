@@ -80,9 +80,7 @@ jobs:
           go-version: 1.19
       - name: build client
         run: |
-          sudo apt update
-          sudo apt install -y libpcap-dev
-          CGO_ENABLED=0 go build -tags headless -ldflags="-s -w" -mod=mod -o build/netclient
+          CGO_ENABLED=0 go build -ldflags="-s -w" -mod=mod -o build/netclient
       - name: deploy
         uses: mdallasanta/ssh-scp-deploy@v1.1.0
         with:
@@ -134,7 +132,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: gravitl/netmaker-ui
+          repository: gravitl/netmaker-ui-2
           ref: develop
       - name: Setup Go
         uses: actions/setup-go@v3
@@ -162,7 +160,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          repository: gravitl/netmaker-ui
+          repository: gravitl/netmaker-ui-2
           ref: develop
       - name: Build
         uses: actions/setup-node@v3
@@ -223,4 +221,4 @@ jobs:
           SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
       - name: build linux package
         run: |
-          ssh root@fileserver.clustercat.com "cd packages; git restore .; git pull; export VERSION=0.18.8; export REVISION=${{ env.REVISION }}; ./apt_test_builder.sh; git restore ."
+          ssh root@fileserver.clustercat.com "cd packages; git restore .; git pull; export VERSION=0.20.1; export REVISION=${{ env.REVISION }}; ./apt_test_builder.sh; git restore ."
