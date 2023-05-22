@@ -54,13 +54,13 @@ func getAPI(config *netmaker.Config) string {
 	cobra.CheckErr(err)
 	serverip, err := client.PublicIPv4()
 	cobra.CheckErr(err)
-	out, err := ssh.Run([]byte(config.Key), serverip, "grep API_CONN_STRING docker-compose.yml")
+	out, err := ssh.Run([]byte(config.Key), serverip, "grep NM_DOMAIN netmaker.env")
 	cobra.CheckErr(err)
 	if out == "" {
 		cobra.CheckErr("api is blank")
 	}
-	parts := strings.Split(out, ":")
+	parts := strings.Split(out, "=")
 	temp := strings.ReplaceAll(parts[1], "\"", "")
 	result := strings.TrimSpace(temp)
-	return fmt.Sprintf("https://%s", result)
+	return fmt.Sprintf("https://api.%s", result)
 }
