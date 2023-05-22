@@ -55,12 +55,12 @@ func getMasterkey(config *netmaker.Config) string {
 	cobra.CheckErr(err)
 	serverip, err := client.PublicIPv4()
 	cobra.CheckErr(err)
-	out, err := ssh.Run([]byte(config.Key), serverip, "grep MASTER_KEY docker-compose.yml")
+	out, err := ssh.Run([]byte(config.Key), serverip, "grep MASTER_KEY netmaker.env")
 	cobra.CheckErr(err)
 	if out == "" {
 		cobra.CheckErr("masterkey is blank")
 	}
-	parts := strings.Split(out, ":")
+	parts := strings.Split(out, "=")
 	result := strings.ReplaceAll(parts[1], "\"", "")
 	return strings.TrimSpace(result)
 }
