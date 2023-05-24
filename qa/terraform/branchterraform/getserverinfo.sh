@@ -4,9 +4,9 @@
 echo "Server-info:" >> serverinfo.txt
 
 #grabs info from docker-compose.
-cat netmaker.env | grep SERVER_HOST >> serverinfo.txt
-cat netmaker.env | grep MASTER_KEY >> serverinfo.txt
-cat netmaker.env | grep NM_DOMAIN >> serverinfo.txt
+cat netmaker.env | grep SERVER_HOST= >> serverinfo.txt
+cat netmaker.env | grep MASTER_KEY= >> serverinfo.txt
+cat netmaker.env | grep NM_DOMAIN= >> serverinfo.txt
 #cat netmaker.env | grep BACKEND_URL >> serverinfo.txt
 
 # renames info from docker-compose
@@ -24,7 +24,7 @@ cat serverinfo.txt
 # sets some variables
 masterkey=$(cat serverinfo.txt | grep master_key | awk '{print $2;}' | tr -d '"')
 apiref="$(cat serverinfo.txt | grep api_addr | awk '{print$2;}' | tr -d '"')"
-echo "API REFERENCE IS: api.${apiref}"
+echo "API REFERENCE IS: api.$apiref"
 
 
 
