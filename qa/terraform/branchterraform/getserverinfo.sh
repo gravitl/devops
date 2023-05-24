@@ -4,24 +4,25 @@
 echo "Server-info:" >> serverinfo.txt
 
 #grabs info from docker-compose.
-cat docker-compose.yml | grep SERVER_HOST >> serverinfo.txt
-cat docker-compose.yml | grep MASTER_KEY >> serverinfo.txt
-cat docker-compose.yml | grep SERVER_HTTP_HOST >> serverinfo.txt
-cat docker-compose.yml | grep BACKEND_URL >> serverinfo.txt
+cat netmaker.env | grep SERVER_HOST >> serverinfo.txt
+cat netmaker.env | grep MASTER_KEY >> serverinfo.txt
+cat netmaker.env | grep NM_DOMAIN >> serverinfo.txt
+#cat netmaker.env | grep BACKEND_URL >> serverinfo.txt
 
 # renames info from docker-compose
 sed -i 's/SERVER_HOST/ip_address/g' serverinfo.txt
 sed -i 's/MASTER_KEY/master_key/g' serverinfo.txt
-sed -i 's/SERVER_HTTP_HOST/api_addr/g' serverinfo.txt
-sed -i 's/BACKEND_URL/dashboard_addr/g' serverinfo.txt
+sed -i 's/NM_DOMAIN/api_addr/g' serverinfo.txt
+#sed -i 's/BACKEND_URL/dashboard_addr/g' serverinfo.txt
 sed -i 's-https://api-dashboard-g' serverinfo.txt
 echo '      Role-tag: "server"' >> serverinfo.txt
 echo "      branch-tag: $1" >>serverinfo.txt
-rm docker-compose.yml
+rm netmaker.env
 
 # sets some variables
 masterkey=$(cat serverinfo.txt | grep master_key | awk '{print $2;}' | tr -d '"')
-apiref=$(cat serverinfo.txt | grep api_addr | awk '{print$2;}' | tr -d '"')
+apiref="api.$(cat serverinfo.txt | grep api_addr | awk '{print$2;}' | tr -d '"')"
+echo "API REFERENCE IS: ${apiref}"
 
 
 
