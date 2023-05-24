@@ -21,14 +21,14 @@ rm netmaker.env
 
 # sets some variables
 masterkey=$(cat serverinfo.txt | grep master_key | awk '{print $2;}' | tr -d '"')
-apiref="api.$(cat serverinfo.txt | grep api_addr | awk '{print$2;}' | tr -d '"')"
-echo "API REFERENCE IS: ${apiref}"
+apiref="$(cat serverinfo.txt | grep api_addr | awk '{print$2;}' | tr -d '"')"
+echo "API REFERENCE IS: api.${apiref}"
 
 
 
 
 # uses an api call to get the netmaker enrollment key that was made during the nm-quick script and records that key to serverinfo.txt
-curl -H "Authorization: Bearer $masterkey" https://$apiref/api/v1/enrollment-keys | jq | grep token >> serverinfo.txt
+curl -H "Authorization: Bearer $masterkey" https://api.$apiref/api/v1/enrollment-keys | jq | grep token >> serverinfo.txt
 
 #grabs ip addresses from all created clients
 tail -n +1 ipaddress*.txt | tr -d "=<>"  >> serverinfo.txt
