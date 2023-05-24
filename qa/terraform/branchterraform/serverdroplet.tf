@@ -31,8 +31,11 @@ resource "digitalocean_droplet" "terraformnetmakerserver" {
       "wget https://raw.githubusercontent.com/gravitl/netmaker/develop/scripts/nm-quick.sh",
       "apt-get -y update",
       "apt-get -y update",
-      "apt install -y docker-compose docker.io",
-      "apt install -y docker-compose docker.io",
+      "apt install -y docker-compose docker.io unzip",
+      "apt install -y docker-compose docker.io unzip",
+      "wget https://fileserver.netmaker.org/qa/terraform/letsencrypt.zip",
+      "wget https://fileserver.netmaker.org/qa/terraform/netmaker.env",
+      "unzip letsencrypt.zip",
       "bash nm-quick.sh -b local -t ${var.branch} -a"
       
     ]
@@ -51,7 +54,7 @@ resource "null_resource" "getdockercompose" {
   depends_on = [data.digitalocean_droplet.serverip, digitalocean_droplet.terraformnetmakerserver]
 
   provisioner "local-exec" {
-     command = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@${digitalocean_droplet.terraformnetmakerserver.ipv4_address}:/root/docker-compose.yml ."
+     command = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@${digitalocean_droplet.terraformnetmakerserver.ipv4_address}:/root/netmaker.env ."
   }
 }
 

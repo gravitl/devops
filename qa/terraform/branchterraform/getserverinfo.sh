@@ -4,30 +4,31 @@
 echo "Server-info:" >> serverinfo.txt
 
 #grabs info from docker-compose.
-cat docker-compose.yml | grep SERVER_HOST >> serverinfo.txt
-cat docker-compose.yml | grep MASTER_KEY >> serverinfo.txt
-cat docker-compose.yml | grep SERVER_HTTP_HOST >> serverinfo.txt
-cat docker-compose.yml | grep BACKEND_URL >> serverinfo.txt
+cat netmaker.env | grep SERVER_HOST= >> serverinfo.txt
+cat netmaker.env | grep MASTER_KEY= >> serverinfo.txt
+cat netmaker.env | grep NM_DOMAIN= >> serverinfo.txt
+
 
 # renames info from docker-compose
-sed -i 's/SERVER_HOST/ip_address/g' serverinfo.txt
-sed -i 's/MASTER_KEY/master_key/g' serverinfo.txt
-sed -i 's/SERVER_HTTP_HOST/api_addr/g' serverinfo.txt
-sed -i 's/BACKEND_URL/dashboard_addr/g' serverinfo.txt
-sed -i 's-https://api-dashboard-g' serverinfo.txt
+sed -i 's/SERVER_HOST=/ip_address /g' serverinfo.txt
+sed -i 's/MASTER_KEY=/master_key /g' serverinfo.txt
+sed -i 's/NM_DOMAIN=/api_addr /g' serverinfo.txt
 echo '      Role-tag: "server"' >> serverinfo.txt
 echo "      branch-tag: $1" >>serverinfo.txt
-rm docker-compose.yml
+rm netmaker.env
+
+cat serverinfo.txt
 
 # sets some variables
 masterkey=$(cat serverinfo.txt | grep master_key | awk '{print $2;}' | tr -d '"')
-apiref=$(cat serverinfo.txt | grep api_addr | awk '{print$2;}' | tr -d '"')
+apiref="$(cat serverinfo.txt | grep api_addr | awk '{print$2;}' | tr -d '"')"
+echo "API REFERENCE IS: api.$apiref"
 
 
 
 
 # uses an api call to get the netmaker enrollment key that was made during the nm-quick script and records that key to serverinfo.txt
-curl -H "Authorization: Bearer $masterkey" https://$apiref/api/v1/enrollment-keys | jq | grep token >> serverinfo.txt
+curl -H "Authorization: Bearer $masterkey" https://api.$apiref/api/v1/enrollment-keys | jq | grep token >> serverinfo.txt
 
 #grabs ip addresses from all created clients
 tail -n +1 ipaddress*.txt | tr -d "=<>"  >> serverinfo.txt
