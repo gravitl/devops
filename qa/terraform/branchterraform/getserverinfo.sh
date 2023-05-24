@@ -7,14 +7,12 @@ echo "Server-info:" >> serverinfo.txt
 cat netmaker.env | grep SERVER_HOST= >> serverinfo.txt
 cat netmaker.env | grep MASTER_KEY= >> serverinfo.txt
 cat netmaker.env | grep NM_DOMAIN= >> serverinfo.txt
-#cat netmaker.env | grep BACKEND_URL >> serverinfo.txt
+
 
 # renames info from docker-compose
 sed -i 's/SERVER_HOST=/ip_address /g' serverinfo.txt
 sed -i 's/MASTER_KEY=/master_key /g' serverinfo.txt
 sed -i 's/NM_DOMAIN=/api_addr /g' serverinfo.txt
-#sed -i 's/BACKEND_URL/dashboard_addr/g' serverinfo.txt
-sed -i 's-https://api-dashboard-g' serverinfo.txt
 echo '      Role-tag: "server"' >> serverinfo.txt
 echo "      branch-tag: $1" >>serverinfo.txt
 rm netmaker.env
