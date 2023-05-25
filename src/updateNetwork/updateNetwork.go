@@ -43,7 +43,7 @@ func main() {
 			netmaker.DeleteEgress(node.ID, node.Network)
 		}
 		if node.IsRelay {
-			netmaker.DeleteRelay(node.ID)
+			netmaker.DeleteRelay(node.ID, node.Network)
 		}
 		if node.IsIngressGateway {
 			netmaker.DeleteIngress(node.ID, node.Network)

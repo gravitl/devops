@@ -107,7 +107,7 @@ func peerupdatetest(config *netmaker.Config) bool {
 		if machine.Host.Name == "server" {
 			continue
 		}
-		if machine.Host.IsRelayed {
+		if machine.Node.IsRelayed {
 			continue
 		}
 		slog.Info(fmt.Sprintf("checking that %s @ %s received the update", machine.Host.Name, machine.Host.EndpointIP))
