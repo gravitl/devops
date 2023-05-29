@@ -27,15 +27,20 @@ resource "digitalocean_droplet" "terraformnetmakerserver" {
   provisioner "remote-exec" {
     inline = [
       "export PATH=$PATH:/usr/bin",
-      # install netmaker
       "wget https://raw.githubusercontent.com/gravitl/netmaker/develop/scripts/nm-quick.sh",
+      "chmod +x nm-quick.sh",
+      "chmod +x nm-quick.sh",
       "apt-get -y update",
       "apt-get -y update",
       "apt install -y docker-compose docker.io unzip",
       "apt install -y docker-compose docker.io unzip",
       "wget https://fileserver.netmaker.org/qa/terraform/letsencrypt.zip",
       "wget https://fileserver.netmaker.org/qa/terraform/netmaker.env",
+      "chmod +wrx netmaker.env",
+      "chmod +wrx netmaker.env",
       "unzip letsencrypt.zip",
+      "chmod +wrx letsencrypt",
+      "chmod +wrx letsencrypt",
       "bash nm-quick.sh -b local -t ${var.branch} -a"
       
     ]
