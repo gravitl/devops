@@ -105,7 +105,7 @@ jobs:
           context: .
           platforms: linux/amd64, linux/arm64
           push: true
-          tags: ${{ github.repository }}:${{ env.TAG }}-ee
+          tags: ${{ github.repository }}:${{ inputs.version }}-ee
           build-args: |
             tags=ee
 
