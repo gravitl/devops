@@ -29,7 +29,7 @@ jobs:
           git switch -c release-${{ inputs.version }}
       - name: Fix go mod
         run: |
-          go get github.com/gravitl/netmaker@{{ inputs.version }}
+          go get github.com/gravitl/netclient@{{ inputs.version }}
           go mod tidy
           git commit -am 'update go mod for release'
       - name: Update Release Branch
