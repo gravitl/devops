@@ -198,7 +198,7 @@ jobs:
           SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
       - name: copy files
         run: |
-          ssh fileserver.clustercat.com "mkdir -p /var/www/html/netclient/download/releases/${{ inputs.version }}"
+          ssh fileserver.clustercat.com "mkdir -p /var/www/html/netclient/releases/download/${{ inputs.version }}"
           ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-amd64
           ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-arm64
           ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-armv5
