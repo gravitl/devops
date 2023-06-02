@@ -198,23 +198,23 @@ jobs:
           SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
       - name: copy files
         run: |
-          ssh fileserver.clustercat.com "mkdir -p /var/www/html/netclient/releases/download/${{ inputs.version }}"
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-amd64
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-arm64
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-armv5
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-armv6
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-armv7
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-mips-hardfloat
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-mips-softfloat
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-mipsle-hardfloat
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-mipsle-softfloat
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-gui-linux-amd64
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-gui-linux-arm64
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-freebsd-amd64
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-darwin-arm64
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-darwin-amd64
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/gui-darwin-arm64
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/gui-darwin-amd64
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-windows-amd64.exe
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/Netclient-M1.pkg
-          ssh fileserver.clustercat.com "cd /var/www/html/netclient/releases/download${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-x86.msi
+          ssh fileserver.clustercat.com "mkdir -p /var/www/files/releases/download/${{ inputs.version }}"
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-amd64
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-arm64
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-armv5
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-armv6
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-armv7
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-mips-hardfloat
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-mips-softfloat
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-mipsle-hardfloat
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-mipsle-softfloat
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-gui-linux-amd64
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-gui-linux-arm64
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-freebsd-amd64
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-darwin-arm64
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-darwin-amd64
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/gui-darwin-arm64
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/gui-darwin-amd64
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-windows-amd64.exe
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/Netclient-M1.pkg
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-x86.msi
