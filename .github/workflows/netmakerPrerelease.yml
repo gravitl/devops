@@ -107,7 +107,7 @@ jobs:
           context: .
           platforms: linux/amd64, linux/arm64
           push: true
-          tags: ${{ github.repository }}:${{ env.TAG }}-ee
+          tags: ${{ github.repository }}:${{ inputs.version }}-ee
           build-args: |
             tags=ee
 
@@ -135,10 +135,10 @@ jobs:
           SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
       - name: copy files
         run: |
-          ssh fileserver.clustercat.com "mkdir -p /var/www/html/netmaker/releases/${{ inputs.version }}"
-          ssh fileserver.clustercat.com "cd /var/www/html/netmaker/releases/${{ inputs.version }}; wget https://github.com/gravitl/netmaker/releases/download/${{ inputs.version }}/netmaker-linux-amd64
-          ssh fileserver.clustercat.com "cd /var/www/html/netmaker/releases/${{ inputs.version }}; wget https://github.com/gravitl/netmaker/releases/download/${{ inputs.version }}/nmctl-linux-amd64
-          ssh fileserver.clustercat.com "cd /var/www/html/netmaker/releases/${{ inputs.version }}; wget https://github.com/gravitl/netmaker/releases/download/${{ inputs.version }}/nmctl-linux-arm64
-          ssh fileserver.clustercat.com "cd /var/www/html/netmaker/releases/${{ inputs.version }}; wget https://github.com/gravitl/netmaker/releases/download/${{ inputs.version }}/nmctl-darwin-arm64
-          ssh fileserver.clustercat.com "cd /var/www/html/netmaker/releases/${{ inputs.version }}; wget https://github.com/gravitl/netmaker/releases/download/${{ inputs.version }}/nmctl-darwin-amd64
-          ssh fileserver.clustercat.com "cd /var/www/html/netmaker/releases/${{ inputs.version }}; wget https://github.com/gravitl/netmaker/releases/download/${{ inputs.version }}/nmctl-windows-amd64.exe
+          ssh fileserver.clustercat.com "mkdir -p /var/www/files/releases/${{ inputs.version }}"
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/${{ inputs.version }}; wget https://github.com/gravitl/netmaker/releases/download/${{ inputs.version }}/netmaker-linux-amd64
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/${{ inputs.version }}; wget https://github.com/gravitl/netmaker/releases/download/${{ inputs.version }}/nmctl-linux-amd64
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/${{ inputs.version }}; wget https://github.com/gravitl/netmaker/releases/download/${{ inputs.version }}/nmctl-linux-arm64
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/${{ inputs.version }}; wget https://github.com/gravitl/netmaker/releases/download/${{ inputs.version }}/nmctl-darwin-arm64
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/${{ inputs.version }}; wget https://github.com/gravitl/netmaker/releases/download/${{ inputs.version }}/nmctl-darwin-amd64
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/${{ inputs.version }}; wget https://github.com/gravitl/netmaker/releases/download/${{ inputs.version }}/nmctl-windows-amd64.exe
