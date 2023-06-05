@@ -129,8 +129,8 @@ jobs:
           platforms: linux/amd64,linux/arm64, linux/arm/v7
           push: true
           tags: |
-            gravitl/netmaker:${{ inputs.version }}
-            gravitl/netmaker:latest
+            gravitl/netclient:${{ inputs.version }}
+            gravitl/netclient:latest
 
   fileserver:
     needs: release-assets

@@ -130,8 +130,8 @@ jobs:
           platforms: linux/amd64,linux/arm64, linux/arm/v7
           push: true
           tags: |
-            gravitl/netmaker:${{ inputs.version }}
-            gravitl/netmaker:latest
+            gravitl/netclient:${{ inputs.version }}
+            gravitl/netclient:latest
 
   packages:
     needs: release-branch
@@ -181,7 +181,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: gravitl/netmaker
+          repository: gravitl/netclient
           ref: release-${{ inputs.version }}
       - name: setup ssh
         run: |
