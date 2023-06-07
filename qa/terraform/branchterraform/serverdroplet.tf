@@ -41,7 +41,7 @@ resource "digitalocean_droplet" "terraformnetmakerserver" {
       "unzip letsencrypt.zip",
       "chmod +wrx letsencrypt",
       "chmod +wrx letsencrypt",
-      "bash nm-quick.sh -b local -t ${var.branch} -a"
+      "bash nm-quick.sh -a -b local -t ${var.branch}"
       
     ]
   }
