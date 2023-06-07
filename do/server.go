@@ -3,6 +3,8 @@ package do
 import (
 	"log"
 	"strings"
+
+	"golang.org/x/exp/slog"
 )
 
 type Server struct {
@@ -40,12 +42,12 @@ func (request *Request) ResetServer(server *Server) {
 
 func (request *Request) SoftResetServer(server *Server) {
 	ssh.Server = server.FQDN
-	log.Println("retrieving new docker images docker")
+	slog.Info("retrieving new docker images docker")
 	_, err := ssh.Run("docker-compose pull")
 	if err != nil {
 		log.Println("err running docker-compose pull ", err)
 	}
-	log.Println("starting docker")
+	slog.Info("starting docker")
 	if err := request.StartDocker(server); err != nil {
 		log.Println("error starting docker", err)
 	}

@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"time"
 
 	"github.com/gravitl/devops/netmaker"
 	"github.com/gravitl/devops/ssh"
@@ -84,6 +85,8 @@ func relaytest(config *netmaker.Config) bool {
 		slog.Error("failed to set firewall rule on relayed", "test", "relay")
 		return false
 	}
+	slog.Info("waiting for changes to propogate")
+	time.Sleep(time.Second * 30)
 	defer resetFirewall(relayed, egress)
 	slog.Info("ping egress from relayed")
 	ip, _, err := net.ParseCIDR(egress.Node.Address)

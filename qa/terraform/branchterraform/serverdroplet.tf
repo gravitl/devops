@@ -27,7 +27,7 @@ resource "digitalocean_droplet" "terraformnetmakerserver" {
   provisioner "remote-exec" {
     inline = [
       "export PATH=$PATH:/usr/bin",
-      "wget https://raw.githubusercontent.com/gravitl/netmaker/develop/scripts/nm-quick.sh",
+      "wget https://raw.githubusercontent.com/gravitl/netmaker/${var.branch}/scripts/nm-quick.sh",
       "chmod +x nm-quick.sh",
       "chmod +x nm-quick.sh",
       "apt-get -y update",

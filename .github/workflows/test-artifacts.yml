@@ -34,7 +34,7 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: gravitl/netmaker:testing, gravitl/netmaker:develop
-          build-args: version=v0.18.1
+          build-args: version=v0.18.8
 
   docker-netclient:
     runs-on: ubuntu-latest
@@ -64,7 +64,7 @@ jobs:
           platforms: linux/amd64, linux/arm64
           push: true
           tags: gravitl/netclient:testing, gravitl/netclient:develop
-          build-args: version=v0.18.1
+          build-args: version=v0.18.8
 
   netclient:
     runs-on: ubuntu-latest
@@ -80,9 +80,7 @@ jobs:
           go-version: 1.19
       - name: build client
         run: |
-          sudo apt update
-          sudo apt install -y libpcap-dev
-          CGO_ENABLED=0 go build -tags headless -ldflags="-s -w" -mod=mod -o build/netclient
+          CGO_ENABLED=0 go build -ldflags="-s -w" -mod=mod -o build/netclient
       - name: deploy
         uses: mdallasanta/ssh-scp-deploy@v1.1.0
         with:
@@ -134,7 +132,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: gravitl/netmaker-ui
+          repository: gravitl/netmaker-ui-2
           ref: develop
       - name: Setup Go
         uses: actions/setup-go@v3
@@ -154,43 +152,44 @@ jobs:
         with:
           context: .
           platforms: linux/amd64
+          file: ./Dockerfile.standalone
           push: true
           tags: gravitl/netmaker-ui:testing, gravitl/netmaker-ui:develop
 
-  ui-tarfile:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          repository: gravitl/netmaker-ui
-          ref: develop
-      - name: Build
-        uses: actions/setup-node@v3
-        with:
-          node-version: '12'
-          cache: 'npm'
-      - run: npm install
-      - run: npm install react-scripts@4.0.3 -g
-      - run: npm run build
-        env:
-          CI: false
-      - name: tarfile
-        run: |
-          tar -C build -zcf netmaker-ui.tar.gz .
-      - name: deploy
-        uses: mdallasanta/ssh-scp-deploy@v1.1.0
-        with:
-          local: ./netmaker-ui.tar.gz                                   # Local file path - REQUIRED false - DEFAULT ./
-          remote: /var/www/files/testing/                               # Remote file path - REQUIRED false - DEFAULT ~/
-          host: fileserver.clustercat.com                               # Remote server address - REQUIRED true
-          # port: ${{secrets.PORT}}                                      # Remote server port - REQUIRED false - DEFAULT 22
-          user: root                                                    # Remote server user - REQUIRED true
-          # password: ${{secrets.PASSWORD}}                              # User password - REQUIRED at least one of "password" or "key"
-          key: ${{secrets.TESTING_SSH_KEY}}                             # Remote server private key - REQUIRED at least one of "password" or "key"
-          # pre_upload: echo "This will be executed before the upload!"  # Command to run via ssh before scp upload - REQUIRED false
-          # post_upload: echo "This will be executed after the upload!"  # Command to run via ssh after scp upload - REQUIRED false
-          # ssh_options: -o StrictHostKeyChecking=no                     # A set of ssh_option separated by -o - REQUIRED false - DEFAULT -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-          scp_options: -v                                              # Flags to use during scp - REQUIRED false - DEFAULT ''
+ # ui-tarfile:
+ #   runs-on: ubuntu-latest
+ #   steps:
+ #     - uses: actions/checkout@v3
+ #       with:
+ #         repository: gravitl/netmaker-ui-2
+ #         ref: develop
+ #     - name: Build
+ #       uses: actions/setup-node@v3
+ #       with:
+ #         node-version: '20'
+ #         cache: 'npm'
+ #     - run: npm install
+ #     - run: npm install react-scripts@4.0.3 -g
+ #     - run: NODE_OPTIONS=--openssl-legacy-provider npm run build
+ #       env:
+ #         CI: false
+ #     - name: tarfile
+ #       run: |
+ #         tar -C build -zcf netmaker-ui.tar.gz .
+ #     - name: deploy
+ #       uses: mdallasanta/ssh-scp-deploy@v1.1.0
+ #       with:
+ #         local: ./netmaker-ui.tar.gz                                   # Local file path - REQUIRED false - DEFAULT ./
+ #         remote: /var/www/files/testing/                               # Remote file path - REQUIRED false - DEFAULT ~/
+ #         host: fileserver.clustercat.com                               # Remote server address - REQUIRED true
+ #         # port: ${{secrets.PORT}}                                      # Remote server port - REQUIRED false - DEFAULT 22
+ #         user: root                                                    # Remote server user - REQUIRED true
+ #         # password: ${{secrets.PASSWORD}}                              # User password - REQUIRED at least one of "password" or "key"
+ #         key: ${{secrets.TESTING_SSH_KEY}}                             # Remote server private key - REQUIRED at least one of "password" or "key"
+ #         # pre_upload: echo "This will be executed before the upload!"  # Command to run via ssh before scp upload - REQUIRED false
+ #         # post_upload: echo "This will be executed after the upload!"  # Command to run via ssh after scp upload - REQUIRED false
+ #         # ssh_options: -o StrictHostKeyChecking=no                     # A set of ssh_option separated by -o - REQUIRED false - DEFAULT -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+ #         scp_options: -v                                              # Flags to use during scp - REQUIRED false - DEFAULT ''
 
   build-packages:
     needs: netclient
@@ -223,4 +222,4 @@ jobs:
           SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
       - name: build linux package
         run: |
-          ssh root@fileserver.clustercat.com "cd packages; git restore .; git pull; export VERSION=0.18.1; export REVISION=${{ env.REVISION }}; ./apt_test_builder.sh; git restore ."
+          ssh root@fileserver.clustercat.com "cd packages; git restore .; git pull; export VERSION=0.20.1; export REVISION=${{ env.REVISION }}; ./apt_test_builder.sh; git restore ."

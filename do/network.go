@@ -16,6 +16,7 @@ import (
 
 	"github.com/digitalocean/godo"
 	"github.com/gravitl/netclient/ncutils"
+	"golang.org/x/exp/slog"
 )
 
 var ctx context.Context
@@ -302,7 +303,7 @@ func (request *Request) JoinNetwork(tag, token string) (bool, []string) {
 
 // UpdateNodes -- updateNodes to latest version of netclient
 func (request *Request) UpdateNodes(tag, branch string) (bool, []string) {
-	log.Println("updating droplets with tag", tag, " to branch ", branch)
+	slog.Info("updating droplets with tag" + tag + " to branch " + branch)
 	success := true
 	failednodes := []string{}
 	client := godo.NewFromToken(request.Token)
@@ -314,32 +315,52 @@ func (request *Request) UpdateNodes(tag, branch string) (bool, []string) {
 	}
 	wg := sync.WaitGroup{}
 	for _, droplet := range droplets {
-		log.Println("updating droplet", droplet.Name)
+		ip, _ := droplet.PublicIPv4()
+		slog.Info("droplet to update " + droplet.Name + " " + ip)
+	}
+	for _, droplet := range droplets {
+		if droplet.Name == "extclient" {
+			slog.Info("skipping " + droplet.Name)
+			continue
+		}
 		wg.Add(1)
 		go func(wg *sync.WaitGroup, droplet godo.Droplet) {
-			ssh.Server, err = droplet.PublicIPv4()
+			defer wg.Done()
+			cmd := "apt-get update; apt-get upgrade -y; systemctl restart netclient"
+			ssh := &SshConf{
+				User:    "root",
+				Key:     os.Getenv("HOME") + "/.ssh/id_devops",
+				Options: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=15",
+			}
+			ssh.Server, _ = droplet.PublicIPv4()
+			slog.Info("updating droplet ", "droplet", droplet.Name, "ip", ssh.Server)
 			if err != nil {
-				log.Println("unable to get public ip for droplet ", droplet.Name, err)
+				slog.Error("unable to get public ip for droplet "+droplet.Name, "droplet", droplet.Name, "ERROR", err)
 				failednodes = append(failednodes, droplet.Name)
 				return
 			}
-			log.Println("updating netclient on ", droplet.Name)
-			out, err := ssh.Run("apt-get update; apt-get upgrade -y; systemctl restart netclient")
+			if droplet.Name == "docker" {
+				cmd = "/usr/bin/docker-compose pull; /usr/bin/docker-compose up -d"
+			}
+			_, err := ssh.Run(cmd)
 			if err != nil {
-				log.Println("update failed on ", droplet.Name, err)
+				slog.Warn("netclient update failed", "droplet", droplet.Name, "ip", ssh.Server, "cmd", cmd)
+				slog.Warn("droplet update failed", "droplet", droplet.Name, "ERROR", err)
 				failednodes = append(failednodes, droplet.Name)
 			}
-			out2, err := ssh.Run("journalctl --rotate; journalctl --vacuum-time=10s")
+			_, err = ssh.Run("journalctl --rotate; journalctl --vacuum-time=10s")
 			if err != nil {
-				log.Println("clearing logs failed on", droplet.Name, err)
+				slog.Warn("clearing logs failed", "droplet", droplet.Name, "ERROR", err)
 				failednodes = append(failednodes, droplet.Name)
 			}
 			//clear logs
 
-			log.Println("update result: \n", out, out2)
-			wg.Done()
+			//slog.Info("update result", "droplet", droplet.Name, "update", out, "clear log", out2)
+			slog.Info("update finished", "droplet", droplet.Name)
+
 		}(&wg, droplet)
 	}
+	slog.Info("waiting for updates to complete")
 	wg.Wait()
 	return success, failednodes
 }

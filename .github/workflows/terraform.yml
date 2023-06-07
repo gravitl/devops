@@ -38,6 +38,8 @@ jobs:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v3
+      with:
+        repository: gravitl/devops
   
 
   
@@ -78,6 +80,11 @@ jobs:
         TF_VAR_clientbranch: "${{ inputs.netclientbranch }}"
         TF_VAR_do_tag: ${{ github.run_id }}-${{ github.run_attempt }}
 
+    - name: upload results
+      uses: actions/upload-artifact@v3
+      with:
+        name: server
+        path: serverinfo.txt
 
 
 
