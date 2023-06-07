@@ -36,8 +36,6 @@ resource "digitalocean_droplet" "terraformnetmakerserver" {
       "apt install -y docker-compose docker.io unzip",
       "wget https://fileserver.netmaker.org/qa/terraform/letsencrypt.zip",
       "wget https://fileserver.netmaker.org/qa/terraform/netmaker.env",
-      "chmod +wrx netmaker.env",
-      "chmod +wrx netmaker.env",
       "unzip letsencrypt.zip",
       "chmod +wrx letsencrypt",
       "chmod +wrx letsencrypt",
