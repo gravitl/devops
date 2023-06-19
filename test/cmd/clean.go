@@ -19,7 +19,6 @@ import (
 	"fmt"
 
 	"github.com/gravitl/devops/netmaker"
-	"github.com/gravitl/devops/ssh"
 	"github.com/spf13/cobra"
 	"golang.org/x/exp/slog"
 )
@@ -65,9 +64,9 @@ func cleanNetwork(config *netmaker.Config) bool {
 			slog.Info("deleting ingress", "host", machine.Host.Name)
 			netmaker.DeleteIngress(machine.Node.ID, machine.Node.Network)
 		}
-		if machine.Host.IsRelay {
+		if machine.Node.IsRelay {
 			slog.Info("deleting relay", "host", machine.Host.Name)
-			netmaker.DeleteRelay(machine.Host.ID)
+			netmaker.DeleteRelay(machine.Node.ID, machine.Node.Network)
 		}
 	}
 	slog.Info("reseting extclient")
@@ -84,17 +83,6 @@ func cleanNetwork(config *netmaker.Config) bool {
 	if egress == nil {
 		slog.Error("did not find egress netclient")
 		pass = false
-	}
-	if relayed != nil && egress != nil {
-		slog.Info("reseting firewall on relayed/egress")
-		_, err := ssh.Run([]byte(config.Key), relayed.Host.EndpointIP, "iptables -D OUTPUT -d "+egress.Host.EndpointIP+" -j DROP")
-		if err != nil {
-			slog.Warn("error resetting egress firewall" + err.Error())
-		}
-		_, err = ssh.Run([]byte(config.Key), egress.Host.EndpointIP, "iptables -D OUTPUT -d "+relayed.Host.EndpointIP+" -j DROP")
-		if err != nil {
-			slog.Warn("error resetting egress firewall" + err.Error())
-		}
 	}
 	return pass
 }
