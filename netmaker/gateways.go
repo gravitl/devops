@@ -58,5 +58,5 @@ func CreateRelay(relay, relayed *Netclient) {
 		RelayedNodes: []string{relayed.Node.ID},
 	}
 	slog.Debug("debuging", "data", data)
-	callapi[models.ApiHost](http.MethodPost, "/api/hosts/"+relay.Host.ID+"/relay", data)
+	callapi[models.ApiHost](http.MethodPost, "/api/nodes/"+relay.Node.Network+"/"+relay.Node.ID+"/createrelay", data)
 }
