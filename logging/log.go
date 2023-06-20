@@ -23,7 +23,7 @@ func SetupLoging(name string) {
 		}
 		return a
 	}
-	logger := slog.New(slog.HandlerOptions{AddSource: true, ReplaceAttr: replace, Level: logLevel}.NewJSONHandler(io.MultiWriter(os.Stderr, f)))
+	logger := slog.New(slog.NewJSONHandler(io.MultiWriter(os.Stderr, f), &slog.HandlerOptions{AddSource: true, ReplaceAttr: replace, Level: logLevel}))
 	logger2 := logger.With("name", name)
 	slog.SetDefault(logger2)
 }

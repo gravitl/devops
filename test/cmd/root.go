@@ -126,9 +126,8 @@ func setupLoging(name string) {
 		}
 		return a
 	}
-	logger = slog.New(slog.HandlerOptions{AddSource: true, ReplaceAttr: replace, Level: logLevel}.NewJSONHandler(io.MultiWriter(os.Stderr, f)))
-	logger2 := logger.With("testname", name)
-	slog.SetDefault(logger2)
+	logger = slog.New(slog.NewJSONHandler(io.MultiWriter(os.Stderr, f), &slog.HandlerOptions{AddSource: true, ReplaceAttr: replace, Level: logLevel}))
+	slog.SetDefault(logger)
 	if config.Debug {
 		logLevel.Set(slog.LevelDebug)
 	}
