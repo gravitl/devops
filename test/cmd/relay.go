@@ -67,6 +67,12 @@ func relaytest(config *netmaker.Config) bool {
 		return false
 	}
 	slog.Info("creating relay")
+	//check if server is EE
+	severConfig := netmaker.ServerConfig()
+	if !severConfig.Is_EE {
+		slog.Warn("server is not EE, skipping ...", "test", "relay")
+		return true
+	}
 	netmaker.CreateRelay(relay, relayed)
 	egress := netmaker.GetHost("egress", netclient)
 	slog.Info("ping egress from relayed")

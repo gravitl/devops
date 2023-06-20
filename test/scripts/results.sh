@@ -71,7 +71,13 @@ then
     then
         echo "relay: FAILED" >> /tmp/results.log
     else
-        echo "relay: PASSED" >> /tmp/results.log
+        grep "WARN" /tmp/tests/relay.log
+        if [ $? -eq 0 ]
+        then
+            echo "relay: SKIPPED" >> /tmp/results.log
+        else
+            echo "relay: PASSED" >> /tmp/results.log
+        fi
     fi
 else
     echo "relay: NOT RUN" >> /tmp/results.log
