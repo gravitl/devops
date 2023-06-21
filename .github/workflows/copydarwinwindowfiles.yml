@@ -1,0 +1,43 @@
+name: Copy Darwin/Windows Files
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        type: string
+
+jobs:
+  copy-files:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+          with:
+            repository: gravitl/netclient
+            ref: release-${{ inputs.version }}
+        - name: setup ssh
+          run: |
+            mkdir -p ~/.ssh/
+            echo "$SSH_KEY" > ~/.ssh/id_devops
+            chmod 600 ~/.ssh/id_devops
+            cat >>~/.ssh/config <<END
+            Host *.clustercat.com
+            User root
+            IdentityFile ~/.ssh/id_devops
+            StrictHostKeyChecking no
+            END
+          env:
+            SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
+        - name: copy files
+          run: |
+            ssh fileserver.clustercat.com "mkdir -p /var/www/files/releases/download/${{ inputs.version }}"
+            ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-darwin-amd64
+            ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-darwin-arm64
+            ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-gui-darwin-amd64
+            ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-gui-darwin-arm64
+            ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/Netclient-Intel.pkg
+            ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/Netclient-M1.pkg
+            ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-windows-amd64.exe
+            ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient_x64.msi
+
