@@ -211,10 +211,3 @@ jobs:
           ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-gui-linux-amd64
           ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-gui-linux-arm64
           ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-freebsd-amd64
-          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-darwin-arm64
-          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-darwin-amd64
-          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-gui-darwin-arm64
-          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient- gui-darwin-amd64
-          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-windows-amd64.exe
-          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/Netclient-M1.pkg
-          ssh fileserver.clustercat.com "cd /var/www/files/releases/download${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-x86.msi
