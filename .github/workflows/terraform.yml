@@ -11,12 +11,25 @@ on:
         description: netclient branch to run on.
         default: develop
         required: true
+      server:
+        description: server to run on.
+        required: true
+        type: choice
+        options:
+          - branch1
+          - branch2
+          - branch3
+          - branch4
+          - branch5
   workflow_call:
     inputs:
       netmakerbranch:
         required: true
         type: string
       netclientbranch:
+        required: true
+        type: string
+      server:
         required: true
         type: string
 
