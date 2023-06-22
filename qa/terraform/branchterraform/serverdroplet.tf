@@ -18,8 +18,6 @@ resource "null_resource" "terraformnetmakerserver" {
       "wget https://raw.githubusercontent.com/gravitl/netmaker/${var.branch}/scripts/nm-quick.sh",
       "chmod +x nm-quick.sh",
       "chmod +x nm-quick.sh",
-      "apt-get -y update",
-      "apt-get -y update",
       "bash nm-quick.sh -a -b local -t ${var.branch} -d ${var.server}.clustercat.com"
       
     ]
