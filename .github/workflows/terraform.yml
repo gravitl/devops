@@ -11,12 +11,25 @@ on:
         description: netclient branch to run on.
         default: develop
         required: true
+      server:
+        description: server to run on.
+        required: true
+        type: choice
+        options:
+          - branch1
+          - branch2
+          - branch3
+          - branch4
+          - branch5
   workflow_call:
     inputs:
       netmakerbranch:
         required: true
         type: string
       netclientbranch:
+        required: true
+        type: string
+      server:
         required: true
         type: string
 
@@ -79,33 +92,5 @@ jobs:
         TF_VAR_branch: "${{ inputs.netmakerbranch }}"
         TF_VAR_clientbranch: "${{ inputs.netclientbranch }}"
         TF_VAR_do_tag: ${{ github.run_id }}-${{ github.run_attempt }}
+        TF_VAR_server: ${{ inputs.server }}
 
-    - name: upload results
-      uses: actions/upload-artifact@v3
-      with:
-        name: server
-        path: serverinfo.txt
-
-
-
-    # - name: Terraform Plan
-    #   run: |
-    #     cd qa/terraform/branchterraform
-    #     terraform plan
-    #   env:
-    #     TF_VAR_do_token: "${{ secrets.DO_TOKEN }}"
-    #     TF_VAR_pvt_key: "./ssh/deploy.key"
-    #     TF_VAR_branch: "${{ inputs.netmakerbranch }}"
-    #     TF_VAR_clientbranch: "${{ inputs.clientbranch }}"
-    
-    # - name: Terraform Apply
-    #   run: |
-    #     cd qa/terraform/branchterraform
-    #     terraform apply
-    #   env: 
-    #     TF_VAR_do_token: "${{ secrets.DO_TOKEN }}"
-    #     TF_VAR_pvt_key: "./ssh/deploy.key"
-    #     TF_VAR_branch: "${{ inputs.netmakerbranch }}"
-    #     TF_VAR_clientbranch: "${{ inputs.clientbranch }}"
-   
-    
