@@ -31,7 +31,7 @@ resource "null_resource" "terraformnetmakerserver" {
 # This null resource will scp the docker-compose over to the terraform server to gather required information
 resource "null_resource" "getdockercompose" {
 
-  depends_on = [data.digitalocean_droplet.serverip, digitalocean_droplet.terraformnetmakerserver]
+  depends_on = [digitalocean_droplet.terraformnetmakerserver]
 
   provisioner "local-exec" {
      command = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@server.${var.server}.clustercat.com:/root/netmaker.env ."
