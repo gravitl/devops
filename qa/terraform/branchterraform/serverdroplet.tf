@@ -4,7 +4,7 @@ resource "null_resource" "terraformnetmakerserver" {
   
   #get a connection to the passed in droplet
   connection {
-    host = "${var.server}.clustercat.com"
+    host = "server.${var.server}.clustercat.com"
     user = "root"
     type = "ssh"
     private_key = var.pvt_key
@@ -34,14 +34,14 @@ resource "null_resource" "getdockercompose" {
   depends_on = [data.digitalocean_droplet.serverip, digitalocean_droplet.terraformnetmakerserver]
 
   provisioner "local-exec" {
-     command = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@${var.server}.clustercat.com:/root/netmaker.env ."
+     command = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@server.${var.server}.clustercat.com:/root/netmaker.env ."
   }
 }
 
 # This null_resource will run a shell script that will extract the information from the docker-compose and populate a txt file
 resource "null_resource" "getserverinfo" {
   
-  depends_on = [data.digitalocean_droplet.serverip, digitalocean_droplet.terraformnetmakerserver, null_resource.getdockercompose, local_file.ipaddresses, local_file.extipaddresses, local_file.dockeripaddresses, local_file.egressipaddresses]
+  depends_on = [ digitalocean_droplet.terraformnetmakerserver, null_resource.getdockercompose, local_file.ipaddresses, local_file.extipaddresses, local_file.dockeripaddresses, local_file.egressipaddresses]
   provisioner "local-exec" {
     interpreter = ["/bin/bash" ,"-c"]
     command = "sudo bash getserverinfo.sh ${var.do_tag} ${var.clientbranch}"
