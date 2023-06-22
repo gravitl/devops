@@ -16,3 +16,4 @@ variable "extclient" {}
 variable "docker" {}
 variable "egress" {}
 variable "pvt_key" {}
+variable "server" {}
