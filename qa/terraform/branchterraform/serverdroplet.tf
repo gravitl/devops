@@ -31,7 +31,7 @@ resource "null_resource" "terraformnetmakerserver" {
 # This null resource will scp the docker-compose over to the terraform server to gather required information
 resource "null_resource" "getdockercompose" {
 
-  depends_on = [digitalocean_droplet.terraformnetmakerserver]
+  depends_on = [null_resource.terraformnetmakerserver]
 
   provisioner "local-exec" {
      command = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@server.${var.server}.clustercat.com:/root/netmaker.env ."
@@ -41,7 +41,7 @@ resource "null_resource" "getdockercompose" {
 # This null_resource will run a shell script that will extract the information from the docker-compose and populate a txt file
 resource "null_resource" "getserverinfo" {
   
-  depends_on = [ digitalocean_droplet.terraformnetmakerserver, null_resource.getdockercompose, local_file.ipaddresses, local_file.extipaddresses, local_file.dockeripaddresses, local_file.egressipaddresses]
+  depends_on = [ null_resource.terraformnetmakerserver, null_resource.getdockercompose, local_file.ipaddresses, local_file.extipaddresses, local_file.dockeripaddresses, local_file.egressipaddresses]
   provisioner "local-exec" {
     interpreter = ["/bin/bash" ,"-c"]
     command = "sudo bash getserverinfo.sh ${var.do_tag} ${var.clientbranch}"
