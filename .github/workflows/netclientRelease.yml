@@ -157,7 +157,7 @@ jobs:
             echo ${VERSION}
       - name: apt/rpm
         run: |
-          ssh fileserver.clustercat.com "cd packages; export VERSION=${{ ENV.version }}; export REVISION=0; ./apt_builder.sh; ./rpm_builder.sh"
+          ssh fileserver.clustercat.com "cd packages; export VERSION=${{ env.version }}; export REVISION=0; ./apt_builder.sh; ./rpm_builder.sh"
 
   pull-request:
     needs: release-branch
