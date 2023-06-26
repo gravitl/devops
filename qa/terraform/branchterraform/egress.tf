@@ -57,3 +57,4 @@ resource "local_file" "egressipaddresses" {
    filename = "ipaddress${var.egress}.txt"
 
 }
+
