@@ -52,6 +52,13 @@ jobs:
     
     - name: test ssh
       run: |
+        
+        for arg in "branch1" "branch2" "branch3" "branch4" "branch5"; do
+            echo checking $arg
+            result=$( ssh root@server.${arg}.clustercat.com '~/branchtesting/check.sh') 
+            echo $result
+        done0
+
         result=$(ssh server.branch1.clustercat.com ls /tmp)
         echo $result
         echo ${{ inputs.netmakerbranch }}
