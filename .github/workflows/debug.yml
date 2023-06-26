@@ -55,7 +55,7 @@ jobs:
         
         for arg in "branch1" "branch2" "branch3" "branch4" "branch5"; do
             echo checking $arg
-            result=$( ssh root@server.branch1.clustercat.com /home/root/branchtesting/check.sh) 
+            result=$( ssh root@server.branch1.clustercat.com /root/branchtesting/check.sh) 
             echo $result
         done
 
