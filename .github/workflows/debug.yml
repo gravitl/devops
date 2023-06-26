@@ -52,6 +52,7 @@ jobs:
     
     - name: test ssh
       run: |
-        ssh server.branch1.clustercat.com ls /tmp
+        result=$(ssh server.branch1.clustercat.com ls /tmp)
+        echo $result
         echo ${{ inputs.netmakerbranch }}
         echo ${{ inputs.netclientbranch }}
