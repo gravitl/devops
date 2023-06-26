@@ -58,14 +58,3 @@ resource "local_file" "egressipaddresses" {
 
 }
 
-resource "null_resource" "remove_snapshot" {
-  depends_on = [digitalocean_droplet.egress]
-  provisioner "local-exec" {
-      command = <<EOT
-        curl -X DELETE \
-        -H 'Content-Type: application/json' \
-        -H "Authorization: Bearer ${var.do_token}" \
-        "https://api.digitalocean.com/v2/snapshots/egresssnapshot${var.do_tag}"
-EOT
-  }
-}
