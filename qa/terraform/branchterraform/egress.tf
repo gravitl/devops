@@ -65,7 +65,7 @@ resource "null_resource" "remove_snapshot" {
         curl -X DELETE \
         -H 'Content-Type: application/json' \
         -H "Authorization: Bearer ${var.do_token}" \
-        "https://api.digitalocean.com/v2/snapshots/egresssnapshot/${var.do_tag}"
+        "https://api.digitalocean.com/v2/snapshots/egresssnapshot${var.do_tag}"
 EOT
   }
 }
