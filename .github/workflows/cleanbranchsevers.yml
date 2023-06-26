@@ -1,0 +1,39 @@
+name: Clean Branch Servers
+
+on:
+  workflow_dispatch:
+
+  workflow_call:
+
+jobs:
+  clean-branch-servers:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh/
+        echo "$SSH_KEY" > ~/.ssh/deploy.key
+        chmod 600 ~/.ssh/deploy.key 
+        ls ~/.ssh
+        cat >>~/.ssh/config <<END
+        Host *
+          User root
+          IdentityFile ~/.ssh/deploy.key
+          StrictHostKeyChecking no
+        END
+        cat ~/.ssh/config
+        cat ~/.ssh/deploy.key
+      env:
+          SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
+    
+    - name: clean
+      run: |
+        for arg in "branch1" "branch2" "branch3" "branch4" "branch5"; do
+            echo cleaning $arg
+            result=$( ssh root@server.branch1.clustercat.com rm /tmp/branchtest) 
+            echo $result
+        done
+
