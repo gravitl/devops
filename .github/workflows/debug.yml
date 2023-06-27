@@ -28,3 +28,4 @@ jobs:
       netmakerbranch: ${{ github.event.inputs.netmakerbranch }}
       netclientbranch: ${{ github.event.inputs.netclientbranch }}
       tag: ${{ github.run_id }}-${{ github.run_attempt }}
+    secrets: inherit
