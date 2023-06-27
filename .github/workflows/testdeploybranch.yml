@@ -64,7 +64,7 @@ jobs:
 
   testbranch:
     needs: [terraform]
-    uses: gravitl/devops/.github/workflows/testbranch.yml@master
+    uses: gravitl/devops/.github/workflows/branchtest.yml@master
     with:
       tag: ${{ github.event.inputs.tag }}
       network: netmaker
