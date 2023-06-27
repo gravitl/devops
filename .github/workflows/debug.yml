@@ -23,7 +23,7 @@ on:
 
 jobs:
   branchtest:
-    uses: gravitl/devops/.github/workflows/netmaker/testdeploybranch.yml@master
+    uses: gravitl/devops/.github/workflows/testdeploybranch.yml@master
     with:
       netmakerbranch: ${{ github.event.inputs.netmakerbranch }}
       netclientbranch: ${{ github.event.inputs.netclientbranch }}
