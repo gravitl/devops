@@ -22,44 +22,9 @@ on:
         type: string
 
 jobs:
-  terraform:
-    name: 'Terraform'
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v3
-
-    - name: Setup SSH
-      run: |
-        mkdir -p ~/.ssh/
-        echo "$SSH_KEY" > ~/.ssh/deploy.key
-        chmod 600 ~/.ssh/deploy.key 
-        ls ~/.ssh
-        cat >>~/.ssh/config <<END
-        Host *
-          User root
-          IdentityFile ~/.ssh/deploy.key
-          StrictHostKeyChecking no
-        END
-        cat ~/.ssh/config
-        cat ~/.ssh/deploy.key
-      env:
-          SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
-    
-    - name: test ssh
-      run: |
-        
-        for arg in "branch1" "branch2" "branch3" "branch4" "branch5"; do
-            echo checking $arg
-            result=$( ssh root@server.branch1.clustercat.com /root/branchtesting/check.sh ) 
-            echo $result
-        done
-
-        result=$(ssh server.branch1.clustercat.com ls /tmp)
-        echo $result
-        echo ${{ inputs.netmakerbranch }}
-        echo ${{ inputs.netclientbranch }}
+  branchtest:
+    uses: gravitl/devops/.github/workflows/netmaker/testdeploybranch.yml@master
+    with:
+      netmakerbranch: ${{ github.event.inputs.netmakerbranch }}
+      netclientbranch: ${{ github.event.inputs.netclientbranch }}
+      tag: ${{ github.run_id }}-${{ github.run_attempt }}
