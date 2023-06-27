@@ -1,0 +1,71 @@
+name: Deploy and Test Branch
+
+on:
+  workflow_call:
+    inputs:
+      netclientbranch:
+        required: true
+        type: string
+      netmakerbranch: 
+        type: string
+        required: true
+      tag:
+        type: string
+        required: true
+
+jobs:
+
+  getserver:
+    runs-on: ubuntu-latest
+    outputs:
+      server: ${{ steps.data.outputs.server }}
+    steps:
+      - name: setup ssh
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.TESTING_SSH_KEY }}" > ~/.ssh/id_devops
+          chmod 600 ~/.ssh/id_devops
+          cat >> ~/.ssh/config <<EOF
+          Host *.clustercat.com
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+            IdentityFile ~/.ssh/id_devops
+          EOF
+        env:
+          TESTING_SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
+      - name: get server
+        id: data
+        run: |
+          server=""
+          for arg in "1" "2" "3" "4" "5"; do
+            echo checking server $arg
+            result=$( ssh root@server.branch${arg}.clustercat.com /root/branchtesting/check.sh )
+            echo $result
+            if [ "$result" == "pass" ]; then
+              server=branch${arg}
+              break
+            fi
+          done
+            echo server is $server
+            if [ "$server" == "" ]; then
+              echo "no server found"
+              exit 1
+            fi
+          echo "server=${server}" >> $GITHUB_OUTPUT
+
+  terraform:
+    needs: [getserver]
+    uses: gravitl/devops/.github/workflows/terraform.yml@master
+    with:
+      netclientbranch: ${{ github.event.inputs.netclientbranch }}
+      netmakerbranch: ${{ github.event.inputs.netmakerbranch }}
+      server: ${{ needs.getserver.outputs.server }}
+    secrets: inherit
+
+  testbranch:
+    needs: [terraform]
+    uses: gravitl/devops/.github/workflows/testbranch.yml@master
+    with:
+      tag: ${{ github.event.inputs.tag }}
+      network: netmaker
+    secrets: inherit
