@@ -71,7 +71,7 @@ jobs:
       - name: get master key
         id: data
         run: |
-          masterkey=$( ssh root@server.${{ needs.getserver.outputs.server }}.clustercat.com cat /root/branchtesting/masterkey )
+          masterkey=$( ssh root@server.${{ needs.getserver.outputs.server }}.clustercat.com cat grep MASTER_KEY /root/.env | cut -d= -f2 )
           echo "masterkey=${masterkey}" >> $GITHUB_OUTPUT
 
   testbranch:
