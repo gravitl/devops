@@ -23,9 +23,10 @@ on:
 
 jobs:
   branchtest:
-    uses: gravitl/devops/.github/workflows/testdeploybranch.yml@master
+    uses: ./.github/workflows/testdeploybranch.yml
     with:
       netmakerbranch: ${{ github.event.inputs.netmakerbranch }}
       netclientbranch: ${{ github.event.inputs.netclientbranch }}
       tag: ${{ github.run_id }}-${{ github.run_attempt }}
+      
     secrets: inherit
