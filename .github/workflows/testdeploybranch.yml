@@ -63,7 +63,7 @@ jobs:
     secrets: inherit
 
   masterkey:
-    needs: [getserver]
+    needs: [getserver, terraform]
     runs-on: ubuntu-latest
     outputs:
       masterkey: ${{ steps.data.outputs.masterkey }}
