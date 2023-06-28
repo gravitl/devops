@@ -62,10 +62,24 @@ jobs:
       server: ${{ needs.getserver.outputs.server }}
     secrets: inherit
 
+  masterkey:
+    needs: [getserver]
+    runs-on: ubuntu-latest
+    outputs:
+      masterkey: ${{ steps.data.outputs.masterkey }}
+    steps:
+      - name: get master key
+        id: data
+        run: |
+          masterkey=$( ssh root@${{ needs.getserver.outputs.server }}.clustercat.com cat /root/branchtesting/masterkey )
+          echo "masterkey=${masterkey}" >> $GITHUB_OUTPUT
+
   testbranch:
-    needs: [terraform]
-    uses: gravitl/devops/.github/workflows/branchtest.yml@master
+    needs: [getserver, terraform, masterkey]
+    uses: ./.github/workflows/branchtest.yml
     with:
       tag: ${{ github.event.inputs.tag }}
       network: netmaker
+      api: "https://api.${{ needs.getserver.outputs.server }}.clustercat.com"
+      masterkey: ${{ needs.masterkey.outputs.masterkey }} 
     secrets: inherit
