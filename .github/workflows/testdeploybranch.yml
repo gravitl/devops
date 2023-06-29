@@ -68,7 +68,13 @@ jobs:
     steps:
       - name: clean snapshot
         run: |
-
+          snap=$( curl -X GET -H 'Content-Type: application/json' \
+            -H 'Authorization: Bearer ${{ secrets.DIGITALOCEAN_TOKEN }}' \
+            "https://api.digitalocean.com/v2/snapshots | jq -r '.snapshots[] | select(.name=egresssnapshot${{ inputs.tag }}) | jq .id )
+          curl -X DELETE \
+            -H 'Content-Type: application/json' \
+            -H 'Authorization: Bearer ${{ secrets.DIGITALOCEAN_TOKEN }}' \
+            "https://api.digitalocean.com/v2/snapshots/${snap}"  
   masterkey:
     needs: [getserver, terraform]
     runs-on: ubuntu-latest
