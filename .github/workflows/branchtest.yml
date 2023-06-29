@@ -15,6 +15,9 @@ on:
       masterkey:
         type: string
         required: true
+      server:
+        type: string
+        required: true
 
 jobs:
 
@@ -114,7 +117,7 @@ jobs:
       - name: run tests
         run: |
           chmod +x bin/test
-          bin/test peerUpdate
+          bin/test peerUpdate 
           bin/test ingress
           bin/test egress
           bin/test relay
@@ -125,6 +128,7 @@ jobs:
           NETWORK: ${{ inputs.network }}
           MASTERKEY: ${{ inputs.masterkey }}
           API: ${{ inputs.api }}
+          SERVER: ${{ inputs.server }}
       - name: save logs
         uses: actions/upload-artifact@v3
         with:
