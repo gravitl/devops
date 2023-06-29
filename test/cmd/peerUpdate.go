@@ -69,12 +69,12 @@ func peerupdatetest(config *netmaker.Config) bool {
 	}
 	netmaker.SetCxt(config.Api, config.Masterkey)
 	netclient := netmaker.GetNetclient(config.Network)
-	server := netmaker.GetHost("server", netclient)
-	if server == nil {
-		slog.Error("did not find server", "test", "peerupdate")
+	node1 := netmaker.GetHost("node1", netclient)
+	if node1 == nil {
+		slog.Error("did not find node1", "test", "peerupdate")
 		return false
 	}
-	slog.Info("updating wg ip on server node")
+	slog.Info("updating wg ip on node1")
 	taken := make(map[string]bool)
 	for _, machine := range netclient {
 		ip, _, err := net.ParseCIDR(machine.Node.Address)
@@ -85,14 +85,14 @@ func peerupdatetest(config *netmaker.Config) bool {
 	}
 	slog.Debug("debugging", "exclued ips ", taken)
 
-	newip := getNextIP(server.Node.Address, taken)
+	newip := getNextIP(node1.Node.Address, taken)
 	if newip == "" {
 		return false
 	}
-	server.Node.Address = newip
-	slog.Info(fmt.Sprintf("updating wg address of %s to %s", server.Host.Name, newip))
+	node1.Node.Address = newip
+	slog.Info(fmt.Sprintf("updating wg address of %s to %s", node1.Host.Name, newip))
 
-	netmaker.UpdateNode(&server.Node)
+	netmaker.UpdateNode(&node1.Node)
 	// check node received update
 	//check if other nodes received update
 	failedmachines := []string{}
@@ -104,7 +104,7 @@ func peerupdatetest(config *netmaker.Config) bool {
 	// wait for update to be propogated
 	time.Sleep(time.Second * 30)
 	for _, machine := range netclient {
-		if machine.Host.Name == "server" {
+		if machine.Host.Name == "node1" {
 			continue
 		}
 		if machine.Node.IsRelayed {
