@@ -53,6 +53,7 @@ jobs:
             fi
           echo "server=${server}" >> $GITHUB_OUTPUT
           ssh root@server.${server}.clustercat.com /root/branchtesting/clean.sh
+          exit 0
 
   terraform:
     needs: [getserver]
