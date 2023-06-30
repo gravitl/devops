@@ -108,7 +108,7 @@ jobs:
     needs: [getserver, terraform, masterkey]
     uses: ./.github/workflows/branchtest.yml
     with:
-      tag: ${{ github.event.inputs.tag }}
+      tag: ${{ inputs.tag }}
       network: netmaker
       api: "https://api.${{ needs.getserver.outputs.server }}.clustercat.com"
       masterkey: ${{ needs.masterkey.outputs.masterkey }}
