@@ -55,7 +55,7 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	peerUpdateCmd.Flags().String("toggle", "server", "server name")
+	peerUpdateCmd.Flags().StringP("server", "s", "server", "server name")
 }
 
 func peerupdatetest(config *netmaker.Config) bool {
@@ -70,6 +70,7 @@ func peerupdatetest(config *netmaker.Config) bool {
 	}
 	netmaker.SetCxt(config.Api, config.Masterkey)
 	netclient := netmaker.GetNetclient(config.Network)
+	slog.Info("getting server", "server-name", config.Server)
 	server := netmaker.GetHost(config.Server, netclient)
 	if server == nil {
 		slog.Error("did not find server", "test", "peerupdate")
