@@ -52,6 +52,7 @@ jobs:
               exit 1
             fi
           echo "server=${server}" >> $GITHUB_OUTPUT
+          set +e
           ssh root@server.${server}.clustercat.com /root/branchtesting/clean.sh
           exit 0
 
