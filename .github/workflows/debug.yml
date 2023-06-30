@@ -27,6 +27,5 @@ jobs:
     with:
       netmakerbranch: ${{ github.event.inputs.netmakerbranch }}
       netclientbranch: ${{ github.event.inputs.netclientbranch }}
-      tag: ${{ github.run_id }}-${{ github.run_attempt }}
-      
+      tag: ${{ github.event.workflow_run.id }}-${{ github.event.worfkflow_run.run_attempt }}
     secrets: inherit
