@@ -116,8 +116,8 @@ jobs:
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - name: run tests
         run: |
-          chmod +x bin/test -s ${{ inputs.server }}
-          bin/test peerUpdate 
+          chmod +x bin/test 
+          bin/test peerUpdate -s ${{ inputs.server }} 
           bin/test ingress
           bin/test egress
           bin/test relay
