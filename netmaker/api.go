@@ -33,8 +33,7 @@ type EnvMap map[string]string
 
 type Config struct {
 	Network            string
-	CleanUp            bool
-	CleanUpTimeout     int
+	Server             string
 	DigitalOcean_Token string
 	Tag                string
 	Api                string

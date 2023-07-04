@@ -52,6 +52,9 @@ jobs:
               exit 1
             fi
           echo "server=${server}" >> $GITHUB_OUTPUT
+          set +e
+          ssh root@server.${server}.clustercat.com /root/branchtesting/clean.sh
+          exit 0
 
   terraform:
     needs: [getserver]
@@ -61,11 +64,53 @@ jobs:
       netmakerbranch: ${{ github.event.inputs.netmakerbranch }}
       server: ${{ needs.getserver.outputs.server }}
     secrets: inherit
+  
+  cleansnapshot:
+    needs: [getserver, terraform]
+    runs-on: ubuntu-latest
+    steps:
+      - name: clean snapshot
+        run: |
+          snap=$( curl -X GET -H 'Content-Type: application/json' \
+            -H 'Authorization: Bearer ${{ secrets.DIGITALOCEAN_TOKEN }}' \
+            "https://api.digitalocean.com/v2/snapshots" | jq -r '.snapshots[] | select(.name=egresssnapshot${{ inputs.tag }})' | jq .id )
+          curl -X DELETE \
+            -H 'Content-Type: application/json' \
+            -H 'Authorization: Bearer ${{ secrets.DIGITALOCEAN_TOKEN }}' \
+            "https://api.digitalocean.com/v2/snapshots/${snap}"
+
+  masterkey:
+    needs: [getserver, terraform]
+    runs-on: ubuntu-latest
+    outputs:
+      masterkey: ${{ steps.data.outputs.masterkey }}
+    steps:
+      - name: setup ssh
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.TESTING_SSH_KEY }}" > ~/.ssh/id_devops
+          chmod 600 ~/.ssh/id_devops
+          cat >> ~/.ssh/config <<EOF
+          Host *.clustercat.com
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+            IdentityFile ~/.ssh/id_devops
+          EOF
+        env:
+          TESTING_SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
+      - name: get master key
+        id: data
+        run: |
+          masterkey=$( ssh root@server.${{ needs.getserver.outputs.server }}.clustercat.com grep MASTER_KEY /root/.env | cut -d= -f2 )
+          echo "masterkey=${masterkey}" >> $GITHUB_OUTPUT
 
   testbranch:
-    needs: [terraform]
-    uses: gravitl/devops/.github/workflows/branchtest.yml@master
+    needs: [getserver, terraform, masterkey]
+    uses: ./.github/workflows/branchtest.yml
     with:
-      tag: ${{ github.event.inputs.tag }}
+      tag: ${{ inputs.tag }}
       network: netmaker
+      api: "https://api.${{ needs.getserver.outputs.server }}.clustercat.com"
+      masterkey: ${{ needs.masterkey.outputs.masterkey }}
+      server: ${{ needs.getserver.outputs.server }}
     secrets: inherit

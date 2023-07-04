@@ -32,13 +32,14 @@ import (
 
 // peerUpdateCmd represents the peerUpdate command
 var peerUpdateCmd = &cobra.Command{
-	Use:   "peerUpdate",
+	Use:   "peerUpdate -s <server>",
 	Short: "run peerupdate test",
 	Long: `updates wg address of a node and
 	verifies that all other nodes received the update
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		setupLoging("peerupdate")
+		config.Server = cmd.Flag("server").Value.String()
 		fmt.Println(peerupdatetest(&config))
 	},
 }
@@ -54,7 +55,7 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// peerUpdateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	peerUpdateCmd.Flags().StringP("server", "s", "server", "server name")
 }
 
 func peerupdatetest(config *netmaker.Config) bool {
@@ -69,12 +70,13 @@ func peerupdatetest(config *netmaker.Config) bool {
 	}
 	netmaker.SetCxt(config.Api, config.Masterkey)
 	netclient := netmaker.GetNetclient(config.Network)
-	server := netmaker.GetHost("server", netclient)
+	slog.Info("getting server", "server-name", config.Server)
+	server := netmaker.GetHost(config.Server, netclient)
 	if server == nil {
 		slog.Error("did not find server", "test", "peerupdate")
 		return false
 	}
-	slog.Info("updating wg ip on server node")
+	slog.Info("updating wg ip on server")
 	taken := make(map[string]bool)
 	for _, machine := range netclient {
 		ip, _, err := net.ParseCIDR(machine.Node.Address)
@@ -104,7 +106,7 @@ func peerupdatetest(config *netmaker.Config) bool {
 	// wait for update to be propogated
 	time.Sleep(time.Second * 30)
 	for _, machine := range netclient {
-		if machine.Host.Name == "server" {
+		if machine.Host.Name == config.Server {
 			continue
 		}
 		if machine.Node.IsRelayed {

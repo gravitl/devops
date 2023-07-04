@@ -79,7 +79,7 @@ jobs:
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#990000"
           username: "GitHub Bot"
-          message: " ${{ github.repository}}:${{ github.event.workflow_run.name }}:PR ${{ env.pull_request}} failed: droplets from this workflow (tag ${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}) will be deleted in 3 hours"
+          message: " ${{ github.repository}}:${{ github.event.workflow_run.name }}:PR ${{ env.pull_request}} failed: droplets from this workflow (tag ${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}) will be deleted in 1 hour"
           file: ./results/results.log
       - name: discord error message
         uses: appleboy/discord-action@master
@@ -93,7 +93,7 @@ jobs:
       - name: delete droplets
         if: success() || failure()
         run: |
-          sleep 3h
+          sleep 1h
           curl -X DELETE \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $DIGITALOCEAN_TOKEN" \
