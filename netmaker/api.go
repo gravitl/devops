@@ -49,7 +49,7 @@ func SetCxt(endpoint, masterkey string) {
 }
 
 func DeleteRelay(id, network string) {
-	api := "/api/" + network + "/" + id + "/deleterelay"
+	api := "/api/nodes/" + network + "/" + id + "/deleterelay"
 	callapi[models.ApiHost](http.MethodDelete, api, nil)
 }
 
