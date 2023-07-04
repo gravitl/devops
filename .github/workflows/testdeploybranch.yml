@@ -77,7 +77,7 @@ jobs:
           curl -X DELETE \
             -H 'Content-Type: application/json' \
             -H 'Authorization: Bearer ${{ secrets.DIGITALOCEAN_TOKEN }}' \
-            'https://api.digitalocean.com/v2/snapshots/${snap}'
+            "https://api.digitalocean.com/v2/snapshots/${snap}"
 
   masterkey:
     needs: [getserver, terraform]
