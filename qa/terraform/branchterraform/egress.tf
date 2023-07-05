@@ -3,9 +3,17 @@ resource "digitalocean_droplet_snapshot" "egress_snapshot" {
   name = "egresssnapshot${var.do_tag}"
 }
 
-resource "digitalocean_droplet" "egress" {
+resource "time_sleep" "wait_30_seconds" {
   depends_on = [
     digitalocean_droplet_snapshot.egress_snapshot
+  ]
+  create_duration = "30s"
+
+}
+
+resource "digitalocean_droplet" "egress" {
+  depends_on = [
+    time_sleep.wait_30_seconds
   ]
   image = digitalocean_droplet_snapshot.egress_snapshot.id
   name = var.egress
