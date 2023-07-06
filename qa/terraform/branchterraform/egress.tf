@@ -1,13 +1,6 @@
-resource "digitalocean_droplet_snapshot" "egress_snapshot" {
-  droplet_id = "347216123"
-  name = "egresssnapshot${var.do_tag}"
-}
 
 resource "digitalocean_droplet" "egress" {
-  depends_on = [
-    digitalocean_droplet_snapshot.egress_snapshot
-  ]
-  image = digitalocean_droplet_snapshot.egress_snapshot.id
+  image = "ubuntu-22-10-x64"
   name = var.egress
   size = "s-2vcpu-2gb"
   ipv6 = true
@@ -32,8 +25,11 @@ resource "digitalocean_droplet" "egress" {
       "apt-get -y update",
       "snap install go --classic",
       "snap install go --classic",
-      "apt install -y wireguard-tools gcc",
-      "apt install -y wireguard-tools gcc",
+      "apt install -y wireguard-tools gcc lxc",
+      "apt install -y wireguard-tools gcc lxc",
+      "lxc-create -n container -t download -- -d ubuntu -r jammy -a amd64",
+      "lxc-start container",
+      "lxc-attach container -- ip a 10.0.3.183 dev eth0",
       "git clone https://www.github.com/gravitl/netclient",
       "cd netclient",
       "git checkout ${var.clientbranch}",
