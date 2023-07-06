@@ -94,13 +94,7 @@ func UpdateNodeWGAddress(name, network, ip string) error {
 	}
 	node.Address = ip
 	fmt.Println("updating WG IP", node.Address, network, node.ID)
-	response, err := Api(node, http.MethodPut, baseURL+"api/nodes/"+network+"/"+node.ID, "secretkey")
-	if err != nil {
-		return err
-	}
-	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("recieved %d status from api", response.StatusCode)
-	}
+	callapi[models.Node](http.MethodPut, fmt.Sprintf("/api/nodes/%s/%s", network, node.ID), node)
 	return nil
 }
 
