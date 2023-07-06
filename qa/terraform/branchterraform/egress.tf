@@ -1,4 +1,5 @@
 
+
 resource "digitalocean_droplet" "egress" {
   image = "ubuntu-22-10-x64"
   name = var.egress

@@ -128,7 +128,8 @@ func setupLoging(name string) {
 	}
 	logger = slog.New(slog.NewJSONHandler(io.MultiWriter(os.Stderr, f), &slog.HandlerOptions{AddSource: true, ReplaceAttr: replace, Level: logLevel}))
 	slog.SetDefault(logger)
-	if config.Debug {
+	slog.With("TEST", name)
+	if debug {
 		logLevel.Set(slog.LevelDebug)
 	}
 }

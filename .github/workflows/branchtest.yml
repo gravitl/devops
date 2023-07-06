@@ -59,6 +59,9 @@ jobs:
         run: |
           chmod +x bin/test
           bin/test clean
+          if [ "$TAG" != "develop"]; then
+            bin/test deleteEgressSnapshot 
+          fi
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}
