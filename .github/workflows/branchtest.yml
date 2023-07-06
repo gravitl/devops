@@ -59,6 +59,7 @@ jobs:
         run: |
           chmod +x bin/test
           bin/test clean
+          bin/test deleteEgressSnapshot $TAG
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}
