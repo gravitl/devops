@@ -27,13 +27,12 @@ import (
 
 // deleteEgressSnapshotCmd represents the deleteEgressSnapshot command
 var deleteEgressSnapshotCmd = &cobra.Command{
-	Use:   "deleteEgressSnapshot tag",
+	Use:   "deleteEgressSnapshot",
 	Short: "deletes EgressSnapshot ",
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.ExactArgs(0),
 	Long:  "deletes EgressSnapshot ",
 	Run: func(cmd *cobra.Command, args []string) {
 		setupLoging("deleteEgressSnapshot")
-		config.Tag = args[0]
 		deleteEgressSnapshot(&config)
 		fmt.Println("deleteEgressSnapshot called")
 	},
