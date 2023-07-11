@@ -60,8 +60,8 @@ jobs:
     needs: [getserver]
     uses: gravitl/devops/.github/workflows/terraform.yml@master
     with:
-      netclientbranch: ${{ github.event.inputs.netclientbranch }}
-      netmakerbranch: ${{ github.event.inputs.netmakerbranch }}
+      netclientbranch: ${{ inputs.netclientbranch }}
+      netmakerbranch: ${{ inputs.netmakerbranch }}
       server: ${{ needs.getserver.outputs.server }}
     secrets: inherit
   
