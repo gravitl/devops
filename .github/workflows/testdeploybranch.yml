@@ -52,9 +52,16 @@ jobs:
               exit 1
             fi
           echo "server=${server}" >> $GITHUB_OUTPUT
+          echo ${server} >> /tmp/server
           set +e
           ssh root@server.${server}.clustercat.com /root/branchtesting/clean.sh
           exit 0
+      - name: save server as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: server
+          path: /tmp/server
+          retention-days: 1
 
   terraform:
     needs: [getserver]
