@@ -57,7 +57,7 @@ jobs:
           ssh root@server.${server}.clustercat.com /root/branchtesting/clean.sh
           exit 0
       - name: save server as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: server
           path: /tmp/server
