@@ -340,7 +340,7 @@ func (request *Request) UpdateNodes(tag, branch string) (bool, []string) {
 				return
 			}
 			if droplet.Name == "docker" {
-				cmd = "/usr/bin/docker-compose pull; /usr/bin/docker-compose up -d"
+				cmd = "docker exec -it netclient ./netclient leave devops; /usr/bin/docker-compose pull; /usr/bin/docker-compose up -d"
 			}
 			_, err := ssh.Run(cmd)
 			if err != nil {
