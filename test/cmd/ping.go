@@ -75,19 +75,24 @@ func pingtest(config *netmaker.Config) bool {
 					//skip self
 					continue
 				}
-				out, err := ssh.Run([]byte(config.Key), source, "ping -c 3 "+destination.String())
+				out, err := ssh.Run([]byte(config.Key), source, "ping -c 10 "+destination.String()+" | grep packet")
 				if err != nil {
 					slog.Error("error connecting to host", "host", hosts.Host.Name, "ip", source, "test", "ping", "err", err)
 					failures[hosts.Host.Name] = "unable to connect"
 					break
 				}
-				if !strings.Contains(out, "3 received") {
-					slog.Error("failed to ping", "host", hosts.Host.Name, "destination", destination, "output", out)
-					failures[hosts.Host.Name] = failures[hosts.Host.Name] + " " + hostmap[destination.String()]
-					results[hosts.Host.Name][hostmap[destination.String()]] = false
+				results[hosts.Host.Name][hostmap[destination.String()]] = true
+				if strings.Contains(out, ", 10% packet loss") || strings.Contains(out, ", 20% packet loss") {
+					slog.Warn("packet loss", "host", hosts.Host.Name, "destination", destination, "output", strings.TrimSuffix(out, "\n"))
 					continue
 				}
-				results[hosts.Host.Name][hostmap[destination.String()]] = true
+				if strings.Contains(out, ", 0% packet loss") {
+					slog.Info("ping success", "host", hosts.Host.Name, "destination", destination, "output", strings.TrimSuffix(out, "\n"))
+					continue
+				}
+				slog.Error("failed to ping", "host", hosts.Host.Name, "destination", destination, "output", out)
+				failures[hosts.Host.Name] = failures[hosts.Host.Name] + " " + hostmap[destination.String()]
+				results[hosts.Host.Name][hostmap[destination.String()]] = false
 			}
 		}()
 	}
