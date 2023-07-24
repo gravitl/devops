@@ -95,6 +95,18 @@ func peerupdatetest(config *netmaker.Config) bool {
 	slog.Info(fmt.Sprintf("updating wg address of %s to %s", server.Host.Name, newip))
 
 	netmaker.UpdateNode(&server.Node)
+	//verify that server received update
+	time.Sleep(time.Second * 5)
+	slog.Info("checking that server received the update")
+	out, err := ssh.Run([]byte(config.Key), server.Host.EndpointIP, "ip a show netmaker")
+	if err != nil {
+		slog.Error("ssh connect err", "machine", server.Host.Name, "cmd", "ssh "+server.Host.EndpointIP+" ip -a show netmaker", "err", err)
+		return false
+	}
+	if !strings.Contains(out, newip) {
+		slog.Error("server did not receive the update", "machine", server.Host.Name, "ouput", out)
+		return false
+	}
 	// check node received update
 	//check if other nodes received update
 	failedmachines := []string{}
