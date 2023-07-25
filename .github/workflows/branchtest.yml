@@ -18,6 +18,28 @@ on:
       server:
         type: string
         required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: true
+        description: DO tag to use for testing
+        default: "devops"
+      network: 
+        description: network to use for testing
+        required: true
+        default: "devops"
+      api:
+        description: api endopoint to use for testing
+        required: true
+        default: "https://api.clustercat.com"
+      masterkey:
+        description: master key of server
+        required: true
+        default: "secretkey"
+      server:
+        description: server hostname
+        required: true
+        default: "server"
 
 jobs:
 
