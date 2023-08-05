@@ -89,6 +89,7 @@ jobs:
           MASTERKEY: ${{ inputs.masterkey }}
           API: ${{ inputs.api }}
       - name: save logs
+        if: success() || failure()
         uses: actions/upload-artifact@v3
         with:
           name: clean
@@ -120,6 +121,7 @@ jobs:
           MASTERKEY: ${{ inputs.masterkey }}
           API: ${{ inputs.api }}
       - name: save logs
+        if: success() || failure()
         uses: actions/upload-artifact@v3
         with:
           name: ping
@@ -152,6 +154,7 @@ jobs:
           API: ${{ inputs.api }}
           SERVER: ${{ inputs.server }}
       - name: save logs
+        if: success() || failure()
         uses: actions/upload-artifact@v3
         with:
           name: tests
@@ -180,6 +183,7 @@ jobs:
           MASTERKEY: ${{ inputs.masterkey }}
           API: ${{ inputs.api }}
       - name: save logs
+        if: success() || failure()
         uses: actions/upload-artifact@v3
         with:
           name: ping2
@@ -187,6 +191,7 @@ jobs:
           retention-days: 3
 
   results:
+    if: success() || failure()
     needs: [clean, initial-ping, tests, final-ping]
     name: sumarize results
     runs-on: ubuntu-latest
