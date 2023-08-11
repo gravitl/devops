@@ -23,7 +23,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 
+	"github.com/gravitl/netclient/config"
 	"github.com/gravitl/netclient/ncutils"
 	"github.com/gravitl/netmaker/models"
 	"github.com/spf13/cobra"
@@ -85,7 +88,7 @@ func initConfig() {
 
 func upgrade() {
 	slog.Info("creating config dir")
-	if err := os.Mkdir("/etc/netclient/config", os.ModePerm); err != nil {
+	if err := os.MkdirAll("/etc/netclient/config", os.ModePerm); err != nil {
 		slog.Error("create dir", "error", err)
 	}
 	slog.Info("retrieving legacy nodes")
@@ -194,12 +197,27 @@ func saveWGPrivateKey(id, network string) {
 }
 
 func saveNode(node models.LegacyNode) error {
+	var cfg config.ClientConfig
+	cfg.Node = node
 	f, err := os.OpenFile("/etc/netclient/config/netconfig-"+node.Network, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 	if err != nil {
 		return fmt.Errorf("open node file %w", err)
 	}
 	defer f.Close()
-	if err := yaml.NewEncoder(f).Encode(node); err != nil {
+	compose, err := os.ReadFile("./docker-compose.yml")
+	if err != nil {
+		return fmt.Errorf("read compose file %w", err)
+	}
+	reg := regexp.MustCompile(`.*SERVER_NAME:.*`)
+	matches := reg.FindStringSubmatch(string(compose))
+	if len(matches) == 0 {
+		return errors.New("no server name")
+	}
+	server := strings.ReplaceAll(matches[0], "SERVER_NAME: ", "")
+	server = strings.ReplaceAll(server, "\"", "")
+	server = strings.ReplaceAll(server, " ", "")
+	cfg.Server.Server = server
+	if err := yaml.NewEncoder(f).Encode(cfg); err != nil {
 		return fmt.Errorf("encode node file %w", err)
 	}
 	return f.Sync()
