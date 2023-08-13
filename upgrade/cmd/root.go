@@ -113,8 +113,12 @@ func upgrade() {
 		}
 		slog.Info("saving wg key")
 		saveWGPrivateKey(node.ID, node.Network)
+		serverTrafficKey, err := getServerTrafficKey()
+		if err != nil {
+			slog.Error("get server traffic key", "error", err)
+		}
 		slog.Info("saving node", "id", node.ID)
-		saveNode(node)
+		saveNode(node, serverTrafficKey)
 	}
 }
 
@@ -196,9 +200,38 @@ func saveWGPrivateKey(id, network string) {
 	return
 }
 
-func saveNode(node models.LegacyNode) error {
+func getServerTrafficKey() ([]byte, error) {
+	type Key struct {
+		UUID           string `json:"uuid"`
+		LastSend       int64  `json:"lastsend"`
+		TrafficKeyPriv []byte `json:"traffickeypriv"`
+		TrafficKeyPub  []byte `json:"traffickeypub"`
+	}
+	var value string
+	var key Key
+	db, err := sql.Open("sqlite3", "/var/lib/docker/volumes/root_sqldata/_data/netmaker.db")
+	if err != nil {
+		return []byte{}, err
+	}
+	row, err := db.Query("SELECT VALUE from serveruuid where key='serveruuid'")
+	if err != nil {
+		return []byte{}, err
+	}
+	row.Next()
+	row.Scan(&value)
+	db.Close()
+	if err := json.Unmarshal([]byte(value), &key); err != nil {
+		return []byte{}, err
+	}
+	return key.TrafficKeyPub, nil
+}
+
+func saveNode(node models.LegacyNode, serverTrafficKey []byte) error {
 	var cfg config.ClientConfig
 	cfg.Node = node
+	cfg.Node.TrafficKeys.Server = serverTrafficKey
+	cfg.NetworkSettings = node.NetworkSettings
+	cfg.Network = node.Network
 	f, err := os.OpenFile("/etc/netclient/config/netconfig-"+node.Network, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 	if err != nil {
 		return fmt.Errorf("open node file %w", err)
