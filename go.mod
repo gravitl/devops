@@ -10,11 +10,13 @@ require (
 	github.com/guumaster/hostctl v1.1.4
 	github.com/kr/pretty v0.3.1
 	github.com/matryer/is v1.4.1
+	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
 	github.com/tmc/scp v0.0.0-20170824174625-f7b48647feef
 	golang.org/x/crypto v0.9.0
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -43,7 +45,6 @@ require (
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
-	github.com/mattn/go-sqlite3 v1.14.17 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.2 // indirect
@@ -73,5 +74,4 @@ require (
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
