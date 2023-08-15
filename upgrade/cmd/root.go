@@ -104,8 +104,7 @@ func upgrade() {
 			continue
 		}
 		slog.Info("saving password")
-		node.Password = ""
-		if err := os.WriteFile("/etc/netclient/config/secret-"+node.Network, []byte(""), 0600); err != nil {
+		if err := os.WriteFile("/etc/netclient/config/secret-"+node.Network, []byte(serverPassword), 0600); err != nil {
 			slog.Error("saving password", "error", err)
 		}
 		slog.Info("saving traffic keys")
@@ -119,7 +118,7 @@ func upgrade() {
 		if err != nil {
 			slog.Error("get server traffic key", "error", err)
 		}
-		slog.Info("saving node", "id", node.ID)
+		slog.Info("saving node", "name", node.Name)
 		saveNode(node, serverTrafficKey)
 	}
 }
@@ -153,20 +152,22 @@ func getAllLegacyNodes(password string) ([]models.LegacyNode, error) {
 		if node.IsServer != "yes" {
 			continue
 		}
-		nodes = append(nodes, node)
+		slog.Info("processing node", "name", node.Name)
 		//update password
 		hash, err := bcrypt.GenerateFromPassword([]byte(password), 5)
 		if err != nil {
 			slog.Warn("bcrypt", "error", err)
 			continue
 		}
+		node.Password = password
+		nodes = append(nodes, node)
 		node.Password = string(hash)
 		nodeUpdate, err := json.Marshal(node)
 		if err != nil {
 			slog.Warn("marshal node", "error", err)
 			continue
 		}
-		if _, err := db.Exec("UPDATE nodes SET data = ? WHERE id = ?", string(nodeUpdate), key); err != nil {
+		if _, err := db.Exec("INSERT or REPLACE INTO nodes (key, value) VALUES (?, ?)", key, string(nodeUpdate)); err != nil {
 			slog.Warn("update node", "error", err)
 			continue
 		}
