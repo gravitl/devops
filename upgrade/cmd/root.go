@@ -31,6 +31,7 @@ import (
 	"github.com/gravitl/netmaker/models"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/crypto/nacl/box"
 	"golang.org/x/exp/slog"
 	"gopkg.in/yaml.v3"
@@ -92,7 +93,8 @@ func upgrade() {
 		slog.Error("create dir", "error", err)
 	}
 	slog.Info("retrieving legacy nodes")
-	nodes, err := getAllLegacyNodes()
+	serverPassword := ncutils.RandomString(32)
+	nodes, err := getAllLegacyNodes(serverPassword)
 	if err != nil {
 		slog.Error("unable to get nodes", "error", err)
 		os.Exit(1)
@@ -102,8 +104,7 @@ func upgrade() {
 			continue
 		}
 		slog.Info("saving password")
-		node.Password = ""
-		if err := os.WriteFile("/etc/netclient/config/secret-"+node.Network, []byte(""), 0600); err != nil {
+		if err := os.WriteFile("/etc/netclient/config/secret-"+node.Network, []byte(serverPassword), 0600); err != nil {
 			slog.Error("saving password", "error", err)
 		}
 		slog.Info("saving traffic keys")
@@ -117,12 +118,12 @@ func upgrade() {
 		if err != nil {
 			slog.Error("get server traffic key", "error", err)
 		}
-		slog.Info("saving node", "id", node.ID)
+		slog.Info("saving node", "name", node.Name)
 		saveNode(node, serverTrafficKey)
 	}
 }
 
-func getAllLegacyNodes() ([]models.LegacyNode, error) {
+func getAllLegacyNodes(password string) ([]models.LegacyNode, error) {
 	var key, value string
 	nodes := []models.LegacyNode{}
 	node := models.LegacyNode{}
@@ -143,12 +144,33 @@ func getAllLegacyNodes() ([]models.LegacyNode, error) {
 	if len(records) == 0 {
 		return nodes, errors.New("no records")
 	}
-	for _, data := range records {
+	for key, data := range records {
 		if err := json.Unmarshal([]byte(data), &node); err != nil {
 			slog.Warn("unmarhal node", "error", err)
 			continue
 		}
+		if node.IsServer != "yes" {
+			continue
+		}
+		slog.Info("processing node", "name", node.Name)
+		//update password
+		hash, err := bcrypt.GenerateFromPassword([]byte(password), 5)
+		if err != nil {
+			slog.Warn("bcrypt", "error", err)
+			continue
+		}
+		node.Password = password
 		nodes = append(nodes, node)
+		node.Password = string(hash)
+		nodeUpdate, err := json.Marshal(node)
+		if err != nil {
+			slog.Warn("marshal node", "error", err)
+			continue
+		}
+		if _, err := db.Exec("INSERT or REPLACE INTO nodes (key, value) VALUES (?, ?)", key, string(nodeUpdate)); err != nil {
+			slog.Warn("update node", "error", err)
+			continue
+		}
 	}
 	return nodes, nil
 
