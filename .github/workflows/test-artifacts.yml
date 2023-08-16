@@ -186,4 +186,4 @@ jobs:
           SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
       - name: build linux package
         run: |
-          ssh root@fileserver.clustercat.com "cd packages; git restore .; git pull; export VERSION=0.20.6; export REVISION=${{ env.REVISION }}; ./apt_test_builder.sh; git restore ."
+          ssh root@fileserver.clustercat.com "cd packages; git restore .; git pull; export VERSION=0.20.7; export REVISION=${{ env.REVISION }}; ./apt_test_builder.sh; git restore ."
