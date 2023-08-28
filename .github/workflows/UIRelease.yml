@@ -25,30 +25,7 @@ jobs:
           git tag -f ${{ inputs.version }}
           git push origin release-${{ inputs.version }}
           git push origin ${{ inputs.version }}
-
-  release-assets:
-    needs: release-branch
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          repository: gravitl/netmaker
-          ref: release-${{ inputs.version }}
-          fetch-depth: 0
-      - name: Get Tags
-        run: |
-          git fetch --force --tags
-      - name: Setup go
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.19
-      - name: GoReleaser
-        uses: goreleaser/goreleaser-action@v4
-        with:
-          args: release --clean --release-notes release.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          gh release create ${{ inputs.version }} --notes-file release.md --latest --target release-${{ inputs.version }} --verify-tag
 
   docker:
     needs: release-branch
