@@ -40,4 +40,6 @@ jobs:
             ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/Netclient-M1.pkg
             ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-windows-amd64.exe
             ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient_x86.msi
+            ssh fileserver.clustercat.com "cd /var/www/files/api; wget https://raw.githubusercontent.com/gravitl/netmaker/${{ inputs.version}}/swagger.yml
+            
 
