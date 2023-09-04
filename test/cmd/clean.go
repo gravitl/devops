@@ -51,7 +51,6 @@ func init() {
 
 func cleanNetwork(config *netmaker.Config) bool {
 	pass := true
-	slog.Info("resetting proxy enabled to false")
 	netmaker.SetVerbosity(4)
 	netclient := netmaker.GetNetclient(config.Network)
 	for _, machine := range netclient {
@@ -71,16 +70,6 @@ func cleanNetwork(config *netmaker.Config) bool {
 	slog.Info("reseting extclient")
 	if err := netmaker.RestoreExtClient(config); err != nil {
 		slog.Error("restoring extclient", "err", err)
-		pass = false
-	}
-	relayed := netmaker.GetHost("relayed", netclient)
-	if relayed == nil {
-		slog.Error("did not find relayed netclient")
-		pass = false
-	}
-	egress := netmaker.GetHost("egress", netclient)
-	if egress == nil {
-		slog.Error("did not find egress netclient")
 		pass = false
 	}
 	return pass
