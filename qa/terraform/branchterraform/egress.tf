@@ -1,7 +1,7 @@
 
 
 resource "digitalocean_droplet" "egress" {
-  image = "ubuntu-22-10-x64"
+  image = "ubuntu-22-04-x64"
   name = var.egress
   size = "s-2vcpu-2gb"
   ipv6 = true

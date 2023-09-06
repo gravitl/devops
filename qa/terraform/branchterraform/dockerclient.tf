@@ -1,5 +1,5 @@
 resource "digitalocean_droplet" "dockerclient" {
-  image = "ubuntu-22-10-x64"
+  image = "ubuntu-22-04-x64"
   name = var.docker
   region = "nyc3"
   size = "s-1vcpu-1gb"
