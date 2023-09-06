@@ -36,7 +36,7 @@ resource "digitalocean_droplet" "egress" {
       "git checkout ${var.clientbranch}",
       "git pull origin ${var.clientbranch}",
       "go mod tidy",
-      "go build -tags headless",
+      "go build .",
       "./netclient install"
 
     ]

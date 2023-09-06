@@ -20,7 +20,7 @@ resource "digitalocean_droplet" "clients" {
   provisioner "remote-exec" {
     inline = [
       "export PATH=$PATH:/usr/bin",
-      # install netmaker
+      # install netclient
       "apt-get -y update",
       "apt-get -y update",
       "snap install go --classic",
@@ -32,7 +32,7 @@ resource "digitalocean_droplet" "clients" {
       "git checkout ${var.clientbranch}",
       "git pull origin ${var.clientbranch}",
       "go mod tidy",
-      "go build -tags headless",
+      "go build .",
       "./netclient install"
     ]
   }

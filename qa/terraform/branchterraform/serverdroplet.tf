@@ -18,7 +18,21 @@ resource "null_resource" "terraformnetmakerserver" {
       "wget https://raw.githubusercontent.com/gravitl/netmaker/${var.branch}/scripts/nm-quick.sh",
       "chmod +x nm-quick.sh",
       "chmod +x nm-quick.sh",
-      "bash nm-quick.sh -a -b local -t ${var.branch} -d ${var.server}.clustercat.com"
+      "bash nm-quick.sh -a -b local -t ${var.branch} -d ${var.server}.clustercat.com",
+      "snap install go --classic",
+      "snap install go --classic",
+      "apt install -y wireguard-tools gcc",
+      "apt install -y wireguard-tools gcc",
+      #remove the netcleint binary fetched from install script. running twice to ensure removal.
+      "rm netclient",
+      "rm netclient",
+      "git clone https://www.github.com/gravitl/netclient",
+      "cd netclient",
+      "git checkout ${var.clientbranch}",
+      "git pull origin ${var.clientbranch}",
+      "go mod tidy",
+      "go build .",
+      "./netclient install"
       
     ]
   }
