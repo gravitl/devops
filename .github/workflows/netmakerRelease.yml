@@ -136,7 +136,7 @@ jobs:
             echo ${VERSION}
       - name: apt/rpm
         run: |
-          ssh fileserver.clustercat.com "cd packages/nmctl; export VERSION=${{ ENV.version }}; export REVISION=0; ./buildall.sh "
+          ssh fileserver.clustercat.com cd packages/nmctl; export VERSION=${VERSION}; export REVISION=0; ./buildall.sh 
 
   pull-request:
     needs: release-branch
