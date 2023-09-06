@@ -11,6 +11,9 @@ on:
         description: netclient branch to run on.
         default: develop
         required: true
+      version:
+        description: version
+        required: true
 
   workflow_call:
     inputs:
@@ -22,10 +25,27 @@ on:
         type: string
 
 jobs:
-  branchtest:
-    uses: ./.github/workflows/testdeploybranch.yml
-    with:
-      netmakerbranch: ${{ github.event.inputs.netmakerbranch }}
-      netclientbranch: ${{ github.event.inputs.netclientbranch }}
-      tag: ${{ github.run_id }}-${{ github.run_attempt }}
-    secrets: inherit
+  packages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup ssh
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/id_devops
+          chmod 600 ~/.ssh/id_devops
+          cat >>~/.ssh/config <<END
+          Host *.clustercat.com
+            User root
+            IdentityFile ~/.ssh/id_devops
+            StrictHostKeyChecking no
+          END
+        env:
+          SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
+      - name: set version
+        run: |
+            VERSION=$(echo ${{ inputs.version }} | tr -cd '[:digit:].')
+            echo "VERSION=${VERSION}" >> $GITHUB_ENV
+            echo ${VERSION}
+      - name: apt/rpm
+        run: |
+          ssh fileserver.clustercat.com cd packages; export VERSION=${VERSION}; export REVISION=0; echo $VERSION; echo $REVISION
