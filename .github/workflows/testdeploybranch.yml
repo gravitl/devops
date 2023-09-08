@@ -12,6 +12,17 @@ on:
       tag:
         type: string
         required: true
+  workflow_dispatch:
+    inputs:
+      netclientbranch:
+        required: true
+        type: string
+      netmakerbranch: 
+        type: string
+        required: true
+      tag:
+        type: string
+        required: true
 
 jobs:
 
