@@ -21,12 +21,12 @@ resource "digitalocean_droplet" "clients" {
     inline = [
       "export PATH=$PATH:/usr/bin",
       # install netclient
-      "apt-get -y update",
-      "apt-get -y update",
+      "DEBIAN_FRONTEND=noninteractive apt-get -y update",
+      "DEBIAN_FRONTEND=noninteractive apt-get -y update",
       "snap install go --classic",
       "snap install go --classic",
-      "apt install -y wireguard-tools gcc",
-      "apt install -y wireguard-tools gcc",
+      "DEBIAN_FRONTEND=noninteractive apt install -y wireguard-tools gcc",
+      "DEBIAN_FRONTEND=noninteractive apt install -y wireguard-tools gcc",
       "git clone https://www.github.com/gravitl/netclient",
       "cd netclient",
       "git checkout ${var.clientbranch}",

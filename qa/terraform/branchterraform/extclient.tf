@@ -21,10 +21,10 @@ resource "digitalocean_droplet" "extclient" {
       "export PATH=$PATH:/usr/bin",
       # install wireguard for extclient to work
       "pwd",
-      "apt-get -y update",
-      "apt-get -y update",
-      "apt install -y wireguard-tools",
-      "apt install -y wireguard-tools",
+      "DEBIAN_FRONTEND=noninteractive apt-get -y update",
+      "DEBIAN_FRONTEND=noninteractive apt-get -y update",
+      "DEBIAN_FRONTEND=noninteractive apt install -y wireguard-tools",
+      "DEBIAN_FRONTEND=noninteractive apt install -y wireguard-tools",
     ]
   }
 }
