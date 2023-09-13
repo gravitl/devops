@@ -21,9 +21,9 @@ resource "null_resource" "terraformnetmakerserver" {
       "bash nm-quick.sh -a -b local -t ${var.branch} -d ${var.server}.clustercat.com",
       "snap install go --classic",
       "snap install go --classic",
-      "apt install -y wireguard-tools gcc",
-      "apt install -y wireguard-tools gcc",
-      #remove the netcleint binary fetched from install script. running twice to ensure removal.
+      "DEBIAN_FRONTEND=noninteractive apt install -y wireguard-tools gcc",
+      "DEBIAN_FRONTEND=noninteractive apt install -y wireguard-tools gcc",
+      #remove the netclient binary fetched from install script. running twice to ensure removal.
       "rm netclient",
       "rm netclient",
       "git clone https://www.github.com/gravitl/netclient",

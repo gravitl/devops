@@ -22,12 +22,12 @@ resource "digitalocean_droplet" "egress" {
     inline = [
       "export PATH=$PATH:/usr/bin",
       # install netclient
-      "apt-get -y update",
-      "apt-get -y update",
+      "DEBIAN_FRONTEND=noninteractive apt-get -y update",
+      "DEBIAN_FRONTEND=noninteractive apt-get -y update",
       "snap install go --classic",
       "snap install go --classic",
-      "apt install -y wireguard-tools gcc lxc",
-      "apt install -y wireguard-tools gcc lxc",
+      "DEBIAN_FRONTEND=noninteractive apt install -y wireguard-tools gcc lxc",
+      "DEBIAN_FRONTEND=noninteractive apt install -y wireguard-tools gcc lxc",
       "lxc-create -n container -t download -- -d ubuntu -r jammy -a amd64",
       "lxc-start container",
       "lxc-attach container -- ip a 10.0.3.183 dev eth0",
