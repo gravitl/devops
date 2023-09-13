@@ -46,6 +46,9 @@ serverkey=$(cat serverinfo.txt | grep ip_address | awk '{print$2;}' | tr -d '",'
 
 
 #register with server.
+echo "logging into each client and registering with the network."
+echo "logging into server"
+ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$serverkey "netclient register -t ${regtoken}"
 echo "logging into relayed"
 ssh -i /home/runner/.ssh/deploy.key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$relayedkey "netclient register -t ${regtoken}"
 echo "done with relayed. logging into ingress"
