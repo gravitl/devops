@@ -10,5 +10,8 @@ jobs:
     with:
       tag: devops
       network: devops
+      api: "https://api.clustercat.com"
+      masterkey: "secretkey"
+      server: "server"
     secrets: inherit
 
