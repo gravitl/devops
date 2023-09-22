@@ -37,18 +37,6 @@ func main() {
 	request.SoftResetServer(server)
 	netmaker.SetCxt("https://"+server.API, masterkey)
 	nodes := netmaker.GetAllNodes()
-	slog.Info("checking nodes for gateways")
-	for _, node := range *nodes {
-		if node.IsEgressGateway {
-			netmaker.DeleteEgress(node.ID, node.Network)
-		}
-		if node.IsRelay {
-			netmaker.DeleteRelay(node.ID, node.Network)
-		}
-		if node.IsIngressGateway {
-			netmaker.DeleteIngress(node.ID, node.Network)
-		}
-	}
 	//Update Nodes
 	if request.DropletsExist("devops") {
 		request.UpdateNodes("devops", "testing")
