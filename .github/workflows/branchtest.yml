@@ -43,39 +43,14 @@ on:
 
 jobs:
 
-  binary:
-    name: build test binary
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
-        with:
-          repository: gravitl/devops
-          ref: master
-      - name: setup go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
-      - name: build binary
-        run: |
-          mkdir bin
-          go build -o bin/test test/main.go
-      - name: save binary
-        uses: actions/cache/save@v3
-        with:
-          path: bin/test
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
   clean:
-    needs: [binary]
     name: remove all gateways
     runs-on: ubuntu-latest
     steps:
       - name: get binary
-        uses: actions/cache/restore@v3
-        with:
-          path: bin/test
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir bin
+          wget -O bin/test fileserver.clustercat.com/testing/test
       - name: run tests
         id: clean
         run: |
@@ -98,15 +73,14 @@ jobs:
 
 
   initial-ping:
-    needs: [binary, clean]
+    needs: [clean]
     name: initial ping
     runs-on: ubuntu-latest
     steps:
       - name: get binary
-        uses: actions/cache/restore@v3
-        with:
-          path: bin/test
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir bin
+          wget -O bin/test fileserver.clustercat.com/testing/test
       - name: run tests
         id: ping
         run: |
@@ -134,10 +108,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: get binary
-        uses: actions/cache/restore@v3
-        with:
-          path: bin/test
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir bin
+          wget -O bin/test fileserver.clustercat.com/testing/test
       - name: run tests
         run: |
           chmod +x bin/test 
@@ -167,10 +140,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: get binary
-        uses: actions/cache/restore@v3
-        with:
-          path: bin/test
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir bin
+          wget -O bin/test fileserver.clustercat.com/testing/test
       - name: run tests
         run: |
           chmod +x bin/test

@@ -125,6 +125,37 @@ jobs:
           # ssh_options: -o StrictHostKeyChecking=no                     # A set of ssh_option separated by -o - REQUIRED false - DEFAULT -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
           # scp_options: -v                                              # Flags to use during scp - REQUIRED false - DEFAULT ''
 
+  test-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: gravitl/devops
+          ref: master
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: build test app
+        run: |
+          cd test
+          CGO_ENABLED=0 go build -ldflags="-s -w" -mod=mod -o ./test
+      - name: deploy
+        uses: mdallasanta/ssh-scp-deploy@v1.1.0
+        with:
+          local: ./test/test                            # Local file path - REQUIRED false - DEFAULT ./
+          remote: /var/www/files/testing/                               # Remote file path - REQUIRED false - DEFAULT ~/
+          host: fileserver.clustercat.com                               # Remote server address - REQUIRED true
+          # port: ${{secrets.PORT}}                                      # Remote server port - REQUIRED false - DEFAULT 22
+          user: root                                                    # Remote server user - REQUIRED true
+          # password: ${{secrets.PASSWORD}}                              # User password - REQUIRED at least one of "password" or "key"
+          key: ${{secrets.TESTING_SSH_KEY}}                             # Remote server private key - REQUIRED at least one of "password" or "key"
+          # pre_upload: echo "This will be executed before the upload!"  # Command to run via ssh before scp upload - REQUIRED false
+          # post_upload: echo "This will be executed after the upload!"  # Command to run via ssh after scp upload - REQUIRED false
+          # ssh_options: -o StrictHostKeyChecking=no                     # A set of ssh_option separated by -o - REQUIRED false - DEFAULT -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+          # scp_options: -v                                              # Flags to use during scp - REQUIRED false - DEFAULT ''
+
   ui-docker:
     runs-on: ubuntu-latest
     steps:
