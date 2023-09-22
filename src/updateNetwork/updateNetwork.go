@@ -36,7 +36,6 @@ func main() {
 	}
 	request.SoftResetServer(server)
 	netmaker.SetCxt("https://"+server.API, masterkey)
-	nodes := netmaker.GetAllNodes()
 	//Update Nodes
 	if request.DropletsExist("devops") {
 		request.UpdateNodes("devops", "testing")
