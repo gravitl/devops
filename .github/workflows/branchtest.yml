@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: set user
-        run: !
+        run: |
           curl -L ${{ inputs.api }}/api/users/adm/createsuperadmin \ 
             -d '{"username":"${{ secrets.NM_USER }}}","password":"${{ secrets.NM_PASSWORD }}"}'
 
