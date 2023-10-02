@@ -24,8 +24,8 @@ resource "null_resource" "terraformnetmakerserver" {
       "DEBIAN_FRONTEND=noninteractive apt install -y wireguard-tools gcc",
       "DEBIAN_FRONTEND=noninteractive apt install -y wireguard-tools gcc",
       #remove the netclient binary fetched from install script. running twice to ensure removal.
-      "rm netclient",
-      "rm netclient",
+      "rm -rf netclient",
+      "rm -rf netclient",
       "git clone https://www.github.com/gravitl/netclient",
       "cd netclient",
       "git checkout ${var.clientbranch}",
