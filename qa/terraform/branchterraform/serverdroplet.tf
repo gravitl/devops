@@ -18,6 +18,8 @@ resource "null_resource" "terraformnetmakerserver" {
       "wget https://raw.githubusercontent.com/gravitl/netmaker/${var.branch}/scripts/nm-quick.sh",
       "chmod +x nm-quick.sh",
       "chmod +x nm-quick.sh",
+      "rm -rf netclient",
+      "rm -rf netclient",
       "bash nm-quick.sh -a -b local -t ${var.branch} -d ${var.server}.clustercat.com",
       "snap install go --classic",
       "snap install go --classic",
