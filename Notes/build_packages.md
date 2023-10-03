@@ -4,8 +4,8 @@
 * cd packages
 * git restore .
 * git pull
-* export VERSION=<netmaker version> # do not include leading v
-* export REVISION=<package revision> # revision of package 0, 1, 2 ,etc
+* export LC_VERSION=<netmaker version> # do not include leading v
+* export LC_REVISION=<package revision> # revision of package 0, 1, 2 ,etc
 * ./apt.builder.sh
 * ./rpm.builder.sh
 * git restore .
@@ -15,8 +15,8 @@
 * cd packages/nmctl
 * git restore .
 * git pull
-* export VERSION=<netmaker version> # do not include leading v
-* export REVISION=<package revision> # revision of package 0, 1, 2 ,etc
+* export LC_VERSION=<netmaker version> # do not include leading v
+* export LC_REVISION=<package revision> # revision of package 0, 1, 2 ,etc
 * ./apt.builder.sh
 * ./rpm.builder.sh
 * git restore .
@@ -26,8 +26,8 @@
 * cd homebrew
 * git pull
 * cd build
-* export VERSION=<netmaker version> # do not include leading v
-* export REVISION=<package revision> # revision of package 0, 1, 2 ,etc
+* export LC_VERSION=<netmaker version> # do not include leading v
+* export LC_REVISION=<package revision> # revision of package 0, 1, 2 ,etc
 * ./build_tarfiles.sh
 * git commit -am "new version"
 * git push
@@ -38,8 +38,8 @@
 * cd homebrew-nmctl
 * git pull
 * cd build
-* export VERSION=<netmaker version> # do not include leading v
-* export REVISION=<package revision> # revision of package 0, 1, 2 ,etc
+* export LC_VERSION=<netmaker version> # do not include leading v
+* export LC_REVISION=<package revision> # revision of package 0, 1, 2 ,etc
 * ./build_tarfiles.sh
 * git commit -am "new version"
 * git push
