@@ -1,15 +1,17 @@
 package main
 
 import (
+	"log/slog"
 	"os"
 
 	"github.com/gravitl/devops/do"
 	"github.com/gravitl/devops/logging"
 	"github.com/gravitl/devops/netmaker"
-	"golang.org/x/exp/slog"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	godotenv.Load()
 	//SetUp Logging
 	logging.SetupLoging("updateNetwork")
 	do_token := os.Getenv("DIGITALOCEAN_TOKEN")
