@@ -36,5 +36,17 @@ jobs:
         run: |
           go vet ./...
           go test ./... -v
-          golangci-lint run
   
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: setup go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: ./go.mod
+      - name:  lint
+        uses: golangci/golangci-lint-action@v3 
+
+ 

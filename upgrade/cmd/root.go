@@ -119,7 +119,9 @@ func upgrade() {
 			slog.Error("get server traffic key", "error", err)
 		}
 		slog.Info("saving node", "name", node.Name)
-		saveNode(node, serverTrafficKey)
+		if err := saveNode(node, serverTrafficKey); err != nil {
+			slog.Error("saving node", "node", node.Name, "error", err)
+		}
 	}
 }
 
@@ -138,7 +140,7 @@ func getAllLegacyNodes(password string) ([]models.LegacyNode, error) {
 	records := make(map[string]string)
 	defer row.Close()
 	for row.Next() {
-		row.Scan(&key, &value)
+		_ = row.Scan(&key, &value)
 		records[key] = value
 	}
 	if len(records) == 0 {
@@ -211,7 +213,7 @@ func saveWGPrivateKey(id, network string) {
 		return
 	}
 	row.Next()
-	row.Scan(&value)
+	_ = row.Scan(&value)
 	db.Close()
 	if err := json.Unmarshal([]byte(value), &key); err != nil {
 		return
@@ -219,7 +221,6 @@ func saveWGPrivateKey(id, network string) {
 	if err := os.WriteFile("/etc/netclient/config/wgkey-"+network, []byte(key.PrivateKey), 0600); err != nil {
 		return
 	}
-	return
 }
 
 func getServerTrafficKey() ([]byte, error) {
@@ -240,7 +241,7 @@ func getServerTrafficKey() ([]byte, error) {
 		return []byte{}, err
 	}
 	row.Next()
-	row.Scan(&value)
+	_ = row.Scan(&value)
 	db.Close()
 	if err := json.Unmarshal([]byte(value), &key); err != nil {
 		return []byte{}, err
