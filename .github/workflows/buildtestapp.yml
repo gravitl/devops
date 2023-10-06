@@ -1,0 +1,31 @@
+name: Build test application
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'master'
+    paths:
+      - 'test/**/*.go'
+
+jobs:
+  update-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: ./go.mod
+      - name: build
+        run: |
+          CGO_ENABLED=0 go build -C test -o test.app -ldflags='-s -w' .
+      - name: deploy
+        uses: mdallasanta/ssh-scp-deploy@v1.1.0
+        with:
+          local: ./test.app                        # Local file path - REQUIRED false - DEFAULT ./
+          remote: /var/www/files/testing/test      # remote file path - REQUIRED false - DEFAULT ~/
+          host: fileserver.clustercat.com          # Remote server address - REQUIRED true
+          user: root                               # Remote server user - REQUIRED true
+          key: ${{secrets.TESTING_SSH_KEY}}        # Remote server private key - REQUIRED at least one of "password" or "key"
