@@ -96,14 +96,16 @@ func initConfig() {
 		viper.SetConfigName(".test")
 	}
 
-	viper.BindPFlags(rootCmd.Flags())
+	err := viper.BindPFlags(rootCmd.Flags())
+	cobra.CheckErr(err)
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
-	viper.Unmarshal(&config)
+	err = viper.Unmarshal(&config)
+	cobra.CheckErr(err)
 	if config.Key == "" {
 		key, err := os.ReadFile(os.Getenv("HOME") + "/.ssh/id_ed25519")
 		if err != nil {

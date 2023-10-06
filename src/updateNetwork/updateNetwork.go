@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	godotenv.Load()
+	_ = godotenv.Load()
 	//SetUp Logging
 	logging.SetupLoging("updateNetwork")
 	do_token := os.Getenv("DIGITALOCEAN_TOKEN")

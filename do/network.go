@@ -470,14 +470,3 @@ func (request *Request) GetPrivateIP(name, tag string) (string, error) {
 	}
 	return "", errors.New("droplet not found")
 }
-
-// Private
-// in - tests if a string is a member of an array of strings
-func in(str string, strs []string) bool {
-	for _, substring := range strs {
-		if str == substring {
-			return true
-		}
-	}
-	return false
-}
