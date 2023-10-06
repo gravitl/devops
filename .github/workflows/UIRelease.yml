@@ -26,6 +26,8 @@ jobs:
           git push origin release-${{ inputs.version }}
           git push origin ${{ inputs.version }}
           gh release create ${{ inputs.version }} --notes-file release.md --latest --target release-${{ inputs.version }} --verify-tag
+        env:
+          GH_TOKEN: ${{ github.token }}
 
   docker:
     needs: release-branch
