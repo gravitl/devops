@@ -1,0 +1,27 @@
+name: Build updateNetwork tool
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'master'
+    paths:
+      - 'src/updateNetwork/*.go'
+
+jobs:
+  update-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: ./go.mod
+      - name: build
+        run: |
+          CGO_ENABLED=0 go build -C src/updateNetwork -o ./.github/actions/update-test-network/updateNetwork -ldflags='-w -s' . 
+      - name: Commit and Push 
+        uses: fabriziocacicia/commit-and-push-to-protected-branch-action@v0.1.0
+        with:
+          commit_message: "updateNetwork update"    
