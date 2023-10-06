@@ -19,9 +19,9 @@ jobs:
       - name: Build
         run: |
           go version
-          CGO_ENABLED=0 go build -c src/updateNetwork -v  . 
-          CGO_ENABLED=0 go build -c test -v  . 
-          CGO_ENABLED=0 go build -c upgrade -v  . 
+          CGO_ENABLED=0 go build -C src/updateNetwork -v  . 
+          CGO_ENABLED=0 go build -C test -v  . 
+          CGO_ENABLED=0 go build -C upgrade -v  . 
   
   tests:
     runs-on: ubuntu-latest
@@ -37,3 +37,4 @@ jobs:
           go vet ./...
           go test ./... -v
           golangci-lint run
+  
