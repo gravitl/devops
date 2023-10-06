@@ -1,0 +1,5 @@
+name: update test network
+description: update daily test network
+runs:
+  using: node16
+  main: invoke-binary.js
