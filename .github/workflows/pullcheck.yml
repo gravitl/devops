@@ -36,7 +36,6 @@ jobs:
         run: |
           go vet ./...
           go test ./... -v
-          golangci-lint run
   
   lint:
     runs-on: ubuntu-latest
