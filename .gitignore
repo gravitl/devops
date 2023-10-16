@@ -7,3 +7,4 @@ output
 bin/*
 src/experiment/*
 .vscode
+**/.env
