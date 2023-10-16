@@ -2,30 +2,10 @@ name: Debugging Workflow
 
 on:
   workflow_dispatch:
-    inputs:
-      netmakerbranch:
-        description: netmaker branch to run on.
-        default: develop
-        required: true
-      netclientbranch:
-        description: netclient branch to run on.
-        default: develop
-        required: true
-      version:
-        description: version
-        required: true
 
-  workflow_call:
-    inputs:
-      netmakerbranch:
-        required: true
-        type: string
-      netclientbranch:
-        required: true
-        type: string
 
 jobs:
-  packages:
+  daily-test:
     runs-on: ubuntu-latest
     steps:
       - name: setup ssh
@@ -41,11 +21,11 @@ jobs:
           END
         env:
           SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
-      - name: set version
-        run: |
-            VERSION=$(echo ${{ inputs.version }} | tr -cd '[:digit:].')
-            echo "VERSION=${VERSION}" >> $GITHUB_ENV
-            echo ${VERSION}
-      - name: apt/rpm
-        run: |
-          ssh fileserver.clustercat.com cd packages; export VERSION=${VERSION}; export REVISION=0; echo $VERSION; echo $REVISION
+      - name: run tests
+        uses: ./.github/workflows/branchtest.yml
+        with:
+          tag: devops
+          network: devops
+          api: "https://api.clustercat.com"
+          masterkey: secretkey
+          server: server
