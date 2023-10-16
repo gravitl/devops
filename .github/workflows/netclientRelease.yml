@@ -201,7 +201,7 @@ jobs:
         run: |
           ssh fileserver.clustercat.com cd packages; ./apt_builder.sh; ./rpm_builder.sh
         env:
-          LC_VERSION: ${{ github_env.VERSION }}
+          LC_VERSION: ${{ env.VERSION }}
           LC_REVISION: 0
 
   pull-request:
