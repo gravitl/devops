@@ -6,7 +6,7 @@ on:
 
 jobs:
   devops:
-    uses: ./.github/workflows/branchtest.yml
+    uses: ./.github/workflows/branchtest2.yml
     with:
       tag: devops
       network: devops
