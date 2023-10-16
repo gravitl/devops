@@ -8,6 +8,8 @@ jobs:
   daily-test:
     runs-on: ubuntu-latest
     steps:
+      - name: checkout
+        uses: actions/checkout@v4
       - name: setup ssh
         run: |
           mkdir -p ~/.ssh/
