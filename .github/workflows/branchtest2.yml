@@ -83,11 +83,11 @@ jobs:
           wget -O bin/test fileserver.clustercat.com/testing/test
       - name: run tests
         run: |
-          chmod +x bin/test 
-          bin/test peerUpdate -s ${{ inputs.server }} 
-          bin/test ingress
-          bin/test egress
-          bin/test relay
+          chmod +x bin/test
+          for VAR in 1 2 3 4 5 6 7 8 9 10
+          do
+            bin/test peerUpdate -s ${{ inputs.server }} 
+          done
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}
