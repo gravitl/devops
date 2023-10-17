@@ -31,7 +31,7 @@ jobs:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN }}
 
   devops:
-    uses: ./.github/workflows/branchtest2.yml
+    uses: ./.github/workflows/branchtest.yml
     needs: [update-network]
     with:
       tag: devops
