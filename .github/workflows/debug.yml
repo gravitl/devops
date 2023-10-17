@@ -8,7 +8,6 @@ jobs:
 
   update-network:
     name: update-network
-    needs: [testartifacts]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -33,6 +32,7 @@ jobs:
 
   devops:
     uses: ./.github/workflows/branchtest2.yml
+    needs: [update-network]
     with:
       tag: devops
       network: devops
