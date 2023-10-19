@@ -22,6 +22,8 @@ jobs:
         run: |
           CGO_ENABLED=0 go build -C src/updateNetwork -o ./.github/actions/update-test-network/updateNetwork -ldflags='-w -s' . 
       - name: Commit and Push 
-        uses: fabriziocacicia/commit-and-push-to-protected-branch-action@v0.1.0
+        uses: fabriziocacicia/commit-and-push-to-protected-branch-action@v0.2.0
         with:
           commit_message: "updateNetwork update"    
+        env:
+          GH_TOKEN: ${{ github.token }}
