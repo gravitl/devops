@@ -48,7 +48,9 @@ jobs:
           go-version-file: ./go.mod
       - name:  lint
         run: |
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.54.2
+          # binary will be $(go env GOPATH)/bin/golangci-lint
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.54.2
+          #go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.54.2
           golangci-lint run
 
  
