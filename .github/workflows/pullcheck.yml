@@ -47,6 +47,8 @@ jobs:
         with:
           go-version-file: ./go.mod
       - name:  lint
-        uses: golangci/golangci-lint-action@v3 
+        run: |
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.54.2
+          golangci-lint run
 
  
