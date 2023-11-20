@@ -199,7 +199,7 @@ jobs:
             echo ${VERSION}
       - name: apt/rpm
         run: |
-          ssh fileserver.clustercat.com cd packages; ./apt_builder.sh; ./rpm_builder.sh
+          ssh fileserver.clustercat.com "cd packages; ./apt_builder.sh; ./rpm_builder.sh"
         env:
           LC_VERSION: ${{ env.VERSION }}
           LC_REVISION: 0
