@@ -136,7 +136,7 @@ jobs:
             echo ${VERSION}
       - name: apt/rpm
         run: |
-          ssh fileserver.clustercat.com cd packages/nmctl; export VERSION=${VERSION}; export REVISION=0; ./buildall.sh 
+          ssh fileserver.clustercat.com "cd packages/nmctl; export VERSION=${VERSION}; export REVISION=0; ./buildall.sh" 
 
   pull-request:
     needs: release-branch
@@ -178,4 +178,4 @@ jobs:
       - name: copy files
         run: |
           ssh fileserver.clustercat.com "mkdir -p /var/www/files/releases/download/${{ inputs.version }}"
-          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }};gh release download -R gravitl/netmaker ${{inputs.version }}
+          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }};gh release download -R gravitl/netmaker ${{inputs.version }}"
