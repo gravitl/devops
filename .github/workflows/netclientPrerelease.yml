@@ -61,48 +61,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  freebsd-headless:
-    runs-on: ubuntu-latest
-    needs: release-branch
-    steps:
-      - name: build freebsd
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: freebsd.clustercat.com
-          username: freebsd
-          key: ${{ secrets.TESTING_SSH_KEY }}
-          script: |
-            cd netclient
-            git fetch
-            git switch release-${{ github.event.inputs.version }}
-            git restore .
-            git pull
-            go build .
-      - name: setup ssh
-        run: |
-          mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/id_devops
-          chmod 600 ~/.ssh/id_devops
-          cat >>~/.ssh/config <<END
-          Host *.clustercat.com
-            User freebsd
-            IdentityFile ~/.ssh/id_devops
-            StrictHostKeyChecking no
-          END
-        env:
-          SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
-      - name: get freebsd binary
-        run: |
-          scp freebsd@freebsd.clustercat.com:~/netclient/netclient /tmp/
-      - name: upload freebsd to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: /tmp/netclient
-          tag: ${{ github.event.inputs.version }}
-          overwrite: true
-          asset_name: netclient-freebsd-amd64
-
+  
   docker:
     needs: release-branch
     runs-on: ubuntu-latest
@@ -168,4 +127,4 @@ jobs:
           ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-mipsle-softfloat
           ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-gui-linux-amd64
           ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-gui-linux-arm64
-          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-freebsd-amd64
+          
