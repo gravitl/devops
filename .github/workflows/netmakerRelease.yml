@@ -178,4 +178,5 @@ jobs:
       - name: copy files
         run: |
           ssh fileserver.clustercat.com "mkdir -p /var/www/files/releases/download/${{ inputs.version }}"
+          ssh fileservernclustercat.com "cd /var/www/files/; ln -vfns releases/download/${{ inputs.version }} latest"
           ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }};gh release download -R gravitl/netmaker ${{inputs.version }}"
