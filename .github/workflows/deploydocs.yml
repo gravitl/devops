@@ -46,6 +46,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./netmaker-docs
+          build-args: SHELL_ARGUMENT=${{ secrets.CLEAR_BIT_ADDR }}
           file: ./netmaker-docs/Dockerfile.clearbit
           platforms: linux/amd64
           push: true
