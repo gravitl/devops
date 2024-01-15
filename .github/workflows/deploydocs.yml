@@ -1,0 +1,72 @@
+name: Deploy Docs
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "new version number"
+        required: true
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup git
+        run: |
+          git config --global user.name "Gravitl"
+          git config --global user.email "info@netmaker.io"
+      - name: Checkout Devops
+        uses: actions/checkout@v3
+        with:
+          repository: gravitl/devops
+          ref: master
+          path: devops
+      - name: Checkout Docs
+        uses: actions/checkout@v3
+        with:
+          repository: gravitl/netmaker-docs
+          ref: master
+          path: netmaker-docs
+      - name: Move files
+        env:
+          TOKEN: ${{ secrets.repo_token }}
+        run: |
+          cp ./devops/netmaker-docs/Dockerfile.clearbit ./netmaker-docs
+          cp ./devops/netmaker-docs/mod-html.sh ./netmaker-docs
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./netmaker-docs
+          file: ./netmaker-docs/Dockerfile.clearbit
+          platforms: linux/amd64
+          push: true
+          tags: |
+            gravitl/netmaker-docs:${{ inputs.version }}
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/deploy.key
+          chmod 600 ~/.ssh/deploy.key 
+          ls ~/.ssh
+          cat >>~/.ssh/config <<END
+          Host *
+            User root
+            IdentityFile ~/.ssh/deploy.key
+            StrictHostKeyChecking no
+          END
+          cat ~/.ssh/config
+          cat ~/.ssh/deploy.key
+        env:
+          SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
+      - name: Update Server
+        run: |
+          ssh root@143.198.165.134 "bash updateimage.sh ${{ inputs.version }}"
