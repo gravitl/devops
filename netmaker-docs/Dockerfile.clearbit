@@ -6,7 +6,7 @@ RUN pip install sphinx_material
 RUN ["make","html"]
 RUN ["/bin/ls"]
 
-ENV SHELL_ARGUMENT
+ARG SHELL_ARGUMENT
 
 FROM nginx:1.19
 COPY --from=builder /netmaker-docs/_build/html /usr/share/nginx/html
