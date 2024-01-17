@@ -59,8 +59,6 @@ sed -i '/link rel=\"prev\"/a \ \ \ \ <link rel=\"canonical\"\ href=\"https://doc
 
 sed -i '/link rel=\"prev\"/a \ \ \ \ <link rel=\"canonical\"\ href=\"https://docs.netmaker.io/pro/pro-relay-server.html\"\ />' /usr/share/nginx/html/pro/pro-relay-server.html
 
-sed -i '/link rel=\"prev\"/a \ \ \ \ <link rel=\"canonical\"\ href=\"https://docs.netmaker.io/turn-server.html\"\ />' /usr/share/nginx/html/turn-server.html
-
 sed -i '/link rel=\"prev\"/a \ \ \ \ <link rel=\"canonical\"\ href=\"https://docs.netmaker.io/ui-reference.html\"\ />' /usr/share/nginx/html/ui-reference.html
 
 pushd /usr/share/nginx/html/
