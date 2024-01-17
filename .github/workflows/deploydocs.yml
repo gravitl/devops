@@ -49,6 +49,7 @@ jobs:
           build-args: SHELL_ARGUMENT=${{ secrets.CLEAR_BIT_ADDR }}
           file: ./netmaker-docs/Dockerfile.clearbit
           platforms: linux/amd64
+          no-cache: true
           push: true
           tags: |
             gravitl/netmaker-docs:${{ inputs.version }}
