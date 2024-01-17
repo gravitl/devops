@@ -7,4 +7,6 @@ image=$(cat docker-compose.yml | grep image | awk '{print$2; exit}')
 
 sed -i "s+$image+gravitl/netmaker-docs:$1+g" docker-compose.yml
 
+docker pull gravitl/netmaker-docs:$1
+
 docker-compose up -d
