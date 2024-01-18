@@ -2,8 +2,6 @@ name: Deploy Docs
 
 on:
   workflow_call:
-  secrets:
-    CLEAR_BIT_ADDR: ${{ secrets.CLEAR_BIT_ADDR }}
   workflow_dispatch:
 
 
