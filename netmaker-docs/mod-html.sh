@@ -65,6 +65,6 @@ pushd /usr/share/nginx/html/
 find . -type f -name "*.html" -exec sed -i 's-var json_loc = "../"versions.json""-var json_loc = "../versions.json"-' {} +
 find . -type f -name "*.html" -exec sed -i 's-var json_loc = ""versions.json""-var json_loc = "versions.json"-' {} +
 find . -type f -name "*.html" -exec sed -i 's-</head>-<link rel="shortcut icon" href="#">\n</head>-' {} +
-find . -type f -name "*.html" -exec sed -i 's#</head>#<script async src="<REPLACETHISTHING>" referrerpolicy="strict-origin-when-cross-origin"></script>\n</head>#' {} +
+find . -type f -name "*.html" -exec sed -i 's#</head>#<script async src="REPLACETHISTHING" referrerpolicy="strict-origin-when-cross-origin"></script>\n</head>#' {} +
 find . -type f -name "*.html" -exec sed -i """s#</head>#<script> (function(ss,ex){ window.ldfdr=window.ldfdr||function(){(ldfdr._q=ldfdr._q||[]).push([].slice.call(arguments));}; (function(d,s){ fs=d.getElementsByTagName(s)[0]; function ce(src){ var cs=d.createElement(s); cs.src=src; cs.async=1; fs.parentNode.insertBefore(cs,fs); }; ce('https://sc.lfeeder.com/lftracker_v1_'+ss+(ex?'_'+ex:'')+'.js'); })(document,'script'); })('p1e024BeABJ7GB6d'); </script>\n</head>#""" {} +
 popd
