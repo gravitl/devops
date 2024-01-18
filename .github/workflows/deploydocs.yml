@@ -33,7 +33,7 @@ jobs:
         run: |
           cp ./devops/netmaker-docs/Dockerfile.clearbit ./netmaker-docs
           cp ./devops/netmaker-docs/mod-html.sh ./netmaker-docs
-          sed -i "s/REPLACETHISTHING/${{ secrets.CLEAR_BIT_ADDR }}/g" ./netmaker-docs/mod-html.sh
+          sed -i "s|REPLACETHISTHING|${{ secrets.CLEAR_BIT_ADDR }}|g" ./netmaker-docs/mod-html.sh
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v2
       - name: Setup Docker Buildx
