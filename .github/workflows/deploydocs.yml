@@ -2,10 +2,10 @@ name: Deploy Docs
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: "new version number"
-        required: true
+    # inputs:
+    #   version:
+    #     description: "new version number"
+    #     required: true
 
 jobs:
   docker:
@@ -34,6 +34,8 @@ jobs:
           cp ./devops/netmaker-docs/Dockerfile.clearbit ./netmaker-docs
           cp ./devops/netmaker-docs/mod-html.sh ./netmaker-docs
           sed -i "s|REPLACETHISTHING|${{ secrets.CLEAR_BIT_ADDR }}|g" ./netmaker-docs/mod-html.sh
+          echo "TAG_NAME=v$(cat ./netmaker-docs/conf.py | grep release | awk  '{print$3;exit}' | tr -d "'")"
+        id: version
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v2
       - name: Setup Docker Buildx
@@ -52,7 +54,7 @@ jobs:
           no-cache: true
           push: true
           tags: |
-            gravitl/netmaker-docs:${{ inputs.version }}
+            gravitl/netmaker-docs:${{ steps.version.outputs.TAG_NAME }}
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh/
@@ -71,4 +73,4 @@ jobs:
           SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
       - name: Update Server
         run: |
-          ssh root@143.198.165.134 "bash updateimage.sh ${{ inputs.version }}"
+          ssh root@143.198.165.134 "bash updateimage.sh ${{ steps.version.outputs.TAG_NAME }}"
