@@ -48,6 +48,18 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+    # Check if devops needs to access a branch with nm-quick changes
+    - name: Quick Check
+      id: quickcheck
+      run: |
+        wget -O nm-quick-develop https://raw.githubusercontent.com/gravitl/netmaker/develop/scripts/nm-quick.sh
+        wget -O nm-quick-branch https://raw.githubusercontent.com/gravitl/netmaker/${{ inputs.netmakerbranch }}/scripts/nm-quick.sh
+        diff nm-quick-develop.sh nm-quick-branch.sh > output.txt
+        [ -s output.txt ] && BRANCH_CHECK="${{ inputs.netmakerbranch }}" ||   BRANCH_CHECK="develop" >> $GITHUB_OUTPUT
+        # TODO make check to see if branch exits if needed.
+        export BRANCHES=$(git branch -r)
+        [ -s BRANCHES ]  && echo "${{ inputs.netmakerBranch }} exists" || echo "IT LOOKS LIKE YOU HAVE MADE CHANGES TO THE NM-QUICK SCRIPT, BUT THE DEVOPS VERSION OF THE BRANCH CANNOT BE FOUND. PLEASE MAKE THE SAME CHANGES TO THE NM-QUICK SCRIPT IN THE DEVOPS." && exit 1
+
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v3
@@ -91,6 +103,7 @@ jobs:
         TF_VAR_pvt_key: "${{ secrets.TESTING_SSH_KEY }}"
         TF_VAR_branch: "${{ inputs.netmakerbranch }}"
         TF_VAR_clientbranch: "${{ inputs.netclientbranch }}"
+        TF_VAR_devopsbranch: "${{ steps.quickcheck,outputs.BRANCH_CHECK }}"
         TF_VAR_do_tag: ${{ github.run_id }}-${{ github.run_attempt }}
         TF_VAR_server: ${{ inputs.server }}
 
