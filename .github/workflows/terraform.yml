@@ -58,7 +58,7 @@ jobs:
         [ -s output.txt ] && BRANCH_CHECK="${{ inputs.netmakerbranch }}" ||   BRANCH_CHECK="develop" >> $GITHUB_OUTPUT
         # TODO make check to see if branch exits if needed.
         export BRANCHES=$(git branch -r)
-        [ -s BRANCHES ]  && echo "${{ inputs.netmakerBranch }} exists" || echo "IT LOOKS LIKE YOU HAVE MADE CHANGES TO THE NM-QUICK SCRIPT, BUT THE DEVOPS VERSION OF THE BRANCH CANNOT BE FOUND. PLEASE MAKE THE SAME CHANGES TO THE NM-QUICK SCRIPT IN THE DEVOPS. IF YOU DID NOT MAKE CHANGES TO THE NM-QUICK SCRIPT AND SEE THIS ERROR, MAKE SURE YOUR BRANCH IS UP TO DATE WITH THE LATEST DEVELOP." && exit 1
+        [ -s BRANCHES ]  && echo "${{ inputs.netmakerBranch }} exists" || echo "IT LOOKS LIKE YOU HAVE MADE CHANGES TO THE NM-QUICK SCRIPT. THIS MAY AFFECT THE NM-QUICK SCRIPT ON THE DEVOPS SIDE. IF CHANGES ARE NEEDED TO THE DEVOPS NM-QUICK. PLEASE GIVE THE BRANCH THE SAME NAME AS THE NETMAKER BRANCH WHERE YOU MADE THE CHANGES."
 
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
