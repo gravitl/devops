@@ -103,7 +103,7 @@ jobs:
         TF_VAR_pvt_key: "${{ secrets.TESTING_SSH_KEY }}"
         TF_VAR_branch: "${{ inputs.netmakerbranch }}"
         TF_VAR_clientbranch: "${{ inputs.netclientbranch }}"
-        TF_VAR_devopsbranch: "${{ steps.quickcheck,outputs.BRANCH_CHECK }}"
+        TF_VAR_devopsbranch: "${{ steps.quickcheck.outputs.BRANCH_CHECK }}"
         TF_VAR_do_tag: ${{ github.run_id }}-${{ github.run_attempt }}
         TF_VAR_server: ${{ inputs.server }}
 
