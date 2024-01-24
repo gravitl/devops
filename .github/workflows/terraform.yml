@@ -93,6 +93,7 @@ jobs:
     
     - name: Terraform Init
       run: |
+        echo "${{ steps.quickcheck.outputs.BRANCH_CHECK }}"
         cd qa/terraform/branchterraform
         terraform init
         terraform validate
