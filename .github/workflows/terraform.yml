@@ -55,7 +55,8 @@ jobs:
         wget -O nm-quick-develop.sh https://raw.githubusercontent.com/gravitl/netmaker/develop/scripts/nm-quick.sh
         wget -O nm-quick-branch.sh https://raw.githubusercontent.com/gravitl/netmaker/${{ inputs.netmakerbranch }}/scripts/nm-quick.sh
         diff ./nm-quick-develop.sh ./nm-quick-branch.sh || : > output.txt
-        BRANCH_CHECK=$([ -s output.txt ] && echo "${{ inputs.netmakerbranch }}" ||   echo "develop") >> $GITHUB_OUTPUT
+        BRANCH_CHECK=$([ -s output.txt ] && echo "${{ inputs.netmakerbranch }}" ||   echo "master") >> $GITHUB_OUTPUT
+        echo $BRANCH_CHECK
         export BRANCHES=$(git branch -r)
         [ -s BRANCHES ]  && echo "${{ inputs.netmakerBranch }} exists" || echo "IT LOOKS LIKE YOU HAVE MADE CHANGES TO THE NM-QUICK SCRIPT. THIS MAY AFFECT THE NM-QUICK SCRIPT ON THE DEVOPS SIDE. IF CHANGES ARE NEEDED TO THE DEVOPS NM-QUICK. PLEASE GIVE THE BRANCH THE SAME NAME AS THE NETMAKER BRANCH WHERE YOU MADE THE CHANGES."
 
