@@ -1,4 +1,5 @@
 name: PreRelease Netclient
+
 on:
   workflow_call:
     inputs:
@@ -125,6 +126,4 @@ jobs:
           ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-mips-softfloat
           ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-mipsle-hardfloat
           ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-linux-mipsle-softfloat
-          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-gui-linux-amd64
-          ssh fileserver.clustercat.com "cd /var/www/files/releases/download/${{ inputs.version }}; wget https://github.com/gravitl/netclient/releases/download/${{ inputs.version }}/netclient-gui-linux-arm64
           

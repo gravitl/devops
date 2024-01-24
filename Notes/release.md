@@ -39,7 +39,6 @@
   * assets
     * gorleaser: builds/uploads binaries to release assets
       * netclient: linux_amd64, linux_arm64, linux_arm_5, linux_arm_6, linux_arm_7, linux_mips_hardfloat, linux_mips_softfloat, linux_mipsle_softfloat, linux_mipsle_hardfloat
-      * netclient-gui: linux_amd64, linux_arm64
   * freebsd
     * ssh to freebsd droplets and build linux-freebsd13-amd64, linux-freebsd14-amd64 and upload to release
   * creates netclient docker images (amd64, arm64, arm/v7) and uploads to docker hub
@@ -57,4 +56,3 @@
 * see github.com/gravitl/devops/Notes/build_packages.md
 #### aur package
 * see github.com/gravitl/devops/Notes/build_packages.md
-
