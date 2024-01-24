@@ -59,7 +59,7 @@ jobs:
         echo "branch is: $BRANCH_CHECK"
         export BRANCHES=$(git branch -r)
         [ -s BRANCHES ]  && echo "${{ inputs.netmakerBranch }} exists" || echo "IT LOOKS LIKE YOU HAVE MADE CHANGES TO THE NM-QUICK SCRIPT. THIS MAY AFFECT INSTALLATION WITH THE NM-QUICK SCRIPT ON THE DEVOPS SIDE. IF CHANGES ARE NEEDED TO THE DEVOPS NM-QUICK. PLEASE GIVE THE BRANCH THE SAME NAME AS THE NETMAKER BRANCH WHERE YOU MADE THE CHANGES. TRYING WITH NM-QUICK FROM MASTER ON DEVOPS FOR NOW." && BRANCH_CHECK="master"
-        echo "$BRANCH_CHECK" >> $GITHUB_OUTPUT
+        echo "BRANCHTOUSE=$BRANCH_CHECK" >> $GITHUB_OUTPUT
 
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
@@ -81,7 +81,7 @@ jobs:
     - name: Setup SSH
       run: |
         mkdir -p ~/.ssh/
-        echo "branch name is : ${{ steps.quickcheck.outputs.BRANCH_CHECK }}"
+        echo "branch name is : ${{ steps.quickcheck.outputs.BRANCHTOUSE }}"
         echo "$SSH_KEY" > ~/.ssh/deploy.key
         chmod 600 ~/.ssh/deploy.key 
         cat >>~/.ssh/config <<END
@@ -105,7 +105,7 @@ jobs:
         TF_VAR_pvt_key: "${{ secrets.TESTING_SSH_KEY }}"
         TF_VAR_branch: "${{ inputs.netmakerbranch }}"
         TF_VAR_clientbranch: "${{ inputs.netclientbranch }}"
-        TF_VAR_devopsbranch: "${{ steps.quickcheck.outputs.BRANCH_CHECK }}"
+        TF_VAR_devopsbranch: "${{ steps.quickcheck.outputs.BRANCHTOUSE }}"
         TF_VAR_do_tag: ${{ github.run_id }}-${{ github.run_attempt }}
         TF_VAR_server: ${{ inputs.server }}
 
