@@ -80,6 +80,7 @@ jobs:
     - name: Setup SSH
       run: |
         mkdir -p ~/.ssh/
+        echo "branch name is : ${{ steps.quickcheck.outputs.BRANCH_CHECK }}"
         echo "$SSH_KEY" > ~/.ssh/deploy.key
         chmod 600 ~/.ssh/deploy.key 
         cat >>~/.ssh/config <<END
@@ -93,7 +94,6 @@ jobs:
     
     - name: Terraform Init
       run: |
-        echo "${{ steps.quickcheck.outputs.BRANCH_CHECK }}"
         cd qa/terraform/branchterraform
         terraform init
         terraform validate
