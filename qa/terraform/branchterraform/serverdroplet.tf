@@ -15,7 +15,7 @@ resource "null_resource" "terraformnetmakerserver" {
   provisioner "remote-exec" {
     inline = [
       "export PATH=$PATH:/usr/bin",
-      "wget https://raw.githubusercontent.com/gravitl/netmaker/${var.branch}/scripts/nm-quick.sh",
+      "wget https://raw.githubusercontent.com/gravitl/devops/${var.devopsbranch}/qa/nm-quick.sh",
       "chmod +x nm-quick.sh",
       "chmod +x nm-quick.sh",
       "rm -rf netclient",

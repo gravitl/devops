@@ -10,6 +10,10 @@ variable "clientbranch" {
    default = "develop"
 }
 
+variable "devopsbranch" {
+   default = "master"
+}
+
 variable "do_token" {}
 variable "do_tag"{}
 variable "extclient" {}
