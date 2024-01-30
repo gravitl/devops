@@ -92,7 +92,7 @@ jobs:
             gravitl/netclient:latest
 
   packages:
-    needs: release-branch
+    needs: [release-branch, release-assets]
     runs-on: ubuntu-latest
     steps:
       - name: setup ssh
@@ -115,7 +115,6 @@ jobs:
             echo ${VERSION}
       - name: apt/rpm
         run: |
-          sleep 10m
           ssh fileserver.clustercat.com "cd packages; ./apt_builder.sh; ./rpm_builder.sh"
         env:
           LC_VERSION: ${{ env.VERSION }}
