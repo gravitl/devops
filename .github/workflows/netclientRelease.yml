@@ -92,7 +92,7 @@ jobs:
             gravitl/netclient:latest
 
   packages:
-    needs: release-branch
+    needs: [release-branch, release-assets]
     runs-on: ubuntu-latest
     steps:
       - name: setup ssh
