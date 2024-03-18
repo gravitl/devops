@@ -1,0 +1,13 @@
+name: Sign Windows Binary/Installer
+
+on:
+  workflow-dispatch:
+    inputs:
+      file-to-sign:
+        description: name of windows file to sign
+        required: true
+  workflow-call:
+    inputs:
+      file-to-sign:
+        required: true
+        type: string
