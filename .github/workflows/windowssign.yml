@@ -11,3 +11,8 @@ on:
       file-to-sign:
         required: true
         type: string
+
+jobs:
+  sign-file:
+    runs-on: windows-latest
+    steps:
