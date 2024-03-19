@@ -31,28 +31,27 @@ jobs:
           Expand-Archive -Force eSigner_CKA_Setup.zip
           Remove-Item eSigner_CKA_Setup.zip
           Move-Item -Destination “eSigner_CKA_Installer.exe” -Path “eSigner_CKA_*\*.exe”
-        – name: Setup eSignerCKA in Silent Mode
-          run: |
-            New-Item -ItemType Directory -Force -Path ${{ env.INSTALL_DIR }}
-            ./eSigner_CKA_Installer.exe /CURRENTUSER /VERYSILENT /SUPPRESSMSGBOXES /DIR=”${{ env.INSTALL_DIR }}” | Out-Null
-        – name: Config Account Information on eSignerCKA
-          run: |
-            ${{ env.INSTALL_DIR }}/eSignerCKATool.exe config -mode “${{ secrets.MODE }}” -user “${{ secrets.USERNAME }}” -pass “${{ secrets.PASSWORD }}” -totp “${{ secrets.TOTP_SECRET }}” -key “${{ env.MASTER_KEY_FILE }}” -r
-        – name: Load Certificate into Windows Store
-          run: |
-            ${{ env.INSTALL_DIR }}/eSignerCKATool.exe unload
-            ${{ env.INSTALL_DIR }}/eSignerCKATool.exe load
-        – name: Select Certificate From Windows Store
-          run: |
-            $CodeSigningCert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert | Select-Object -First 1
-            echo “THUMBPRINT=$($CodeSigningCert.Thumbprint)” >> $env:GITHUB_ENV
-        – name: Sign File with SignTool
-          run: |
-            & ‘C:/Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x86/signtool.exe’ sign /debug /fd sha256 /tr http://ts.ssl.com /td sha256 /sha1 ${{ env.THUMBPRINT }} ${{ env.SIGNABLE_FILE_PATH }}
-        – name: Upload eSignerCKA Logs
-          uses: actions/upload-artifact@v3
-          if: ${{ always() }}
-          with:
-            name: eSignerCKA-Logs-DLL
-            path: C:\Users\runneradmin\AppData\Roaming\eSignerCKA\KSP
+      - name: Setup eSignerCKA in Silent Mode
+        run: |
+          New-Item -ItemType Directory -Force -Path ${{ env.INSTALL_DIR }}
+          ./eSigner_CKA_Installer.exe /CURRENTUSER /VERYSILENT /SUPPRESSMSGBOXES /DIR=”${{ env.INSTALL_DIR }}” | Out-Null
+      - name: Config Account Information on eSignerCKA
+        run: |
+          ${{ env.INSTALL_DIR }}/eSignerCKATool.exe config -mode “${{ secrets.MODE }}” -user “${{ secrets.USERNAME }}” -pass “${{ secrets.PASSWORD }}” -totp “${{ secrets.TOTP_SECRET }}” -key “${{ env.MASTER_KEY_FILE }}” -r        – name: Load Certificate into Windows Store
+        run: |
+          ${{ env.INSTALL_DIR }}/eSignerCKATool.exe unload
+          ${{ env.INSTALL_DIR }}/eSignerCKATool.exe load
+      - name: Select Certificate From Windows Store
+        run: |
+          $CodeSigningCert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert | Select-Object -First 1
+          echo “THUMBPRINT=$($CodeSigningCert.Thumbprint)” >> $env:GITHUB_ENV
+      - name: Sign File with SignTool
+        run: |
+          & 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x86/signtool.exe' sign /debug /fd sha256 /tr http://ts.ssl.com /td sha256 /sha1 ${{ env.THUMBPRINT }} ${{ env.SIGNABLE_FILE_PATH }}
+      - name: Upload eSignerCKA Logs
+        uses: actions/upload-artifact@v3
+        if: ${{ always() }}
+        with:
+          name: eSignerCKA-Logs-DLL
+          path: C:\Users\runneradmin\AppData\Roaming\eSignerCKA\KSP
 
