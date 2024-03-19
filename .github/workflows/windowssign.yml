@@ -53,6 +53,6 @@ jobs:
         uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
-          name: eSignerCKA-Logs-DLL
+          name: eSignerCKA-Logs
           path: C:\Users\runneradmin\AppData\Roaming\eSignerCKA\KSP
 
