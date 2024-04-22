@@ -46,24 +46,24 @@ jobs:
         run: |
           $CodeSigningCert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert | Select-Object -First 1
           echo “THUMBPRINT=$($CodeSigningCert.Thumbprint)” >> $env:GITHUB_ENV
-      - name: setup ssh
-        run: |
-          mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/id_devops
-          chmod 600 ~/.ssh/id_devops
-          cat ~/.ssh/config
-          Host *.clustercat.com
-            User root
-            IdentityFile ~/.ssh/id_devops
-            StrictHostKeyChecking no
-          END
-        env:
-          SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
+      # - name: setup ssh
+      #   run: |
+      #     mkdir -p ~/.ssh/
+      #     echo "$SSH_KEY" > ~/.ssh/id_devops
+      #     chmod 600 ~/.ssh/id_devops
+      #     cat >>~/.ssh/config <<END
+      #     Host *.clustercat.com
+      #       User root
+      #       IdentityFile ~/.ssh/id_devops
+      #       StrictHostKeyChecking no
+      #     END
+      #   env:
+      #     SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
       - name: Sign File with SignTool
         run: |
           curl https://fileserver.netmaker.org/qa/signing/unsigned/${{ env.SIGNABLE_FILE_PATH }}
           & 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x86/signtool.exe' sign /debug /fd sha256 /tr http://ts.ssl.com /td sha256 /sha1 ${{ env.THUMBPRINT }} ${{ env.SIGNABLE_FILE_PATH }}
-          scp ${{ env.SIGNABLE_FILE_PATH }} root@fileserver.netmaker.org:/var/www/files/qa/signing/signed/
+          # scp ${{ env.SIGNABLE_FILE_PATH }} root@fileserver.netmaker.org:/var/www/files/qa/signing/signed/
       - name: Upload eSignerCKA Logs
         uses: actions/upload-artifact@v3
         if: ${{ always() }}
