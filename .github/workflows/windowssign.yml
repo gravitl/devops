@@ -37,7 +37,7 @@ jobs:
           ./eSigner_CKA_Installer.exe /CURRENTUSER /VERYSILENT /SUPPRESSMSGBOXES /DIR=”${{ env.INSTALL_DIR }}” | Out-Null
       - name: Config Account Information on eSignerCKA
         run: |
-          ${{ env.INSTALL_DIR }}/eSignerCKATool.exe config -mode “${{ secrets.SSL_MODE }}” -user “${{ secrets.SSL_USERNAME }}” -pass “${{ secrets.SSL_PASSWORD }}” -totp “${{ secrets.SSL_TOTP_SECRET }}” -key “${{ env.MASTER_KEY_FILE }}” -r        
+          ${{ env.INSTALL_DIR }}/eSignerCKATool.exe config -credential_id=a782afcb-5647-4fde-a975-50e1d6c096c2 -mode “${{ secrets.SSL_MODE }}” -user “${{ secrets.SSL_USERNAME }}” -pass “${{ secrets.SSL_PASSWORD }}” -totp “${{ secrets.SSL_TOTP_SECRET }}” -key “${{ env.MASTER_KEY_FILE }}” -r        
       - name: Load Certificate into Windows Store
         run: |
           ${{ env.INSTALL_DIR }}/eSignerCKATool.exe unload
