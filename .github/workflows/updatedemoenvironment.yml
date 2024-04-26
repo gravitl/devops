@@ -33,5 +33,5 @@ jobs:
             SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
         - name: update server
           run: | 
-                ssh root@206.81.15.201 "bash updateimage.sh ${{ inputs.version }}"
+                ssh 206.81.15.201 "bash updateimage.sh ${{ inputs.version }}"
           
