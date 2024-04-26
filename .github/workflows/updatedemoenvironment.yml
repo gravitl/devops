@@ -29,7 +29,7 @@ jobs:
                 IdentityFile ~/.ssh/id_devops
                 StrictHostKeyChecking no
             END
-            env:
+          env:
             SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
         - name: update server
           run: | 
