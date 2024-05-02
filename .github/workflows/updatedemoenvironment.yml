@@ -24,14 +24,14 @@ jobs:
             echo "$SSH_KEY" > ~/.ssh/id_devops
             chmod 600 ~/.ssh/id_devops
             cat >>~/.ssh/config <<END
-            Host *.clustercat.com
+            Host 206.81.15.201
                 User root
                 IdentityFile ~/.ssh/id_devops
                 StrictHostKeyChecking no
             END
-            env:
+          env:
             SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
         - name: update server
           run: | 
-                ssh root@206.81.15.201 "bash updateimage.sh ${{ inputs.version }}"
+                ssh 206.81.15.201 "bash updateimage.sh ${{ inputs.version }}"
           
