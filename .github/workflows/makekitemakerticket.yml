@@ -25,9 +25,9 @@ on:
                 type: string
 
 env:
-    X-API-KEY: ${{ secrets.KITEMAKER-X-API-KEY }}
-    SPACE_ID: ${{ secrets.KITEMAKER-SPACE-ID }}
-    STATUS_ID: ${{ secrets.KITEMAKER-STATUS-ID }}
+    X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
+    SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
+    STATUS_ID: ${{ secrets.KITEMAKER_STATUS_ID }}
 
 
 jobs:
