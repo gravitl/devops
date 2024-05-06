@@ -36,5 +36,4 @@ jobs:
         steps:
             - name: Make Ticket
               run: |
-                echo '{"spaceId": "${{ env.SPACE_ID }}", "statusId": "${{ env.STATUS_ID }}", "title": "From ${{ inputs.repo_name }} -- ${{ inputs.title }}", "description": "${{ inputs.body }}"}' > body.json
-                curl  -H "Content-Type: application/json"  -H "X-API-KEY: ${{ env.X-API-KEY }}" -d  @body.json "https://toil.kitemaker.co/developers/rest/v1/workitem"
+                curl  -H "Content-Type: application/json"  -H "X-API-KEY: ${{ env.X-API-KEY }}" -d "{\"spaceId\": \"${{ env.SPACE_ID }}\", \"statusId\": \"${{ env.STATUS_ID }}\", \"title\": \"From ${{ inputs.repo_name }} -- ${{ inputs.title }}\", \"description\": \"${{ inputs.body }}\"}"  "https://toil.kitemaker.co/developers/rest/v1/workitem"
