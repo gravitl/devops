@@ -38,6 +38,9 @@ jobs:
               run: |
                 body_details=$( jq -n --arg string "$BODY" '$string' )
                 echo " The body details are : ${body_details}"
-                curl  -H "Content-Type: application/json"  -H "X-API-KEY: ${{ env.X-API-KEY }}" --data-raw '{"spaceId": "${{ env.SPACE_ID }}", "statusId": "${{ env.STATUS_ID }}", "title": "From ${{ inputs.repo_name }} -- ${{ inputs.title }}", "description": [ '"$body_details"' ]}' "https://toil.kitemaker.co/developers/rest/v1/workitem"
+                curl  -H "Content-Type: application/json"  -H "X-API-KEY: ${{ env.X-API-KEY }}" --data-raw '{"spaceId": "${{ env.SPACE_ID }}", "statusId": "${{ env.STATUS_ID }}", "title": "From ${{ inputs.repo_name }} -- ${{ inputs.title }}", "description": "$body_details"}' "https://toil.kitemaker.co/developers/rest/v1/workitem"
               env:
                 BODY: ${{ inputs.body }}
+                X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
+                SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
+                STATUS_ID: ${{ secrets.KITEMAKER_STATUS_ID }}
