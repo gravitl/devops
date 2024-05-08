@@ -35,6 +35,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Make Ticket
+              id: apicall
               run: |
                 
                 echo " The body details are : ${{ toJson(inputs.body) }}" | tr -d "<>"
