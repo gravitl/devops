@@ -55,11 +55,9 @@ jobs:
             - name: Add comment to GitHub issue
               run: |
                 ISSUE_URL="https://api.github.com/repos/${{ inputs.repo_name}}/issues/${{ inputs.issue_number }}/comments"
+                echo $ISSUE_URL
                 COMMENT_BODY="Kitemaker ticket created: $TICKET_NUMBER"
-                curl -s -H "Authorization: token ${{ env.GITHUB_TOKEN }}" \
-                     -H "Content-Type: application/json" \
-                    --data "{\"body\": \"$COMMENT_BODY\"}" \
-                    $ISSUE_URL
+                curl -s -H "Authorization: token ${{ env.GITHUB_TOKEN }}"  -H "Content-Type: application/json" --data "{\"body\": \"$COMMENT_BODY\"}"  $ISSUE_URL
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             
