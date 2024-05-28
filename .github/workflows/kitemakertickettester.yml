@@ -12,4 +12,5 @@ jobs:
             title: ${{ github.event.issue.title }}
             body: ${{ github.event.issue.body }}
             repo_name: ${{ github.event.repository.name }}
+            issue_number: ${{ github.event.issue.number }}
         secrets: inherit
