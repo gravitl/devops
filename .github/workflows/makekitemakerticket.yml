@@ -12,6 +12,9 @@ on:
             repo_name:
                 required: true
                 type: string
+            issue_number:
+                required: true
+                type: string
     workflow_call:
         inputs:
             title:
@@ -23,11 +26,15 @@ on:
             repo_name:
                 required: true
                 type: string
+            issue_number:
+                required: true
+                type: string
 
 env:
     X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
     SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
     STATUS_ID: ${{ secrets.KITEMAKER_STATUS_ID }}
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
 jobs:
@@ -35,10 +42,24 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Make Ticket
+              id: apicall
               run: |
                 
                 echo " The body details are : ${{ toJson(inputs.body) }}" | tr -d "<>"
-                curl  -H "Content-Type: application/json"  -H "X-API-KEY: ${{ env.X-API-KEY }}" --data-raw '{"spaceId": "${{ env.SPACE_ID }}", "statusId": "${{ env.STATUS_ID }}", "title": "From ${{ inputs.repo_name }} -- ${{ inputs.title }}", "description": ${{ toJson(inputs.body) }}}' "https://toil.kitemaker.co/developers/rest/v1/workitem"
+                RESPONSE = $(curl  -H "Content-Type: application/json"  -H "X-API-KEY: ${{ env.X-API-KEY }}" --data-raw '{"spaceId": "${{ env.SPACE_ID }}", "statusId": "${{ env.STATUS_ID }}", "title": "From ${{ inputs.repo_name }} -- ${{ inputs.title }}", "description": ${{ toJson(inputs.body) }}}' "https://toil.kitemaker.co/developers/rest/v1/workitem")
+                echo "$RESPONSE"
+                TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
+                echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
               env:
                 BODY: ${{ inputs.body }}
-                DATA: 
+            - name: Add comment to GitHub issue
+              run: |
+                ISSUE_URL="https://api.github.com/repos/${{ inputs.repo_name}}/issues/${{ inputs.issue_number }}/comments"
+                COMMENT_BODY="Kitemaker ticket created: $TICKET_NUMBER"
+                curl -s -H "Authorization: token ${{ env.GITHUB_TOKEN }}" \
+                     -H "Content-Type: application/json" \
+                    --data "{\"body\": \"$COMMENT_BODY\"}" \
+                    $ISSUE_URL
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            
