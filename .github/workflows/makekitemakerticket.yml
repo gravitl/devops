@@ -14,7 +14,7 @@ on:
                 type: string
             issue_number:
                 required: true
-                type: number
+                type: string
     workflow_call:
         inputs:
             title:
@@ -28,7 +28,7 @@ on:
                 type: string
             issue_number:
                 required: true
-                type: number
+                type: string
 
 env:
     X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
@@ -54,7 +54,7 @@ jobs:
                 BODY: ${{ inputs.body }}
             - name: Add comment to GitHub issue
               run: |
-                ISSUE_URL="https://api.github.com/repos/${{ github.repository }}/issues/${{ inputs.issue_number }}/comments"
+                ISSUE_URL="https://api.github.com/repos/${{ inputs.repo_name}}/issues/${{ inputs.issue_number }}/comments"
                 COMMENT_BODY="Kitemaker ticket created: $TICKET_NUMBER"
                 curl -s -H "Authorization: token ${{ env.GITHUB_TOKEN }}" \
                      -H "Content-Type: application/json" \
