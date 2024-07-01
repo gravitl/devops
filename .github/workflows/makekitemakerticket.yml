@@ -51,32 +51,33 @@ on:
 
 
 
+
 env:
   X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
   SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
   STATUS_ID: ${{ secrets.KITEMAKER_STATUS_ID }}
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   make-ticket:
     runs-on: ubuntu-latest
     steps:
-      - name: Set Variables
-        id: set_vars
+      - name: Set up environment variables
         run: |
           echo "TITLE='${{ inputs.title }}'" >> $GITHUB_ENV
           echo "BODY='${{ inputs.body }}'" >> $GITHUB_ENV
           echo "REPO_NAME='${{ inputs.repo_name }}'" >> $GITHUB_ENV
 
-      - name: Make Ticket
-        id: apicall
+      - name: Make Kitemaker Ticket API Call
         run: |
-          # Ensure variables are available
-          echo "TITLE=$TITLE"
-          echo "BODY=$BODY"
-          echo "REPO_NAME=$REPO_NAME"
+          TITLE="$TITLE"
+          BODY="$BODY"
+          REPO_NAME="$REPO_NAME"
 
-          # Construct JSON payload
+          echo "TITLE: $TITLE"
+          echo "BODY: $BODY"
+          echo "REPO_NAME: $REPO_NAME"
+
+          # Construct JSON payload with multiline BODY
           PAYLOAD=$(cat <<EOF
           {
             "spaceId": "${{ env.SPACE_ID }}",
@@ -87,11 +88,15 @@ jobs:
           EOF
           )
 
+          echo "Payload:"
+          echo "$PAYLOAD"
+
           # Make the API call
           RESPONSE=$(curl -s -H "Content-Type: application/json" -H "X-API-KEY: ${{ env.X-API-KEY }}" --data "$PAYLOAD" "https://toil.kitemaker.co/developers/rest/v1/workitem")
 
+          echo "API Response:"
           echo "$RESPONSE"
 
-          # Extract the ticket number from the response
+          # Extract the ticket number from the response if needed
           TICKET_NUMBER=$(echo "$RESPONSE" | jq -r '.number')
           echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
