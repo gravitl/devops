@@ -64,7 +64,7 @@ jobs:
       - name: Set up environment variables
         run: |
           echo "TITLE='${{ inputs.title }}'" >> $GITHUB_ENV
-          echo "BODY='${{ inputs.body }}'" >> $GITHUB_ENV
+          echo "BODY='${{ tojson(inputs.body) }}'" >> $GITHUB_ENV
           echo "REPO_NAME='${{ inputs.repo_name }}'" >> $GITHUB_ENV
 
       - name: Make Kitemaker Ticket API Call
