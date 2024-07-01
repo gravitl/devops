@@ -50,10 +50,6 @@ on:
 
 
 
-
-
-
-
 env:
   X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
   SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
@@ -68,8 +64,10 @@ jobs:
         id: set_vars
         run: |
           echo "TITLE=${{ inputs.title }}" >> $GITHUB_ENV
-          echo "BODY=${{ inputs.body }}" >> $GITHUB_ENV
+          echo "BODY=$INPUT_BODY" >> $GITHUB_ENV
           echo "REPO_NAME=${{ inputs.repo_name }}" >> $GITHUB_ENV
+        env:
+          INPUT_BODY: ${{ inputs.body }}
 
       - name: Make Ticket
         id: apicall
@@ -79,8 +77,16 @@ jobs:
           echo "BODY=$BODY"
           echo "REPO_NAME=$REPO_NAME"
 
-          # Create the JSON payload
-          PAYLOAD=$(jq -n --arg spaceId "${{ env.SPACE_ID }}" --arg statusId "${{ env.STATUS_ID }}" --arg title "From $REPO_NAME -- $TITLE" --arg description "$BODY" '{spaceId: $spaceId, statusId: $statusId, title: $title, description: $description}')
+          # Create the JSON payload (handle multiline BODY)
+          PAYLOAD=$(cat <<EOF
+          {
+            "spaceId": "${{ env.SPACE_ID }}",
+            "statusId": "${{ env.STATUS_ID }}",
+            "title": "From $REPO_NAME -- $TITLE",
+            "description": "$BODY"
+          }
+          EOF
+          )
 
           # Make the API call
           RESPONSE=$(curl -s -H "Content-Type: application/json" -H "X-API-KEY: ${{ env.X-API-KEY }}" --data "$PAYLOAD" "https://toil.kitemaker.co/developers/rest/v1/workitem")
