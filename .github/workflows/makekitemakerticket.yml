@@ -50,6 +50,8 @@ on:
 
 
 
+
+
 env:
   X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
   SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
@@ -63,9 +65,9 @@ jobs:
       - name: Make Ticket
         id: apicall
         run: |
-          TITLE=${{ inputs.title }}
-          BODY=${{ inputs.body }}
-          REPO_NAME=${{ inputs.repo_name }}
+          TITLE="${{ github.event.inputs.title }}"
+          BODY="${{ github.event.inputs.body }}"
+          REPO_NAME="${{ github.event.inputs.repo_name }}"
 
           # Create the JSON payload
           PAYLOAD=$(jq -n --arg spaceId "${{ env.SPACE_ID }}" --arg statusId "${{ env.STATUS_ID }}" --arg title "From $REPO_NAME -- $TITLE" --arg description "$BODY" '{spaceId: $spaceId, statusId: $statusId, title: $title, description: $description}')
