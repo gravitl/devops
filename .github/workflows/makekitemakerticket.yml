@@ -49,6 +49,8 @@ on:
             
 
 
+
+
 env:
   X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
   SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
@@ -62,9 +64,9 @@ jobs:
       - name: Set Variables
         id: set_vars
         run: |
-          echo "TITLE=${{ inputs.title }}" >> $GITHUB_ENV
-          echo "BODY=${{ inputs.body }}" >> $GITHUB_ENV
-          echo "REPO_NAME=${{ inputs.repo_name }}" >> $GITHUB_ENV
+          echo "TITLE='${{ inputs.title }}'" >> $GITHUB_ENV
+          echo "BODY='${{ inputs.body }}'" >> $GITHUB_ENV
+          echo "REPO_NAME='${{ inputs.repo_name }}'" >> $GITHUB_ENV
 
       - name: Make Ticket
         id: apicall
@@ -91,5 +93,5 @@ jobs:
           echo "$RESPONSE"
 
           # Extract the ticket number from the response
-          TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
+          TICKET_NUMBER=$(echo "$RESPONSE" | jq -r '.number')
           echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
