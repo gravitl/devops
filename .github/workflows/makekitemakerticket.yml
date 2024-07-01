@@ -24,26 +24,57 @@ on:
                 required: true
                 type: string
             
-env:
-    X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
-    SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
-    STATUS_ID: ${{ secrets.KITEMAKER_STATUS_ID }}
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+# env:
+#     X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
+#     SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
+#     STATUS_ID: ${{ secrets.KITEMAKER_STATUS_ID }}
+#     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+
+# jobs:
+#     make-ticket:
+#         runs-on: ubuntu-latest
+#         steps:
+#             - name: Make Ticket
+#               id: apicall
+#               run: |
+                
+#                 echo " The body details are : ${{ toJson(inputs.body) }}" | tr -d "<>" | tr \' \\\' 
+#                 RESPONSE=$(curl  -H "Content-Type: application/json"  -H "X-API-KEY: ${{ env.X-API-KEY }}" --data-raw '{"spaceId": "${{ env.SPACE_ID }}", "statusId": "${{ env.STATUS_ID }}", "title": "From ${{ inputs.repo_name }} -- ${{ inputs.title }}", "description": ${{ toJson(inputs.body) }}}' "https://toil.kitemaker.co/developers/rest/v1/workitem")
+#                 echo "$RESPONSE"
+#                 TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
+#                 echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
+#               env:
+#                 BODY: ${{ inputs.body }}
+            
+
+
+
+env:
+  X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
+  SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
+  STATUS_ID: ${{ secrets.KITEMAKER_STATUS_ID }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-    make-ticket:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Make Ticket
-              id: apicall
-              run: |
-                
-                echo " The body details are : ${{ toJson(inputs.body) }}" | tr -d "<>" | tr \' \\\' 
-                RESPONSE=$(curl  -H "Content-Type: application/json"  -H "X-API-KEY: ${{ env.X-API-KEY }}" --data-raw '{"spaceId": "${{ env.SPACE_ID }}", "statusId": "${{ env.STATUS_ID }}", "title": "From ${{ inputs.repo_name }} -- ${{ inputs.title }}", "description": ${{ toJson(inputs.body) }}}' "https://toil.kitemaker.co/developers/rest/v1/workitem")
-                echo "$RESPONSE"
-                TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
-                echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
-              env:
-                BODY: ${{ inputs.body }}
-            
+  make-ticket:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Make Ticket
+        id: apicall
+        run: |
+          TITLE=${{ inputs.title }}
+          BODY=${{ inputs.body }}
+          REPO_NAME=${{ inputs.repo_name }}
+
+          # Create the JSON payload
+          PAYLOAD=$(jq -n --arg spaceId "${{ env.SPACE_ID }}" --arg statusId "${{ env.STATUS_ID }}" --arg title "From $REPO_NAME -- $TITLE" --arg description "$BODY" '{spaceId: $spaceId, statusId: $statusId, title: $title, description: $description}')
+
+          # Make the API call
+          RESPONSE=$(curl -s -H "Content-Type: application/json" -H "X-API-KEY: ${{ env.X-API-KEY }}" --data "$PAYLOAD" "https://toil.kitemaker.co/developers/rest/v1/workitem")
+
+          echo "$RESPONSE"
+
+          # Extract the ticket number from the response
+          TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
+          echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
