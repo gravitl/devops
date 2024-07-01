@@ -52,6 +52,8 @@ on:
 
 
 
+
+
 env:
   X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
   SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
@@ -62,12 +64,20 @@ jobs:
   make-ticket:
     runs-on: ubuntu-latest
     steps:
+      - name: Set Variables
+        id: set_vars
+        run: |
+          echo "TITLE=${{ github.event.inputs.title }}" >> $GITHUB_ENV
+          echo "BODY=${{ github.event.inputs.body }}" >> $GITHUB_ENV
+          echo "REPO_NAME=${{ github.event.inputs.repo_name }}" >> $GITHUB_ENV
+
       - name: Make Ticket
         id: apicall
         run: |
-          TITLE="${{ github.event.inputs.title }}"
-          BODY="${{ github.event.inputs.body }}"
-          REPO_NAME="${{ github.event.inputs.repo_name }}"
+          # Ensure variables are available
+          echo "TITLE=$TITLE"
+          echo "BODY=$BODY"
+          echo "REPO_NAME=$REPO_NAME"
 
           # Create the JSON payload
           PAYLOAD=$(jq -n --arg spaceId "${{ env.SPACE_ID }}" --arg statusId "${{ env.STATUS_ID }}" --arg title "From $REPO_NAME -- $TITLE" --arg description "$BODY" '{spaceId: $spaceId, statusId: $statusId, title: $title, description: $description}')
@@ -80,3 +90,7 @@ jobs:
           # Extract the ticket number from the response
           TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
           echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
+        env:
+          TITLE: ${{ env.TITLE }}
+          BODY: ${{ env.BODY }}
+          REPO_NAME: ${{ env.REPO_NAME }}
