@@ -96,15 +96,15 @@ jobs:
           TITLE="${{ inputs.title }}"
           DESCRIPTION="${{ inputs.body }}"
 
-          # Escape special characters in title and description using sed
-          ESCAPED_TITLE=$(echo "$TITLE" | sed 's/"/\\"/g')
-          ESCAPED_DESCRIPTION=$(echo "$DESCRIPTION" | sed 's/"/\\"/g')
+          # Escape special characters in title and description using printf
+          ESCAPED_TITLE=$(printf '%s' "$TITLE" | jq -s -R @json)
+          ESCAPED_DESCRIPTION=$(printf '%s' "$DESCRIPTION" | jq -s -R @json)
 
-          # Construct JSON payload
+          # Construct JSON payload using jq
           JSON_PAYLOAD=$(jq -n --arg spaceId "$SPACE_ID" \
                               --arg statusId "$STATUS_ID" \
-                              --arg title "$ESCAPED_TITLE" \
-                              --arg description "$ESCAPED_DESCRIPTION" \
+                              --argjson title "$ESCAPED_TITLE" \
+                              --argjson description "$ESCAPED_DESCRIPTION" \
                               '{ "spaceId": $spaceId, "statusId": $statusId, "title": $title, "description": $description }')
 
           echo "::set-output name=json_payload::$JSON_PAYLOAD"
@@ -129,4 +129,3 @@ jobs:
         run: |
           echo "JSON_PAYLOAD is: $JSON_PAYLOAD"
           echo "RESPONSE is: $RESPONSE"
-
