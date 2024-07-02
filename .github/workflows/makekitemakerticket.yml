@@ -29,6 +29,8 @@ env:
     SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
     STATUS_ID: ${{ secrets.KITEMAKER_STATUS_ID }}
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    BODY: ${{ toJson(inputs.body) }}
+    TITLE: "From ${{ inputs.repo_name }} -- ${{ inputs.title }}" 
 
 
 jobs:
@@ -45,9 +47,7 @@ jobs:
                 echo "$RESPONSE"
                 TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
                 echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
-              env:
-                BODY: ${{ toJson(inputs.body) }}
-                TITLE: "From ${{ inputs.repo_name }} -- ${{ inputs.title }}"
+                
             
 
 
