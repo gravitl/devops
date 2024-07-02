@@ -110,3 +110,9 @@ jobs:
                 TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
                 echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
 
+            - name: Debug
+              run: |
+                echo "JSON_PAYLOAD is: $JSON_PAYLOAD"
+                echo "RESPONSE is: $RESPONSE"
+  
+
