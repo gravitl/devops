@@ -41,8 +41,8 @@ jobs:
               id: apicall
               run: |
               
-                echo "title is ${{env.TITLE}}" | tr \" \\"
-                echo "body is ${{env.BODY}}"
+                echo "title is ${{env.TITLE}}" | tr \' \\'
+                echo "body is ${{env.BODY}}" | tr \' \\'
                 RESPONSE=$(curl  -H "Content-Type: application/json"  -H "X-API-KEY: ${{ env.X-API-KEY }}" --data-raw '{"spaceId": "${{ env.SPACE_ID }}", "statusId": "${{ env.STATUS_ID }}", "title": ${{ toJson(env.TITLE) }}, "description": ${{ env.BODY }}}' "https://toil.kitemaker.co/developers/rest/v1/workitem")
                 echo "$RESPONSE"
                 TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
