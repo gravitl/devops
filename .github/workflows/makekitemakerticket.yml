@@ -49,6 +49,7 @@
 #                 echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
                 
             
+
 name: Make Kitemaker Ticket
 
 on:
@@ -74,7 +75,7 @@ on:
             repo_name:
                 required: true
                 type: string
-            
+
 env:
     X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
     SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
@@ -91,21 +92,15 @@ jobs:
               id: apicall
               run: |
                 echo "title is ${{env.TITLE}}"
-                echo "body is ${{env.BODY}}"
-                RESPONSE=$(curl -H "Content-Type: application/json" -H "X-API-KEY: ${{ env.X-API-KEY }}" --data-raw '{
-                  "query": "mutation CreateTicket($input: CreateTicketInput!) { createTicket(input: $input) { ticket { number } } }",
-                  "variables": {
-                    "input": {
-                      "spaceId": "'"${{ env.SPACE_ID }}"'",
-                      "statusId": "'"${{ env.STATUS_ID }}"'",
-                      "title": "'"${{ env.TITLE }}"'",
-                      "description": "'"${{ env.BODY }}"'"
-                    }
-                  }
-                }' "https://toil.kitemaker.co/developers/rest/v1/graphql")
-                echo "$RESPONSE"
-                TICKET_NUMBER=$(echo $RESPONSE | jq -r '.data.createTicket.ticket.number')
-                echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
+                echo "body is ${{env.BODY}}" 
 
+                # Escape single quotes in TITLE and BODY
+                ESCAPED_TITLE=$(echo ${{ env.TITLE }} | sed "s/'/\\'/g")
+                ESCAPED_BODY=$(echo ${{ env.BODY }} | sed "s/'/\\'/g")
+
+                RESPONSE=$(curl  -H "Content-Type: application/json"  -H "X-API-KEY: ${{ env.X-API-KEY }}" --data-raw '{"spaceId": "${{ env.SPACE_ID }}", "statusId": "${{ env.STATUS_ID }}", "title": "'"$ESCAPED_TITLE"'", "description": "'"$ESCAPED_BODY"'"}' "https://toil.kitemaker.co/developers/rest/v1/workitem")
+                echo "$RESPONSE"
+                TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
+                echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
 
 
