@@ -94,15 +94,20 @@ jobs:
                 echo "title is ${{env.TITLE}}"
                 echo "body is ${{env.BODY}}" 
 
-                # Escape single quotes in TITLE and BODY for JSON payload
-                ESCAPED_TITLE=$(echo "${{ env.TITLE }}" | sed "s/'/\\\'/g")
-                ESCAPED_BODY=$(echo "${{ env.BODY }}" | sed "s/'/\\\'/g")
-
-                # Construct JSON payload
-                JSON_PAYLOAD=$(jq -n --arg spaceId "${{ env.SPACE_ID }}" --arg statusId "${{ env.STATUS_ID }}" --arg title "$ESCAPED_TITLE" --arg description "$ESCAPED_BODY" '{"spaceId":$spaceId, "statusId":$statusId, "title":$title, "description":$description}')
+                # Construct JSON payload using jq
+                JSON_PAYLOAD=$(jq -n \
+                  --arg spaceId "${{ env.SPACE_ID }}" \
+                  --arg statusId "${{ env.STATUS_ID }}" \
+                  --arg title "${{ env.TITLE }}" \
+                  --arg description "${{ env.BODY }}" \
+                  '{"spaceId": $spaceId, "statusId": $statusId, "title": $title, "description": $description}')
 
                 # Make the API call
-                RESPONSE=$(curl -H "Content-Type: application/json" -H "X-API-KEY: ${{ env.X-API-KEY }}" --data "$JSON_PAYLOAD" "https://toil.kitemaker.co/developers/rest/v1/workitem")
+                RESPONSE=$(curl -H "Content-Type: application/json" \
+                              -H "X-API-KEY: ${{ env.X-API-KEY }}" \
+                              --data "$JSON_PAYLOAD" \
+                              "https://toil.kitemaker.co/developers/rest/v1/workitem")
+
                 echo "$RESPONSE"
                 TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
                 echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
