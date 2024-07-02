@@ -53,76 +53,80 @@
 name: Make Kitemaker Ticket
 
 on:
-    workflow_dispatch:
-        inputs:
-            title:
-                required: true
-                type: string
-            body:
-                required: true
-                type: string
-            repo_name:
-                required: true
-                type: string
-    workflow_call:
-        inputs:
-            title:
-                required: true
-                type: string
-            body:
-                required: true
-                type: string
-            repo_name:
-                required: true
-                type: string
+  workflow_dispatch:
+    inputs:
+      title:
+        required: true
+        type: string
+      body:
+        required: true
+        type: string
+      repo_name:
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      title:
+        required: true
+        type: string
+      body:
+        required: true
+        type: string
+      repo_name:
+        required: true
+        type: string
 
 env:
-    X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
-    SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
-    STATUS_ID: ${{ secrets.KITEMAKER_STATUS_ID }}
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
+  SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
+  STATUS_ID: ${{ secrets.KITEMAKER_STATUS_ID }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-    make-ticket:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Install jq
-              run: sudo apt-get install -y jq
+  make-ticket:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install jq
+        run: sudo apt-get install -y jq
 
-            - name: Write Title and Description to Files
-              run: |
-                echo "${{ inputs.title }}" > title.txt
-                echo "${{ inputs.body }}" > description.txt
+      - name: Prepare JSON Payload
+        id: prepare_payload
+        run: |
+          # Define title and description variables
+          TITLE="${{ inputs.title }}"
+          DESCRIPTION="${{ inputs.body }}"
 
-            - name: Make Ticket
-              id: apicall
-              run: |
-                # Read title and description from files
-                TITLE=$(cat title.txt)
-                DESCRIPTION=$(cat description.txt)
+          # Escape double quotes in title and description
+          ESCAPED_TITLE=$(echo "$TITLE" | sed 's/"/\\"/g')
+          ESCAPED_DESCRIPTION=$(echo "$DESCRIPTION" | sed 's/"/\\"/g')
 
-                echo "title is $TITLE"
-                echo "body is $DESCRIPTION"
+          # Construct JSON payload using jq
+          JSON_PAYLOAD=$(jq -n \
+            --arg spaceId "${{ secrets.KITEMAKER_SPACE_ID }}" \
+            --arg statusId "${{ secrets.KITEMAKER_STATUS_ID }}" \
+            --arg title "$ESCAPED_TITLE" \
+            --arg description "$ESCAPED_DESCRIPTION" \
+            '{ "spaceId": $spaceId, "statusId": $statusId, "title": $title, "description": $description }')
 
-                # Construct JSON payload using jq
-                JSON_PAYLOAD=$(jq -n \
-                  --arg spaceId "${{ secrets.KITEMAKER_SPACE_ID }}" \
-                  --arg statusId "${{ secrets.KITEMAKER_STATUS_ID }}" \
-                  --arg title "$TITLE" \
-                  --arg description "$DESCRIPTION" \
-                  '{"spaceId": $spaceId, "statusId": $statusId, "title": $title, "description": $description}')
+          echo "::set-output name=json_payload::$JSON_PAYLOAD"
 
-                # Make the API call
-                RESPONSE=$(curl -H "Content-Type: application/json" \
-                              -H "X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}" \
-                              --data "$JSON_PAYLOAD" \
-                              "https://toil.kitemaker.co/developers/rest/v1/workitem")
+      - name: Make Ticket
+        id: apicall
+        run: |
+          # Retrieve JSON payload from previous step
+          JSON_PAYLOAD="${{ steps.prepare_payload.outputs.json_payload }}"
 
-                echo "$RESPONSE"
-                TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
-                echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
+          # Make the API call
+          RESPONSE=$(curl -s -H "Content-Type: application/json" \
+                        -H "X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}" \
+                        -d "$JSON_PAYLOAD" \
+                        "https://toil.kitemaker.co/developers/rest/v1/workitem")
 
-            - name: Debug
-              run: |
-                echo "JSON_PAYLOAD is: $JSON_PAYLOAD"
-                echo "RESPONSE is: $RESPONSE"
+          echo "$RESPONSE"
+          TICKET_NUMBER=$(echo "$RESPONSE" | jq -r '.number')
+          echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
+
+      - name: Debug
+        run: |
+          echo "JSON_PAYLOAD is: $JSON_PAYLOAD"
+          echo "RESPONSE is: $RESPONSE"
