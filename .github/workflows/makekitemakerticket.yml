@@ -92,12 +92,20 @@ jobs:
               run: |
                 echo "title is ${{env.TITLE}}"
                 echo "body is ${{env.BODY}}"
-                RESPONSE=$(curl -H "Content-Type: application/json" -H "X-API-KEY: ${{ env.X-API-KEY }}" --data-raw '{"spaceId": "'"${{ env.SPACE_ID }}"'", "statusId": "'"${{ env.STATUS_ID }}"'", "title": "'"${{ env.TITLE }}"'", "description": "'"${{ env.BODY }}"'"}' "https://toil.kitemaker.co/developers/rest/v1/workitem")
+                RESPONSE=$(curl -H "Content-Type: application/json" -H "X-API-KEY: ${{ env.X-API-KEY }}" --data-raw '{
+                  "query": "mutation CreateTicket($input: CreateTicketInput!) { createTicket(input: $input) { ticket { number } } }",
+                  "variables": {
+                    "input": {
+                      "spaceId": "'"${{ env.SPACE_ID }}"'",
+                      "statusId": "'"${{ env.STATUS_ID }}"'",
+                      "title": "'"${{ env.TITLE }}"'",
+                      "description": "'"${{ env.BODY }}"'"
+                    }
+                  }
+                }' "https://toil.kitemaker.co/developers/rest/v1/graphql")
                 echo "$RESPONSE"
-                TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
+                TICKET_NUMBER=$(echo $RESPONSE | jq -r '.data.createTicket.ticket.number')
                 echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
-
-
 
 
 
