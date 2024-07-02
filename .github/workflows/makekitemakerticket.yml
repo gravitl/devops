@@ -41,13 +41,13 @@ jobs:
               
                 echo "title is ${{env.TITLE}}"
                 echo "body is ${{env.BODY}}"
-                RESPONSE=$(curl  -H "Content-Type: application/json"  -H "X-API-KEY: ${{ env.X-API-KEY }}" --data-raw '{"spaceId": "${{ env.SPACE_ID }}", "statusId": "${{ env.STATUS_ID }}", "title": ${{ env.TITLE }}, "description": ${{ env.BODY }}}' "https://toil.kitemaker.co/developers/rest/v1/workitem")
+                RESPONSE=$(curl  -H "Content-Type: application/json"  -H "X-API-KEY: ${{ env.X-API-KEY }}" --data-raw '{"spaceId": "${{ env.SPACE_ID }}", "statusId": "${{ env.STATUS_ID }}", "title": ${{ toJson(env.TITLE) }}, "description": ${{ env.BODY }}}' "https://toil.kitemaker.co/developers/rest/v1/workitem")
                 echo "$RESPONSE"
                 TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
                 echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
               env:
                 BODY: ${{ toJson(inputs.body) }}
-                TITLE: "From ${{ inputs.repo_name }} -- ${{ toJson(inputs.title) }}"
+                TITLE: "From ${{ inputs.repo_name }} -- ${{ inputs.title }}"
             
 
 
