@@ -1,131 +1,51 @@
-# name: Make Kitemaker Ticket
-
-# on:
-#     workflow_dispatch:
-#         inputs:
-#             title:
-#                 required: true
-#                 type: string
-#             body:
-#                 required: true
-#                 type: string
-#             repo_name:
-#                 required: true
-#                 type: string
-#     workflow_call:
-#         inputs:
-#             title:
-#                 required: true
-#                 type: string
-#             body:
-#                 required: true
-#                 type: string
-#             repo_name:
-#                 required: true
-#                 type: string
-            
-# env:
-#     X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
-#     SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
-#     STATUS_ID: ${{ secrets.KITEMAKER_STATUS_ID }}
-#     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#     BODY: ${{ toJson(inputs.body) }}
-#     TITLE: "From ${{ inputs.repo_name }} -- ${{ inputs.title }}" 
-
-
-# jobs:
-#     make-ticket:
-#         runs-on: ubuntu-latest
-#         steps:
-#             - name: Make Ticket
-#               id: apicall
-#               run: |
-              
-#                 echo "title is ${{env.TITLE}}"
-#                 echo "body is ${{env.BODY}}" 
-#                 RESPONSE=$(curl  -H "Content-Type: application/json"  -H "X-API-KEY: ${{ env.X-API-KEY }}" --data-raw '{"spaceId": "${{ env.SPACE_ID }}", "statusId": "${{ env.STATUS_ID }}", "title": ${{ toJson(env.TITLE) }}, "description": ${{ env.BODY }}}' "https://toil.kitemaker.co/developers/rest/v1/workitem")
-#                 echo "$RESPONSE"
-#                 TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
-#                 echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
-                
-            
-
 name: Make Kitemaker Ticket
 
 on:
-  workflow_dispatch:
-    inputs:
-      title:
-        required: true
-        type: string
-      body:
-        required: true
-        type: string
-      repo_name:
-        required: true
-        type: string
-  workflow_call:
-    inputs:
-      title:
-        required: true
-        type: string
-      body:
-        required: true
-        type: string
-      repo_name:
-        required: true
-        type: string
-
+    workflow_dispatch:
+        inputs:
+            title:
+                required: true
+                type: string
+            body:
+                required: true
+                type: string
+            repo_name:
+                required: true
+                type: string
+    workflow_call:
+        inputs:
+            title:
+                required: true
+                type: string
+            body:
+                required: true
+                type: string
+            repo_name:
+                required: true
+                type: string
+            
 env:
-  X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
-  SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
-  STATUS_ID: ${{ secrets.KITEMAKER_STATUS_ID }}
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
+    SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
+    STATUS_ID: ${{ secrets.KITEMAKER_STATUS_ID }}
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    BODY: ${{ toJson(inputs.body) }}
+    TITLE: "From ${{ inputs.repo_name }} -- ${{ inputs.title }}" 
+
 
 jobs:
-  make-ticket:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install jq
-        run: sudo apt-get install -y jq
-
-      - name: Prepare JSON Payload
-        id: prepare_payload
-        run: |
-          # Define title and description variables
-          TITLE="${{ inputs.title }}"
-          DESCRIPTION="${{ inputs.body }}"
-
-          # Escape special characters in title and description using printf
-          ESCAPED_TITLE=$(printf '%s' "$TITLE" | jq -s -R @json)
-          ESCAPED_DESCRIPTION=$(printf '%s' "$DESCRIPTION" | jq -s -R @json)
-
-          # Construct JSON payload using jq
-          JSON_PAYLOAD=$(jq -n --arg spaceId "$SPACE_ID" \
-                              --arg statusId "$STATUS_ID" \
-                              --argjson title "$ESCAPED_TITLE" \
-                              --argjson description "$ESCAPED_DESCRIPTION" \
-                              '{ "spaceId": $spaceId, "statusId": $statusId, "title": $title, "description": $description }')
-
-          echo "::set-output name=json_payload::$JSON_PAYLOAD"
-
-      - name: Make Ticket
-        id: apicall
-        run: |
-          # Retrieve JSON payload from previous step
-          JSON_PAYLOAD="${{ steps.prepare_payload.outputs.json_payload }}"
-
-          # Make the API call
-          RESPONSE=$(curl -s -H "Content-Type: application/json" \
-                        -H "X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}" \
-                        -d "$JSON_PAYLOAD" \
-                        "https://toil.kitemaker.co/developers/rest/v1/workitem")
-
-          echo "$RESPONSE"
-          TICKET_NUMBER=$(echo "$RESPONSE" | jq -r '.number')
-          echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
-
-      - name: Debug
-        run: |
-          echo "JSON_PAYLOAD is: $JSON_PAYLOAD"
-          echo "RESPONSE is: $RESPONSE"
+    make-ticket:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Make Ticket
+              id: apicall
+              run: |
+              
+                echo "title is ${{env.TITLE}}"
+                echo "body is ${{env.BODY}}" 
+                RESPONSE=$(curl  -H "Content-Type: application/json"  -H "X-API-KEY: ${{ env.X-API-KEY }}" --data-raw '{"spaceId": "${{ env.SPACE_ID }}", "statusId": "${{ env.STATUS_ID }}", "title": ${{ toJson(env.TITLE) }}, "description": ${{ env.BODY }}}' "https://toil.kitemaker.co/developers/rest/v1/workitem")
+                echo "$RESPONSE"
+                TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
+                echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
+                
+            
