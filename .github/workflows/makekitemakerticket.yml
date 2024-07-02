@@ -96,18 +96,16 @@ jobs:
           TITLE="${{ inputs.title }}"
           DESCRIPTION="${{ inputs.body }}"
 
-          # Use here document to pass JSON structure to jq
+          # Escape special characters in title and description
+          ESCAPED_TITLE=$(printf '%s' "$TITLE" | jq -s -Rr @uri)
+          ESCAPED_DESCRIPTION=$(printf '%s' "$DESCRIPTION" | jq -s -Rr @uri)
+
+          # Construct JSON payload using jq
           JSON_PAYLOAD=$(jq -n --arg spaceId "$SPACE_ID" \
                               --arg statusId "$STATUS_ID" \
-                              '
-                              {
-                                "spaceId": $spaceId,
-                                "statusId": $statusId,
-                                "title": $ENV.TITLE,
-                                "description": $ENV.DESCRIPTION
-                              }
-                              ')
-
+                              --argjson title "$ESCAPED_TITLE" \
+                              --argjson description "$ESCAPED_DESCRIPTION" \
+                              '{ "spaceId": $spaceId, "statusId": $statusId, "title": $title, "description": $description }')
 
           echo "::set-output name=json_payload::$JSON_PAYLOAD"
 
