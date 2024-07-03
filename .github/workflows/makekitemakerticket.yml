@@ -64,53 +64,39 @@ on:
       repo_name:
         required: true
         type: string
-  workflow_call:
-    inputs:
-      title:
-        required: true
-        type: string
-      body:
-        required: true
-        type: string
-      repo_name:
-        required: true
-        type: string
 
 env:
   X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
   SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
   STATUS_ID: ${{ secrets.KITEMAKER_STATUS_ID }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  BODY: ${{ inputs.body }}
-  TITLE: "From ${{ inputs.repo_name }} -- ${{ inputs.title }}"
 
 jobs:
   make-ticket:
     runs-on: ubuntu-latest
     steps:
+      - name: Set up environment variables
+        run: |
+          export BODY="${{ toJson(inputs.body) }}"
+          export TITLE="From ${{ inputs.repo_name }} -- ${{ inputs.title }}"
+
       - name: Make Ticket
         id: apicall
         run: |
-          echo "title is ${{ env.TITLE }}"
-          echo "body is ${{ env.BODY }}" | tr -d "<>"
-
-          RESPONSE=$(jq -n \
-            --arg spaceId "${{ env.SPACE_ID }}" \
-            --arg statusId "${{ env.STATUS_ID }}" \
-            --arg title "${{ env.TITLE }}" \
-            --arg description "${{ env.BODY }}" \
-            '{spaceId: $spaceId, statusId: $statusId, title: $title, description: $description}' | \
-            curl -s -H "Content-Type: application/json" \
-                 -H "X-API-KEY: ${{ env.X-API-KEY }}" \
-                 --data @- \
-                 "https://toil.kitemaker.co/developers/rest/v1/workitem")
+          echo "title is $TITLE"
+          echo "body is $BODY"
+          
+          RESPONSE=$(curl -H "Content-Type: application/json" -H "X-API-KEY: $X-API-KEY" --data-binary @- "https://toil.kitemaker.co/developers/rest/v1/workitem" <<EOF
+          {
+            "spaceId": "$SPACE_ID",
+            "statusId": "$STATUS_ID",
+            "title": $TITLE,
+            "description": "$BODY"
+          }
+          EOF
+          )
           
           echo "$RESPONSE"
-
-          if echo "$RESPONSE" | jq -e . >/dev/null 2>&1; then
-            TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
-            echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
-          else
-            echo "Error: Failed to create ticket"
-            exit 1
-          fi
+          
+          TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
+          echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
