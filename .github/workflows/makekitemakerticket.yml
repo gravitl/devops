@@ -81,8 +81,6 @@ env:
   SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
   STATUS_ID: ${{ secrets.KITEMAKER_STATUS_ID }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  BODY: ${{ toJson(inputs.body) }}
-  TITLE: "From ${{ toJson(inputs.repo_name) }} -- ${{ toJson(inputs.title) }}"
 
 jobs:
   make-ticket:
@@ -93,13 +91,19 @@ jobs:
         env:
           RESPONSE: ''
         run: |
+          TITLE="From ${{ inputs.repo_name }} -- ${{ inputs.title }}"
+          BODY="${{ toJson(inputs.body) }}"
+
           echo "title is $TITLE"
           echo "body is $BODY"
+          
+          # Replace single quotes in TITLE with escaped version
+          ESCAPED_TITLE=$(echo "$TITLE" | sed "s/'/\\\'/g")
           
           # Construct JSON payload using jq to handle multi-line and quotes
           PAYLOAD=$(jq -n --arg spaceId "$SPACE_ID" \
                            --arg statusId "$STATUS_ID" \
-                           --arg title "$TITLE" \
+                           --arg title "$ESCAPED_TITLE" \
                            --arg body "$BODY" \
                            '{spaceId: $spaceId, statusId: $statusId, title: $title, description: $body}')
 
