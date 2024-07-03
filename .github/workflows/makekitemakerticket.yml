@@ -92,17 +92,25 @@ jobs:
         id: apicall
         run: |
           echo "title is ${{ env.TITLE }}"
-          echo "body is ${{ env.BODY }}"
+          echo "body is ${{ env.BODY }}" | tr -d "<>"
+
           RESPONSE=$(jq -n \
             --arg spaceId "${{ env.SPACE_ID }}" \
             --arg statusId "${{ env.STATUS_ID }}" \
             --arg title "${{ env.TITLE }}" \
             --arg description "${{ env.BODY }}" \
             '{spaceId: $spaceId, statusId: $statusId, title: $title, description: $description}' | \
-            curl -H "Content-Type: application/json" \
+            curl -s -H "Content-Type: application/json" \
                  -H "X-API-KEY: ${{ env.X-API-KEY }}" \
                  --data @- \
                  "https://toil.kitemaker.co/developers/rest/v1/workitem")
+          
           echo "$RESPONSE"
-          TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
-          echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
+
+          if echo "$RESPONSE" | jq -e . >/dev/null 2>&1; then
+            TICKET_NUMBER=$(echo $RESPONSE | jq -r '.number')
+            echo "TICKET_NUMBER=$TICKET_NUMBER" >> $GITHUB_ENV
+          else
+            echo "Error: Failed to create ticket"
+            exit 1
+          fi
