@@ -65,6 +65,18 @@ on:
         required: true
         type: string
 
+  workflow_call:
+    inputs:
+      title:
+        required: true
+        type: string
+      body:
+        required: true
+        type: string
+      repo_name:
+        required: true
+        type: string
+
 env:
   X-API-KEY: ${{ secrets.KITEMAKER_X_API_KEY }}
   SPACE_ID: ${{ secrets.KITEMAKER_SPACE_ID }}
