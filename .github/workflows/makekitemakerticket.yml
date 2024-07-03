@@ -91,21 +91,23 @@ jobs:
         env:
           RESPONSE: ''
         run: |
+          # Construct title and body with repo_name
           TITLE="From ${{ inputs.repo_name }} -- ${{ inputs.title }}"
-          BODY="${{ toJson(inputs.body) }}"
+          BODY="${{ inputs.body }}"
 
-          echo "title is $TITLE"
-          echo "body is $BODY"
-          
-          # Replace single quotes in TITLE with escaped version
+          # Escape single quotes in title and body
           ESCAPED_TITLE=$(echo "$TITLE" | sed "s/'/\\\'/g")
+          ESCAPED_BODY=$(echo "$BODY" | sed "s/'/\\\'/g")
+
+          echo "title is $ESCAPED_TITLE"
+          echo "body is $ESCAPED_BODY"
           
           # Construct JSON payload using jq to handle multi-line and quotes
           PAYLOAD=$(jq -n --arg spaceId "$SPACE_ID" \
                            --arg statusId "$STATUS_ID" \
                            --arg title "$ESCAPED_TITLE" \
-                           --arg body "$BODY" \
-                           '{spaceId: $spaceId, statusId: $statusId, title: $title, description: $body}')
+                           --arg body "$ESCAPED_BODY" \
+                           '{spaceId: $spaceId, statusId: $statusId, title: $title, description: $body | @text}')
 
           # Make API call to create ticket
           RESPONSE=$(curl -sSf -H "Content-Type: application/json" \
