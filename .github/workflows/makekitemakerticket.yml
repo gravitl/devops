@@ -89,7 +89,7 @@ jobs:
     steps:
       - name: Set up environment variables
         run: |
-          export BODY="${{ toJson(inputs.body) }}"
+          export BODY=$(echo "${{ inputs.body }}" | base64 -w 0)
           export TITLE="From ${{ inputs.repo_name }} -- ${{ inputs.title }}"
 
       - name: Make Ticket
@@ -102,8 +102,8 @@ jobs:
           {
             "spaceId": "$SPACE_ID",
             "statusId": "$STATUS_ID",
-            "title": $TITLE,
-            "description": "$BODY"
+            "title": "$TITLE",
+            "description": "$(echo $BODY | base64 -d)"
           }
           EOF
           )
