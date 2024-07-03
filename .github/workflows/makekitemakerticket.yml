@@ -50,10 +50,24 @@
                 
             
 
+
+
 name: Make Kitemaker Ticket
 
 on:
   workflow_dispatch:
+    inputs:
+      title:
+        required: true
+        type: string
+      body:
+        required: true
+        type: string
+      repo_name:
+        required: true
+        type: string
+
+  workflow_call:
     inputs:
       title:
         required: true
