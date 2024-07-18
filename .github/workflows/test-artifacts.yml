@@ -217,3 +217,4 @@ jobs:
       - name: build linux package
         run: |
           ssh root@fileserver.clustercat.com "cd packages; git restore .; git pull; export VERSION=0.24.4; export REVISION=${{ env.REVISION }}; ./apt_test_builder.sh; git restore ."
+
