@@ -1,10 +1,57 @@
+# name: Sign Windows Binary/Installer
+
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       file-to-sign:
+#         description: name of windows file to sign
+#         required: true
+#   workflow_call:
+#     inputs:
+#       file-to-sign:
+#         required: true
+#         type: string
+
+# env:
+#   SIGNABLE_FILE_PATH: ${{ inputs.file-to-sign }}
+  
+
+# jobs:
+#   sign-file:
+#     runs-on: ubuntu-latest
+#     name: Sign File with eSignerCKA
+#     steps:
+#       - name: Create Artifacts Directory
+#         shell: bash
+#         run: |
+#           mkdir ${GITHUB_WORKSPACE}/artifacts
+#           mkdir ${GITHUB_WORKSPACE}/packages
+#       - name: Grab File
+#         run: |
+#           wget -O ${GITHUB_WORKSPACE}/packages/${{ env.SIGNABLE_FILE_PATH }} https://fileserver.netmaker.org/qa/signing/unsigned/${{ env.SIGNABLE_FILE_PATH }}
+#       - name: Sign Aritfact With Codesign Tool
+#         uses: sslcom/actions-codesigner@develop
+#         with:
+#           command: sign
+#           username: ${{ secrets.SSL_USERNAME }}
+#           password: ${{ secrets.SSL_PASSWORD }}
+#           credential_id: ${{ secrets.SSL_CREDENTIAL_ID }}
+#           totp_secret: ${{ secrets.SSL_TOTP_SECRET }}
+#           file_path: ${GITHUB_WORKSPACE}/packages/${{ env.SIGNABLE_FILE_PATH }}
+#           output_path: ${GITHUB_WORKSPACE}/artifacts
+#       - name: Upload Signed Files
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: ${{ env.SIGNABLE_FILE_PATH }}
+#           path: ./artifacts/${{ env.SIGNABLE_FILE_PATH }}
+
 name: Sign Windows Binary/Installer
 
 on:
   workflow_dispatch:
     inputs:
       file-to-sign:
-        description: name of windows file to sign
+        description: Name of windows file to sign
         required: true
   workflow_call:
     inputs:
@@ -12,24 +59,23 @@ on:
         required: true
         type: string
 
-env:
-  SIGNABLE_FILE_PATH: ${{ inputs.file-to-sign }}
-  
-
 jobs:
   sign-file:
     runs-on: ubuntu-latest
     name: Sign File with eSignerCKA
+    env:
+      SIGNABLE_FILE_PATH: ${{ inputs.file-to-sign }}
     steps:
       - name: Create Artifacts Directory
-        shell: bash
         run: |
-          mkdir ${GITHUB_WORKSPACE}/artifacts
-          mkdir ${GITHUB_WORKSPACE}/packages
+          mkdir -p ${{ github.workspace }}/artifacts
+          mkdir -p ${{ github.workspace }}/packages
+
       - name: Grab File
         run: |
-          wget -O ${GITHUB_WORKSPACE}/packages/${{ env.SIGNABLE_FILE_PATH }} https://fileserver.netmaker.org/qa/signing/unsigned/${{ env.SIGNABLE_FILE_PATH }}
-      - name: Sign Aritfact With Codesign Tool
+          wget -O ${{ github.workspace }}/packages/${{ env.SIGNABLE_FILE_PATH }} https://fileserver.netmaker.org/qa/signing/unsigned/${{ env.SIGNABLE_FILE_PATH }}
+
+      - name: Sign Artifact With Codesign Tool
         uses: sslcom/actions-codesigner@develop
         with:
           command: sign
@@ -37,11 +83,11 @@ jobs:
           password: ${{ secrets.SSL_PASSWORD }}
           credential_id: ${{ secrets.SSL_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.SSL_TOTP_SECRET }}
-          file_path: ${GITHUB_WORKSPACE}/packages/${{ env.SIGNABLE_FILE_PATH }}
-          output_path: ${GITHUB_WORKSPACE}/artifacts
+          file_path: ${{ github.workspace }}/packages/${{ env.SIGNABLE_FILE_PATH }}
+          output_path: ${{ github.workspace }}/artifacts
+
       - name: Upload Signed Files
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.SIGNABLE_FILE_PATH }}
-          path: ./artifacts/${{ env.SIGNABLE_FILE_PATH }}
-
+          name: signed-${{ env.SIGNABLE_FILE_PATH }}
+          path: ${{ github.workspace }}/artifacts/${{ env.SIGNABLE_FILE_PATH }}
