@@ -81,19 +81,16 @@ jobs:
           echo "File Path: ${{ github.workspace }}/packages/${{ env.SIGNABLE_FILE_PATH }}"
           echo "Output Path: ${{ github.workspace }}/artifacts"
 
-      - name: Print Environment Variables
-        run: env
-
       - name: Sign Artifact With Codesign Tool
         uses: sslcom/actions-codesigner@develop
         with:
           command: 'sign'
-          username: ${{ secrets.SSL_USERNAME }}
-          password: ${{ secrets.SSL_PASSWORD }}
-          credential_id: ${{ secrets.SSL_CREDENTIAL_ID }}
-          totp_secret: ${{ secrets.SSL_TOTP_SECRET }}
-          file_path: ${{ github.workspace }}/packages/${{ env.SIGNABLE_FILE_PATH }}
-          output_path: ${{ github.workspace }}/artifacts
+          username: '${{ secrets.SSL_USERNAME }}'
+          password: '${{ secrets.SSL_PASSWORD }}'
+          credential_id: '${{ secrets.SSL_CREDENTIAL_ID }}'
+          totp_secret: '${{ secrets.SSL_TOTP_SECRET }}'
+          file_path: '${{ github.workspace }}/packages/${{ env.SIGNABLE_FILE_PATH }}'
+          output_path: '${{ github.workspace }}/artifacts'
 
       - name: Upload Signed Files
         uses: actions/upload-artifact@v3
