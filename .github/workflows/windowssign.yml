@@ -75,10 +75,16 @@ jobs:
         run: |
           wget -O ${{ github.workspace }}/packages/${{ env.SIGNABLE_FILE_PATH }} https://fileserver.netmaker.org/qa/signing/unsigned/${{ env.SIGNABLE_FILE_PATH }}
 
+      - name: Print Debug Info
+        run: |
+          echo "Command: sign"
+          echo "File Path: ${{ github.workspace }}/packages/${{ env.SIGNABLE_FILE_PATH }}"
+          echo "Output Path: ${{ github.workspace }}/artifacts"
+
       - name: Sign Artifact With Codesign Tool
         uses: sslcom/actions-codesigner@develop
         with:
-          command: 'sign'
+          command: sign
           username: ${{ secrets.SSL_USERNAME }}
           password: ${{ secrets.SSL_PASSWORD }}
           credential_id: ${{ secrets.SSL_CREDENTIAL_ID }}
