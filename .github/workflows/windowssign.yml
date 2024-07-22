@@ -28,7 +28,7 @@ jobs:
           mkdir ${GITHUB_WORKSPACE}/packages
       - name: Grab File
         run: |
-          wget -O ${GITHUB_WORKSPACE}/packages/${{ inputs.file-to-sign }} https://fileserver.netmaker.org/qa/signing/unsigned/${{ inputs.file-to-sign }}
+          wget -O ${GITHUB_WORKSPACE}/packages/${{ env.SIGNABLE_FILE_PATH }} https://fileserver.netmaker.org/qa/signing/unsigned/${{ env.SIGNABLE_FILE_PATH }}
       - name: Sign Aritfact With Codesign Tool
         uses: sslcom/actions-codesigner@develop
         with:
@@ -37,11 +37,11 @@ jobs:
           password: ${{ secrets.SSL_PASSWORD }}
           credential_id: ${{ secrets.SSL_CREDENTIAL_ID }}
           totp_secret: ${{ secrets.SSL_TOTP_SECRET }}
-          file_path: ${GITHUB_WORKSPACE}/packages/${{ inputs.file-to-sign }}
+          file_path: ${GITHUB_WORKSPACE}/packages/${{ env.SIGNABLE_FILE_PATH }}
           output_path: ${GITHUB_WORKSPACE}/artifacts
       - name: Upload Signed Files
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ inputs.file-to-sign }}
-          path: ./artifacts/${{ inputs.file-to-sign }}
+          name: ${{ env.SIGNABLE_FILE_PATH }}
+          path: ./artifacts/${{ env.SIGNABLE_FILE_PATH }}
 
