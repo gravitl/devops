@@ -15,8 +15,7 @@ on:
 env:
   MASTER_KEY: master.key
   SIGNABLE_FILE_PATH: ${{ inputs.file-to-sign }}
-  INSTALL_DIR: C:\Users\runneradmin\eSignerCKA
-  MASTER_KEY_FILE: C:\Users\runneradmin\eSignerCKA\master.key
+  
 
 jobs:
   sign-file:
@@ -47,4 +46,3 @@ jobs:
           name: ${{ env.SIGNABLE_FILE_PATH }}
           path: ./artifacts/${{ env.SIGNABLE_FILE_PATH }}
 
-          
