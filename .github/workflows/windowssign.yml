@@ -78,7 +78,7 @@ jobs:
       - name: Sign Artifact With Codesign Tool
         uses: sslcom/actions-codesigner@develop
         with:
-          command: "sign"
+          command: 'sign'
           username: ${{ secrets.SSL_USERNAME }}
           password: ${{ secrets.SSL_PASSWORD }}
           credential_id: ${{ secrets.SSL_CREDENTIAL_ID }}
