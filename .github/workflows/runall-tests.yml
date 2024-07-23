@@ -6,7 +6,7 @@ on:
 jobs:
 
   tests:
-    uses: ./.github/workflows/branchtest.yml
+    uses: ./.github/workflows/dailytest.yml
     with:
       tag: devops
       network: devops
