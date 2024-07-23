@@ -18,6 +18,9 @@ on:
       server:
         type: string
         required: true
+      test-type:
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       tag:
@@ -40,7 +43,14 @@ on:
         description: server hostname
         required: true
         default: "server"
-
+      test-type:
+        description: digitalocean token
+        required: true
+        type: choice
+        options: 
+          - devops
+          - branch
+        
 jobs:
 
   setadmin:
@@ -55,6 +65,12 @@ jobs:
     name: remove all gateways
     runs-on: ubuntu-latest
     steps:
+      - name: set token
+        run: echo "TOKEN=${{ secrets.DO_TOKEN }}" >> $GITHUB_ENV
+        if: inputs.test-type == 'devops'
+      - name: set branch token
+        run: echo "TOKEN=${{ secrets.TESTING_DO_TOKEN }}" >> $GITHUB_ENV
+        if: inputs.test-type == 'branch'
       - name: get binary
         run: |
           mkdir bin
@@ -65,7 +81,7 @@ jobs:
           chmod +x bin/test
           bin/test clean
         env:
-          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          DIGITALOCEAN_TOKEN: ${{ env.TOKEN }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}
           TAG: ${{ inputs.tag }}
           NETWORK: ${{ inputs.network}}
@@ -96,7 +112,7 @@ jobs:
           sleep 30
           bin/test ping
         env:
-          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          DIGITALOCEAN_TOKEN: ${{ env.TOKEN  }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}
           TAG: ${{ inputs.tag }}
           NETWORK: ${{ inputs.network }}
@@ -127,7 +143,7 @@ jobs:
           bin/test egress
           bin/test relay
         env:
-          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          DIGITALOCEAN_TOKEN: ${{ env.TOKEN }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}
           TAG: ${{ inputs.tag }}
           NETWORK: ${{ inputs.network }}
@@ -156,7 +172,7 @@ jobs:
           chmod +x bin/test
           bin/test ping
         env:
-          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          DIGITALOCEAN_TOKEN: ${{ env.TOKEN }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}
           TAG: ${{ inputs.tag }}
           NETWORK: ${{ inputs.network }}

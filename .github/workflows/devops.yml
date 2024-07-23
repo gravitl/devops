@@ -44,5 +44,6 @@ jobs:
       api: "https://api.clustercat.com"
       masterkey: secretkey
       server: server
+      test-type: devops
     secrets: inherit
 

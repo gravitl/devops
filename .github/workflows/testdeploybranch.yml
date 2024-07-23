@@ -117,4 +117,5 @@ jobs:
       api: "https://api.${{ needs.getserver.outputs.server }}.clustercat.com"
       masterkey: ${{ needs.masterkey.outputs.masterkey }}
       server: ${{ needs.getserver.outputs.server }}
+      test-type: branch
     secrets: inherit
