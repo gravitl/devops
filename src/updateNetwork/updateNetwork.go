@@ -50,7 +50,7 @@ func main() {
 
 func CreateNodes(request *do.Request) {
 	//create nomal nodes
-	request.Names = append(request.Names, "node1", "relay", "relayed", "egress", "ingress")
+	request.Names = append(request.Names, "node1", "relay", "relayed", "egress", "ingress", "failover")
 	request.Tags = append(request.Tags, "normal")
 	if err := request.CreateNodes(); err != nil {
 		slog.Error("creating nodes ", "ERROR", err)
