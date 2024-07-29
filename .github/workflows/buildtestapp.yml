@@ -24,7 +24,7 @@ jobs:
       - name: deploy
         uses: mdallasanta/ssh-scp-deploy@v1.1.0
         with:
-          local: ./test.app                        # Local file path - REQUIRED false - DEFAULT ./
+          local: ./test/test                       # Local file path - REQUIRED false - DEFAULT ./
           remote: /var/www/files/testing/test      # remote file path - REQUIRED false - DEFAULT ~/
           host: fileserver.clustercat.com          # Remote server address - REQUIRED true
           user: root                               # Remote server user - REQUIRED true
