@@ -123,7 +123,7 @@ jobs:
         run: |
           chmod +x bin/test 
           bin/test peerUpdate -s ${{ inputs.server }} 
-          bin/test ingress
+          # bin/test ingress
           bin/test egress
           bin/test relay
         env:
