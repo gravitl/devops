@@ -23,6 +23,7 @@ on:
           - clean
           - ping
           - ingress
+          - internetGateway
           - egress
           - relay
 

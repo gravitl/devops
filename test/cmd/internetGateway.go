@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"log/slog"
 
 	"github.com/gravitl/devops/netmaker"
 	"github.com/spf13/cobra"
+	"golang.org/x/exp/slog"
 )
 
 var internetGatewayCmd = &cobra.Command{
