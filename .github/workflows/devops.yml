@@ -46,16 +46,16 @@ jobs:
       server: server
     secrets: inherit
   
-  # devopssix:
-  #   needs: [update-network, devops]
-  #   uses: ./.github/workflows/dailytest.yml
-  #   with:
-  #     tag: devops
-  #     network: devopsv6
-  #     api: "https://api.clustercat.com"
-  #     masterkey: secretkey
-  #     server: server
-  #   secrets: inherit
+  devopssix:
+    needs: [update-network, devops]
+    uses: ./.github/workflows/dailytest.yml
+    with:
+      tag: devops
+      network: devopsv6
+      api: "https://api.clustercat.com"
+      masterkey: secretkey
+      server: server
+    secrets: inherit
 
   # devopsdual:
   #   needs: [update-network]

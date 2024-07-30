@@ -74,7 +74,7 @@ func ingresstest(config *netmaker.Config) bool {
 	}
 	slog.Info("copying file to extclient")
 	if err := netmaker.StartExtClient(config); err != nil {
-		slog.Error("failed to start extclient", "test", "ingres", "err", err)
+		slog.Error("failed to start extclient", "test", "ingress", "err", err)
 		return false
 	}
 	//verify
