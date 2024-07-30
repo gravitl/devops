@@ -67,11 +67,13 @@ func internetGateway(config *netmaker.Config) bool {
 		ingressNode.Host.EndpointIP,
 		"curl icanhazip.com && hostname -I | awk '{print $1}'",
 	)
+
 	if err != nil {
 		slog.Error("ssh failed", ingressNode.Host.Name)
 		pass = false
 	}
 
+	slog.Info(out)
 	ips := strings.Split(string(out), "\n")
 	parsedIP1 := net.ParseIP(ips[0])
 	parsedIP2 := net.ParseIP(ips[1])
