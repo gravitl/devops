@@ -65,7 +65,7 @@ func internetGateway(config *netmaker.Config) bool {
 	out, err = ssh.Run(
 		[]byte(config.Key),
 		ingressNode.Host.EndpointIP,
-		"curl icanhazip.com && hostname -I | awk '{print $1}'",
+		"curl -s icanhazip.com && hostname -I | awk '{print $1}'",
 	)
 
 	if err != nil {
