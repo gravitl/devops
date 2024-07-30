@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"net"
 	"strings"
 
 	"github.com/gravitl/devops/netmaker"
@@ -51,12 +52,37 @@ func internetGateway(config *netmaker.Config) bool {
 	)
 
 	if err != nil {
-		slog.Error("error connecting to the internet", ingressNode.Host.Name)
+		slog.Error("ssh failed", ingressNode.Host.Name)
 		pass = false
 	}
 
-	if strings.Contains(out, ", 0% packet loss") {
-		slog.Info("node can reach the internet")
+	if !strings.Contains(out, ", 0% packet loss") {
+		slog.Error("error connecting to the internet")
+		pass = false
+	}
+	slog.Info("host can reach the internet")
+
+	out, err = ssh.Run(
+		[]byte(config.Key),
+		ingressNode.Host.EndpointIP,
+		"curl icanhazip.com && hostname -I | awk '{print $1}'",
+	)
+	if err != nil {
+		slog.Error("ssh failed", ingressNode.Host.Name)
+		pass = false
+	}
+
+	ips := strings.Split(string(out), "\n")
+	parsedIP1 := net.ParseIP(ips[0])
+	parsedIP2 := net.ParseIP(ips[1])
+	if parsedIP1 == nil || parsedIP2 == nil {
+		slog.Error("invalid IP address")
+		pass = false
+	}
+
+	if parsedIP1.Equal(parsedIP2) {
+		slog.Error("internet gateway was not used")
+		pass = false
 	}
 
 	netmaker.DeleteInternetGateway(*internetGateway)
