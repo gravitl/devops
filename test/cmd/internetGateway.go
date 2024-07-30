@@ -30,14 +30,14 @@ func internetGateway(config *netmaker.Config) bool {
 		slog.Error("did not find node-gateway")
 		return false
 	}
-	slog.Debug("debuging", "internetGateway", internetGateway)
 
 	ingressNode := netmaker.GetHost("node-ingress", netclient)
 	if ingressNode == nil {
 		slog.Error("did not find node-ingress")
 		return false
 	}
-	slog.Debug("debuging", "internetGateway", ingressNode)
+
+	slog.Info("found both nodes")
 
 	//TODO: setup a internet gateway
 	//TODO: do a ping test
