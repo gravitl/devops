@@ -60,7 +60,7 @@ func ingresstest(config *netmaker.Config) bool {
 		slog.Error("did not find ingress host/node")
 		return false
 	}
-	slog.Debug("debuging", "ingess", ingress)
+	slog.Info("debuging", "ingess", ingress)
 	//create ingress
 	slog.Info("creating ingress node")
 	netmaker.CreateIngress(*ingress)
