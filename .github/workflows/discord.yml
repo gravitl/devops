@@ -1,33 +1,34 @@
-name: Discord
-
-on:
-  workflow_run:
-    workflows: [Update Network, Delete Test Network, Build artifacts for deployment testing ]
-    types:
-      - completed
-jobs:
-  on-success:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - name: discord success message
-        uses: appleboy/discord-action@master
-        with:
-          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-          color: "#42f545"
-          username: "GitHub Bot"
-          message: "Devops: ${{ github.event.workflow_run.name }} was successful"
-
-  on-failure:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
-    steps:
-      - name: discord fail message
-        uses: appleboy/discord-action@master
-        with:
-          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-          color: "#990000"
-          username: "GitHub Bot"
-          message: "Devops: ${{ github.event.workflow_run.name }} failed"
+# TEMPORARILY DISABLED FOR TESTING
+# name: Discord
+#
+# on:
+#   workflow_run:
+#     workflows: [Update Network, Delete Test Network, Build artifacts for deployment testing ]
+#     types:
+#       - completed
+# jobs:
+#   on-success:
+#     runs-on: ubuntu-latest
+#     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+#     steps:
+#       - name: discord success message
+#         uses: appleboy/discord-action@master
+#         with:
+#           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+#           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+#           color: "#42f545"
+#           username: "GitHub Bot"
+#           message: "Devops: ${{ github.event.workflow_run.name }} was successful"
+#
+#   on-failure:
+#     runs-on: ubuntu-latest
+#     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+#     steps:
+#       - name: discord fail message
+#         uses: appleboy/discord-action@master
+#         with:
+#           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+#           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+#           color: "#990000"
+#           username: "GitHub Bot"
+#           message: "Devops: ${{ github.event.workflow_run.name }} failed"

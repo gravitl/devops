@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/gravitl/devops/netmaker"
 	"github.com/spf13/cobra"
@@ -22,11 +23,25 @@ func init() {
 }
 
 func internetGateway(config *netmaker.Config) bool {
-	fmt.Println("\nTesting InternetGateway")
-	fmt.Println(config)
+	pass := true
+	netclient := netmaker.GetNetclient(config.Network)
+	internetGateway := netmaker.GetHost("node-gateway", netclient)
+	if internetGateway == nil {
+		slog.Error("did not find node-gateway")
+		return false
+	}
+	slog.Debug("debuging", "internetGateway", internetGateway)
+
+	ingressNode := netmaker.GetHost("node-ingress", netclient)
+	if ingressNode == nil {
+		slog.Error("did not find node-ingress")
+		return false
+	}
+	slog.Debug("debuging", "internetGateway", ingressNode)
+
 	//TODO: setup a internet gateway
 	//TODO: do a ping test
 	//TODO: ping the internet
 	//TODO: delete the gateway
-	return false
+	return pass
 }
