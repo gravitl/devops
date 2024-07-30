@@ -39,6 +39,8 @@ func internetGateway(config *netmaker.Config) bool {
 
 	slog.Info("found both nodes")
 
+	netmaker.CreateInternetGateway(*internetGateway, *ingressNode)
+
 	//TODO: setup a internet gateway
 	//TODO: do a ping test
 	//TODO: ping the internet
