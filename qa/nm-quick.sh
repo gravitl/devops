@@ -724,7 +724,7 @@ install_netmaker() {
 
 	# start docker and rebuild containers / networks
 	cd "${SCRIPT_DIR}"
-	docker-compose up -d --force-recreate
+	docker compose up -d --force-recreate
 	cd -
 	wait_seconds 2
 
