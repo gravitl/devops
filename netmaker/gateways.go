@@ -32,7 +32,16 @@ func CreateInternetGateway(node Netclient, client Netclient) {
 		"/api/nodes/"+node.Node.Network+"/"+node.Node.ID+"/inet_gw",
 		data,
 	)
+}
 
+func DeleteInternetGateway(node Netclient) {
+	slog.Info("deleting internet gateway on node", "node", node.Node.ID)
+
+	callapi[models.ApiNode](
+		http.MethodDelete,
+		"/api/nodes/"+node.Node.Network+"/"+node.Node.ID+"/inet_gw",
+		nil,
+	)
 }
 
 func GetExtClient(m Netclient) *models.ExtClient {

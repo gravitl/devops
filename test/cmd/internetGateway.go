@@ -40,10 +40,13 @@ func internetGateway(config *netmaker.Config) bool {
 	slog.Info("found both nodes")
 
 	netmaker.CreateInternetGateway(*internetGateway, *ingressNode)
+	slog.Info("internet gateway was created")
 
-	//TODO: setup a internet gateway
 	//TODO: do a ping test
 	//TODO: ping the internet
-	//TODO: delete the gateway
+
+	netmaker.DeleteInternetGateway(*internetGateway)
+
+	slog.Info("internet gateway was deleted")
 	return pass
 }
