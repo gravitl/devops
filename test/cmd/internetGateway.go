@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gravitl/devops/netmaker"
+	"github.com/gravitl/devops/ssh"
 	"github.com/spf13/cobra"
 	"golang.org/x/exp/slog"
 )
@@ -42,11 +44,23 @@ func internetGateway(config *netmaker.Config) bool {
 	netmaker.CreateInternetGateway(*internetGateway, *ingressNode)
 	slog.Info("internet gateway was created")
 
-	//TODO: do a ping test
-	//TODO: ping the internet
+	out, err := ssh.Run(
+		[]byte(config.Key),
+		ingressNode.Host.EndpointIP,
+		"ping -c 10 1.1.1.1 | grep packet",
+	)
+
+	if err != nil {
+		slog.Error("error connecting to the internet", ingressNode.Host.Name)
+		pass = false
+	}
+
+	if strings.Contains(out, ", 0% packet loss") {
+		slog.Info("node can reach the internet")
+	}
 
 	netmaker.DeleteInternetGateway(*internetGateway)
-
 	slog.Info("internet gateway was deleted")
+
 	return pass
 }
