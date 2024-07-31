@@ -81,7 +81,7 @@ jobs:
 
 
   initial-ping:
-    needs: [initial-ping, clean]
+    needs: [clean]
     name: initial ping
     runs-on: ubuntu-latest
     steps:
@@ -111,7 +111,7 @@ jobs:
           retention-days: 3
 
   tests:
-    needs: [clean]
+    needs: [initial-ping, clean]
     name: tests
     runs-on: ubuntu-latest
     steps:
