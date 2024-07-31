@@ -73,7 +73,6 @@ func internetGateway(config *netmaker.Config) bool {
 		pass = false
 	}
 
-	slog.Info(out)
 	ips := strings.Split(string(out), "\n")
 	parsedIP1 := net.ParseIP(ips[0])
 	parsedIP2 := net.ParseIP(ips[1])
@@ -86,9 +85,22 @@ func internetGateway(config *netmaker.Config) bool {
 		slog.Error("internet gateway was not used")
 		pass = false
 	}
+	slog.Info("internet gateway was used")
+
+	peers, err := netmaker.GetWireGuardIPs(config.Network)
+
+	slog.Info(ipSliceToString(peers))
 
 	netmaker.DeleteInternetGateway(*internetGateway)
 	slog.Info("internet gateway was deleted")
 
-	return pass
+	return !pass
+}
+
+func ipSliceToString(ips []net.IP) string {
+	ipStrings := make([]string, len(ips))
+	for i, ip := range ips {
+		ipStrings[i] = ip.String()
+	}
+	return strings.Join(ipStrings, ", ")
 }
