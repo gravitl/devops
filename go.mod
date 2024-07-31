@@ -7,7 +7,6 @@ require (
 	github.com/digitalocean/godo v1.98.0
 	github.com/gravitl/netclient v0.18.6-0.20230814121017-aade0737e579
 	github.com/gravitl/netmaker v0.20.6-0.20230809123305-36b444e13a18
-	github.com/guumaster/hostctl v1.1.4
 	github.com/joho/godotenv v1.5.1
 	github.com/kr/pretty v0.3.1
 	github.com/matryer/is v1.4.1
