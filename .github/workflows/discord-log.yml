@@ -1,55 +1,55 @@
-# name: Discord with Logs
-#
-# on:
-#   workflow_run:
-#     workflows: [Daily Test, Run Test]
-#     types:
-#       - completed
-# jobs:
-#   on-success:
-#     runs-on: ubuntu-latest
-#     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-#     steps:
-#       - name: get logs
-#         uses: dawidd6/action-download-artifact@v2
-#         with:
-#           run_id: ${{ github.event.workflow_run.id}}
-#           if_no_artifact_found: warn
-#       - name: discord success message
-#         uses: appleboy/discord-action@master
-#         with:
-#           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-#           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-#           color: "#42f545"
-#           username: "GitHub Bot"
-#           message: "Devops: ${{ github.event.workflow_run.name }} was successful"
-#           file: ./results/results.log
-#
-#
-#   on-failure:
-#     runs-on: ubuntu-latest
-#     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
-#     steps:
-#       - name: get logs
-#         uses: dawidd6/action-download-artifact@v2
-#         with:
-#           run_id: ${{ github.event.workflow_run.id }}
-#           if_no_artifact_found: warn
-#       - name: discord fail message
-#         uses: appleboy/discord-action@master
-#         with:
-#           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-#           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-#           color: "#990000"
-#           username: "GitHub Bot"
-#           message: "Devops: ${{ github.event.workflow_run.name }} failed"
-#           file: ./results/results.log
-#       - name: discord error message
-#         uses: appleboy/discord-action@master
-#         with:
-#           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-#           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-#           color: "#990000"
-#           username: "GitHub Bot"
-#           message: "Devops: errors from ${{ github.event.workflow_run.name }}"
-#           file: ./results/errors.log
+name: Discord with Logs
+
+on:
+  workflow_run:
+    workflows: [Daily Test, Run Test]
+    types:
+      - completed
+jobs:
+  on-success:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: get logs
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          run_id: ${{ github.event.workflow_run.id}}
+          if_no_artifact_found: warn
+      - name: discord success message
+        uses: appleboy/discord-action@master
+        with:
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+          color: "#42f545"
+          username: "GitHub Bot"
+          message: "Devops: ${{ github.event.workflow_run.name }} was successful"
+          file: ./results/results.log
+
+
+  on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - name: get logs
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          run_id: ${{ github.event.workflow_run.id }}
+          if_no_artifact_found: warn
+      - name: discord fail message
+        uses: appleboy/discord-action@master
+        with:
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+          color: "#990000"
+          username: "GitHub Bot"
+          message: "Devops: ${{ github.event.workflow_run.name }} failed"
+          file: ./results/results.log
+      - name: discord error message
+        uses: appleboy/discord-action@master
+        with:
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+          color: "#990000"
+          username: "GitHub Bot"
+          message: "Devops: errors from ${{ github.event.workflow_run.name }}"
+          file: ./results/errors.log

@@ -95,3 +95,16 @@ then
 else
     echo "final ping: NOT RUN" >> /tmp/results.log
 fi
+
+if [ -f /tmp/tests/internetGateway.log ]
+then
+    grep ERROR /tmp/tests/internetGateway.log >> /tmp/errors.log
+    if [ $? -eq 0 ]
+    then
+        echo "internet gateway: FAILED" >> /tmp/results.log
+    else
+        echo "internet gateway: PASSED" >> /tmp/results.log
+    fi
+else
+    echo "internet gateway: NOT RUN" >> /tmp/results.log
+fi

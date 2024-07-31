@@ -80,35 +80,35 @@ jobs:
           retention-days: 3
 
 
-  # initial-ping:
-  #   needs: [clean]
-  #   name: initial ping
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: get binary
-  #       run: |
-  #         mkdir bin
-  #         wget -O bin/test fileserver.clustercat.com/testing/test
-  #     - name: run tests
-  #       id: ping
-  #       run: |
-  #         chmod +x bin/test
-  #         sleep 30
-  #         bin/test ping
-  #       env:
-  #         DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
-  #         KEY: ${{ secrets.TESTING_SSH_KEY }}
-  #         TAG: ${{ inputs.tag }}
-  #         NETWORK: ${{ inputs.network }}
-  #         MASTERKEY: ${{ inputs.masterkey }}
-  #         API: ${{ inputs.api }}
-  #     - name: save logs
-  #       if: success() || failure()
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: ping
-  #         path: /tmp/ping.log
-  #         retention-days: 3
+  initial-ping:
+    needs: [initial-ping, clean]
+    name: initial ping
+    runs-on: ubuntu-latest
+    steps:
+      - name: get binary
+        run: |
+          mkdir bin
+          wget -O bin/test fileserver.clustercat.com/testing/test
+      - name: run tests
+        id: ping
+        run: |
+          chmod +x bin/test
+          sleep 30
+          bin/test ping
+        env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          KEY: ${{ secrets.TESTING_SSH_KEY }}
+          TAG: ${{ inputs.tag }}
+          NETWORK: ${{ inputs.network }}
+          MASTERKEY: ${{ inputs.masterkey }}
+          API: ${{ inputs.api }}
+      - name: save logs
+        if: success() || failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ping
+          path: /tmp/ping.log
+          retention-days: 3
 
   tests:
     needs: [clean]
@@ -122,11 +122,11 @@ jobs:
       - name: run tests
         run: |
           chmod +x bin/test 
+          bin/test peerUpdate -s ${{ inputs.server }} 
+          bin/test ingress
+          bin/test egress
+          bin/test relay
           bin/test internetGateway 
-          # bin/test peerUpdate -s ${{ inputs.server }} 
-          # bin/test ingress
-          # bin/test egress
-          # bin/test relay
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}
@@ -143,60 +143,60 @@ jobs:
           path: /tmp/*.log
           retention-days: 3
 
-  # final-ping:
-  #   needs: [tests]
-  #   name: final ping
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: get binary
-  #       run: |
-  #         mkdir bin
-  #         wget -O bin/test fileserver.clustercat.com/testing/test
-  #     - name: run tests
-  #       run: |
-  #         chmod +x bin/test
-  #         bin/test ping
-  #       env:
-  #         DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
-  #         KEY: ${{ secrets.TESTING_SSH_KEY }}
-  #         TAG: ${{ inputs.tag }}
-  #         NETWORK: ${{ inputs.network }}
-  #         MASTERKEY: ${{ inputs.masterkey }}
-  #         API: ${{ inputs.api }}
-  #     - name: save logs
-  #       if: success() || failure()
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: ping2
-  #         path: /tmp/ping.log
-  #         retention-days: 3
-  #
-  # results:
-  #   if: success() || failure()
-  #   needs: [clean, initial-ping, tests, final-ping]
-  #   name: sumarize results
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: checkout
-  #       uses: actions/checkout@v3
-  #       with:
-  #         repository: gravitl/devops
-  #         ref: master
-  #     - name: get logs
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         path: /tmp
-  #     - name: generate results
-  #       run: |
-  #         test/scripts/results.sh
-  #     - name: upload results
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: results
-  #         path: |
-  #           /tmp/results.log
-  #           /tmp/errors.log
-  #         retention-days: 3
-  #     - name: final result
-  #       run: |
-  #         if [ -s /tmp/errors.log ]; then exit 1; fi
+  final-ping:
+    needs: [tests]
+    name: final ping
+    runs-on: ubuntu-latest
+    steps:
+      - name: get binary
+        run: |
+          mkdir bin
+          wget -O bin/test fileserver.clustercat.com/testing/test
+      - name: run tests
+        run: |
+          chmod +x bin/test
+          bin/test ping
+        env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          KEY: ${{ secrets.TESTING_SSH_KEY }}
+          TAG: ${{ inputs.tag }}
+          NETWORK: ${{ inputs.network }}
+          MASTERKEY: ${{ inputs.masterkey }}
+          API: ${{ inputs.api }}
+      - name: save logs
+        if: success() || failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ping2
+          path: /tmp/ping.log
+          retention-days: 3
+
+  results:
+    if: success() || failure()
+    needs: [clean, initial-ping, tests, final-ping]
+    name: sumarize results
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          repository: gravitl/devops
+          ref: master
+      - name: get logs
+        uses: actions/download-artifact@v3
+        with:
+          path: /tmp
+      - name: generate results
+        run: |
+          test/scripts/results.sh
+      - name: upload results
+        uses: actions/upload-artifact@v3
+        with:
+          name: results
+          path: |
+            /tmp/results.log
+            /tmp/errors.log
+          retention-days: 3
+      - name: final result
+        run: |
+          if [ -s /tmp/errors.log ]; then exit 1; fi
