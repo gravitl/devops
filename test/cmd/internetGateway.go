@@ -143,6 +143,6 @@ func pingPeers(source string, ip net.IP) bool {
 		)
 		return true
 	}
-
+  
 	return false
 }
