@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"sync"
 
 	"github.com/gravitl/devops/netmaker"
 	"github.com/gravitl/devops/ssh"
@@ -48,23 +49,6 @@ func internetGateway(config *netmaker.Config) bool {
 	out, err := ssh.Run(
 		[]byte(config.Key),
 		ingressNode.Host.EndpointIP,
-		"ping -c 10 1.1.1.1 | grep packet",
-	)
-
-	if err != nil {
-		slog.Error("ssh failed", ingressNode.Host.Name)
-		pass = false
-	}
-
-	if !strings.Contains(out, ", 0% packet loss") {
-		slog.Error("error connecting to the internet")
-		pass = false
-	}
-	slog.Info("host can reach the internet")
-
-	out, err = ssh.Run(
-		[]byte(config.Key),
-		ingressNode.Host.EndpointIP,
 		"curl -s icanhazip.com && hostname -I | awk '{print $1}'",
 	)
 
@@ -87,20 +71,78 @@ func internetGateway(config *netmaker.Config) bool {
 	}
 	slog.Info("internet gateway was used")
 
-	peers, err := netmaker.GetWireGuardIPs(config.Network)
+	out, err = ssh.Run(
+		[]byte(config.Key),
+		ingressNode.Host.EndpointIP,
+		"ping -c 10 1.1.1.1 | grep packet",
+	)
 
-	slog.Info(ipSliceToString(peers))
+	if err != nil {
+		slog.Error("ssh failed", ingressNode.Host.Name)
+		pass = false
+	}
+
+	if !strings.Contains(out, ", 0% packet loss") {
+		slog.Error("error connecting to the internet")
+		pass = false
+	}
+	slog.Info("host can reach the internet")
+
+	peers, err := netmaker.GetWireGuardIPs(config.Network)
+	if err != nil {
+		slog.Error("failed to get peers", ingressNode.Host.Name)
+		pass = false
+	}
+	slog.Info("pinging all the peers")
+
+	var wg sync.WaitGroup
+	semaphore := make(chan struct{}, 4)
+
+	for _, peer := range peers {
+		wg.Add(1)
+		go func(peer net.IP) {
+			defer wg.Done()
+			semaphore <- struct{}{}
+			defer func() { <-semaphore }()
+
+			pass = pingPeers(ingressNode.Host.EndpointIP, peer)
+		}(peer)
+	}
+	wg.Wait()
 
 	netmaker.DeleteInternetGateway(*internetGateway)
 	slog.Info("internet gateway was deleted")
 
-	return !pass
+	return pass
 }
 
-func ipSliceToString(ips []net.IP) string {
-	ipStrings := make([]string, len(ips))
-	for i, ip := range ips {
-		ipStrings[i] = ip.String()
+func pingPeers(source string, ip net.IP) bool {
+	out, err := ssh.Run([]byte(config.Key), source, "ping -c 10 "+ip.String()+" | grep packet")
+	if err != nil {
+		slog.Error("error connecting to peer", "peer", ip.String(), "test", "ping", "err", err)
 	}
-	return strings.Join(ipStrings, ", ")
+
+	if strings.Contains(out, ", 10% packet loss") || strings.Contains(out, ", 20% packet loss") {
+		slog.Warn(
+			"ping success",
+			"peer",
+			ip.String(),
+			"output",
+			strings.TrimSuffix(out, "\n"),
+		)
+		return true
+	}
+
+	if strings.Contains(out, ", 0% packet loss") {
+		slog.Info(
+			"ping success",
+			"peer",
+			ip.String(),
+			"output",
+			strings.TrimSuffix(out, "\n"),
+		)
+		return true
+	}
+
+	return false
 }
