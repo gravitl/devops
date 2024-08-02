@@ -93,7 +93,7 @@ jobs:
         id: ping
         run: |
           chmod +x bin/test
-          sleep 30
+          sleep 3m
           bin/test ping
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
