@@ -45,4 +45,15 @@ jobs:
       masterkey: secretkey
       server: server
     secrets: inherit
+
+  devopsfour:
+    needs: [update-network, devops]
+    uses: ./.github/workflows/dailytest.yml
+    with:
+      tag: devops
+      network: devops4
+      api: "https://api.clustercat.com"
+      masterkey: secretkey
+      server: server
+    secrets: inherit
   
