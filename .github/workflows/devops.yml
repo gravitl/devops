@@ -47,7 +47,7 @@ jobs:
     secrets: inherit
 
   devopsfour:
-    needs: [update-network, devops]
+    needs: [devops]
     uses: ./.github/workflows/dailytest.yml
     with:
       tag: devops
