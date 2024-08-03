@@ -76,7 +76,7 @@ jobs:
 
   terraform:
     needs: [getserver]
-    uses: gravitl/devops/.github/workflows/terraform.yml@NET-1485-b
+    uses: ./.github/workflows/terraform.yml
     with:
       netclientbranch: ${{ inputs.netclientbranch }}
       netmakerbranch: ${{ inputs.netmakerbranch }}
@@ -110,7 +110,7 @@ jobs:
 
   testbranch:
     needs: [getserver, terraform, masterkey]
-    uses: gravitl/devops/.github/workflows/branchtest.yml@NET-1485-b
+    uses: ./.github/workflows/branchtest.yml
     with:
       tag: ${{ inputs.tag }}
       network: netmaker
