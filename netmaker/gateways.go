@@ -19,12 +19,29 @@ func GetExtClient(m Netclient) *models.ExtClient {
 
 func CreateExtClient(client Netclient) {
 	slog.Info("creating ingress on node", "node", client.Node.ID)
-	data := struct {
-		Clientid string
-	}{
-		Clientid: "road-warrior",
+	clients := [3]string{"road-warrior", "road-warrior2", "road-warrior3"}
+	// data := struct {
+	// 	Clientid string
+	// }{
+	// 	Clientid: "road-warrior",
+	// }
+	// callapi[models.ApiNode](http.MethodPost, "/api/extclients/"+client.Node.Network+"/"+client.Node.ID, data)
+	for _, clientID := range clients {
+		data := struct {
+			Clientid string `json:"clientid"`
+		}{
+			Clientid: clientID,
+		}
+
+		err := callapi[interface{}](http.MethodPost, "/api/extclients/"+client.Node.Network+"/"+client.Node.ID, data)
+		if err != nil {
+			slog.Error("Error creating client '%s': %v", clientID, err)
+			continue
+		}
+
+		slog.Info("Successfully created client '%s'", clientID)
+		break
 	}
-	callapi[models.ApiNode](http.MethodPost, "/api/extclients/"+client.Node.Network+"/"+client.Node.ID, data)
 }
 
 func DownloadExtClientConfig(client Netclient) error {
