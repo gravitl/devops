@@ -76,7 +76,7 @@ jobs:
 
   terraform:
     needs: [getserver]
-    uses: gravitl/devops/.github/workflows/terraform.yml@NET-1485-b
+    uses: ./.github/workflows/terraform.yml
     with:
       netclientbranch: ${{ inputs.netclientbranch }}
       netmakerbranch: ${{ inputs.netmakerbranch }}
