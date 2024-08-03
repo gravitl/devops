@@ -13,6 +13,11 @@ func CreateIngress(name Netclient) {
 	callapi[models.ApiNode](http.MethodPost, "/api/nodes/"+name.Node.Network+"/"+name.Node.ID+"/createingress", nil)
 }
 
+func CreateFailover(name Netclient) {
+	slog.Info("creating failover on node", "node", name.Node.ID)
+	callapi[models.ApiNode](http.MethodPut, "/api/nodes/"+name.Node.Network+"/"+name.Node.ID+"/failover", nil)
+}
+
 func GetExtClient(m Netclient) *models.ExtClient {
 	return callapi[models.ExtClient](http.MethodGet, "/api/extclients/"+m.Node.Network+"/road-warrior", nil)
 }
