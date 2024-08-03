@@ -10,10 +10,15 @@ import (
 
 func CreateIngress(name Netclient) {
 	slog.Info("creating ingress on node", "node", name.Node.ID)
-	callapi[models.ApiNode](http.MethodPost, "/api/nodes/"+name.Node.Network+"/"+name.Node.ID+"/createingress", nil)
+	callapi[models.ApiNode](
+		http.MethodPost,
+		"/api/nodes/"+name.Node.Network+"/"+name.Node.ID+"/createingress",
+		nil,
+	)
 }
 
 func GetExtClient(m Netclient, ext string) *models.ExtClient {
+	slog.Info("GetExtClient API call: ", "network", m.Node.Network, "ext", ext)
 	return callapi[models.ExtClient](http.MethodGet, "/api/extclients/"+m.Node.Network+"/"+ext, nil)
 }
 
@@ -33,7 +38,11 @@ func CreateExtClient(client Netclient) string {
 			Clientid: clientID,
 		}
 
-		err := callapi[models.ApiNode](http.MethodPost, "/api/extclients/"+client.Node.Network+"/"+client.Node.ID, data)
+		err := callapi[models.ApiNode](
+			http.MethodPost,
+			"/api/extclients/"+client.Node.Network+"/"+client.Node.ID,
+			data,
+		)
 		if err != nil {
 			slog.Error("Error creating client '%s': %v", clientID, err)
 			continue
@@ -42,10 +51,15 @@ func CreateExtClient(client Netclient) string {
 		slog.Info("Successfully created client '%s'", clientID)
 		return clientID
 	}
+	return ""
 }
 
 func DownloadExtClientConfig(client Netclient) error {
-	file := download(http.MethodGet, "/api/extclients/"+client.Node.Network+"/road-warrior/file", nil)
+	file := download(
+		http.MethodGet,
+		"/api/extclients/"+client.Node.Network+"/road-warrior/file",
+		nil,
+	)
 	slog.Debug("received file", "file", string(file))
 	save, err := os.Create("/tmp/netmaker.conf")
 	if err != nil {
@@ -65,7 +79,11 @@ func CreateEgress(client Netclient, ranges []string) *models.ApiNode {
 		NatEnabled: "yes",
 		Ranges:     ranges,
 	}
-	return callapi[models.ApiNode](http.MethodPost, "/api/nodes/"+data.NetID+"/"+data.NodeID+"/creategateway", data)
+	return callapi[models.ApiNode](
+		http.MethodPost,
+		"/api/nodes/"+data.NetID+"/"+data.NodeID+"/creategateway",
+		data,
+	)
 }
 
 func CreateRelay(relay, relayed *Netclient) {
@@ -75,5 +93,9 @@ func CreateRelay(relay, relayed *Netclient) {
 		RelayedNodes: []string{relayed.Node.ID},
 	}
 	slog.Debug("debuging", "data", data)
-	callapi[models.ApiHost](http.MethodPost, "/api/nodes/"+relay.Node.Network+"/"+relay.Node.ID+"/createrelay", data)
+	callapi[models.ApiHost](
+		http.MethodPost,
+		"/api/nodes/"+relay.Node.Network+"/"+relay.Node.ID+"/createrelay",
+		data,
+	)
 }
