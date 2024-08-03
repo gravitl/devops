@@ -45,4 +45,3 @@ jobs:
       masterkey: secretkey
       server: server
     secrets: inherit
-
