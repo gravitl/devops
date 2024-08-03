@@ -13,11 +13,11 @@ func CreateIngress(name Netclient) {
 	callapi[models.ApiNode](http.MethodPost, "/api/nodes/"+name.Node.Network+"/"+name.Node.ID+"/createingress", nil)
 }
 
-func GetExtClient(m Netclient) *models.ExtClient {
-	return callapi[models.ExtClient](http.MethodGet, "/api/extclients/"+m.Node.Network+"/road-warrior", nil)
+func GetExtClient(m Netclient, ext string) *models.ExtClient {
+	return callapi[models.ExtClient](http.MethodGet, "/api/extclients/"+m.Node.Network+"/"+ext, nil)
 }
 
-func CreateExtClient(client Netclient) {
+func CreateExtClient(client Netclient) string {
 	slog.Info("creating ingress on node", "node", client.Node.ID)
 	clients := [3]string{"road-warrior", "road-warrior2", "road-warrior3"}
 	// data := struct {
@@ -33,14 +33,14 @@ func CreateExtClient(client Netclient) {
 			Clientid: clientID,
 		}
 
-		err := callapi[interface{}](http.MethodPost, "/api/extclients/"+client.Node.Network+"/"+client.Node.ID, data)
+		err := callapi[models.ApiNode](http.MethodPost, "/api/extclients/"+client.Node.Network+"/"+client.Node.ID, data)
 		if err != nil {
 			slog.Error("Error creating client '%s': %v", clientID, err)
 			continue
 		}
 
 		slog.Info("Successfully created client '%s'", clientID)
-		break
+		return clientID
 	}
 }
 
