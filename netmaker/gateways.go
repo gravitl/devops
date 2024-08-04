@@ -43,17 +43,14 @@ func CreateExtClient(client Netclient, network string) string {
 		Clientid: clientID,
 	}
 
-	err := callapi[models.ApiNode](http.MethodPost, "/api/extclients/"+client.Node.Network+"/"+client.Node.ID, data)
-	if err != nil {
-		slog.Error("Error creating client '%s': %v\n", clientID, err)
-		return ""
-	}
+	callapi[models.ApiNode](http.MethodPost, "/api/extclients/"+client.Node.Network+"/"+client.Node.ID, data)
 
 	slog.Info("Successfully created client '%s'\n", clientID)
 	return clientID
 }
 
 func DownloadExtClientConfig(client Netclient, ext string) error {
+	slog.Info("downloading config for", client.Node.Network, ext)
 	file := download(http.MethodGet, "/api/extclients/"+client.Node.Network+"/"+ext+"/file", nil)
 	slog.Debug("received file", "file", string(file))
 	save, err := os.Create("/tmp/netmaker.conf")
