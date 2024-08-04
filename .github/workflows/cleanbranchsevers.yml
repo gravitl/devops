@@ -33,6 +33,6 @@ jobs:
       run: |
         for arg in "branch1" "branch2" "branch3" "branch4" "branch5"; do
             echo cleaning $arg
-            ssh root@server.branch1.clustercat.com rm /tmp/branchtest 
+            ssh root@server.$arg.clustercat.com rm /tmp/branchtest 
         done
 

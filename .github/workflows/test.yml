@@ -25,6 +25,7 @@ on:
           - ingress
           - egress
           - relay
+          - internetGateway
 
 
 jobs:

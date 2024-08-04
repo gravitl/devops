@@ -61,6 +61,8 @@ jobs:
         [ -s BRANCHES ]  && echo "${{ inputs.netmakerBranch }} exists" || echo "IT LOOKS LIKE YOU HAVE MADE CHANGES TO THE NM-QUICK SCRIPT. THIS MAY AFFECT INSTALLATION WITH THE NM-QUICK SCRIPT ON THE DEVOPS SIDE. IF CHANGES ARE NEEDED TO THE DEVOPS NM-QUICK. PLEASE GIVE THE BRANCH THE SAME NAME AS THE NETMAKER BRANCH WHERE YOU MADE THE CHANGES. TRYING WITH NM-QUICK FROM MASTER ON DEVOPS FOR NOW." && BRANCH_CHECK="master"
         echo "BRANCHTOUSE=$BRANCH_CHECK" >> $GITHUB_OUTPUT
 
+        
+
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v3
@@ -101,7 +103,7 @@ jobs:
         terraform plan
         terraform apply -auto-approve
       env:
-        TF_VAR_do_token: "${{ secrets.DO_TOKEN }}"
+        TF_VAR_do_token: "${{ secrets.TESTING_DO_TOKEN }}"
         TF_VAR_pvt_key: "${{ secrets.TESTING_SSH_KEY }}"
         TF_VAR_branch: "${{ inputs.netmakerbranch }}"
         TF_VAR_clientbranch: "${{ inputs.netclientbranch }}"
