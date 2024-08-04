@@ -17,31 +17,39 @@ func GetExtClient(m Netclient, ext string) *models.ExtClient {
 	return callapi[models.ExtClient](http.MethodGet, "/api/extclients/"+m.Node.Network+"/"+ext, nil)
 }
 
-func CreateExtClient(client Netclient) string {
+func CreateExtClient(client Netclient, network string) string {
 	slog.Info("creating ingress on node", "node", client.Node.ID)
-	clients := [3]string{"road-warrior", "road-warrior2", "road-warrior3"}
+	clients := map[string]string{
+		"devops":   "road-warrior",
+		"devops4":  "road-warrior2",
+		"devopsv6": "road-warrior3",
+	}
 	// data := struct {
 	// 	Clientid string
 	// }{
 	// 	Clientid: "road-warrior",
 	// }
 	// callapi[models.ApiNode](http.MethodPost, "/api/extclients/"+client.Node.Network+"/"+client.Node.ID, data)
-	for _, clientID := range clients {
-		data := struct {
-			Clientid string `json:"clientid"`
-		}{
-			Clientid: clientID,
-		}
-
-		err := callapi[models.ApiNode](http.MethodPost, "/api/extclients/"+client.Node.Network+"/"+client.Node.ID, data)
-		if err != nil {
-			slog.Error("Error creating client '%s': %v", clientID, err)
-			continue
-		}
-
-		slog.Info("Successfully created client '%s'", clientID)
-		return clientID
+	clientID, exists := clients[network]
+	if !exists {
+		slog.Error("No client ID found for network '%s'\n", network)
+		return ""
 	}
+
+	data := struct {
+		Clientid string `json:"clientid"`
+	}{
+		Clientid: clientID,
+	}
+
+	err := callapi[models.ApiNode](http.MethodPost, "/api/extclients/"+client.Node.Network+"/"+client.Node.ID, data)
+	if err != nil {
+		slog.Error("Error creating client '%s': %v\n", clientID, err)
+		return ""
+	}
+
+	slog.Info("Successfully created client '%s'\n", clientID)
+	return clientID
 }
 
 func DownloadExtClientConfig(client Netclient) error {
