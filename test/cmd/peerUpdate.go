@@ -78,6 +78,7 @@ func peerupdatetest(config *netmaker.Config) bool {
 	}
 	slog.Info("updating wg ip on server")
 	taken := make(map[string]bool)
+	slog.Info("debugging addresses", netclient)
 	for _, machine := range netclient {
 		ip, _, err := net.ParseCIDR(machine.Node.Address)
 		if err != nil {
