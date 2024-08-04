@@ -87,17 +87,27 @@ func peerupdatetest(config *netmaker.Config) bool {
 		}
 		ip, _, err := net.ParseCIDR(addressToUse)
 		if err != nil {
-			slog.Warn(fmt.Sprintf("%s is not a cidr", machine.Node.Address))
+			slog.Warn(fmt.Sprintf("%s is not a cidr", addressToUse))
 		}
 		taken[ip.String()] = true
 	}
 	slog.Debug("debugging", "exclued ips ", taken)
+	var serverAddressToUse string
+	if server.Node.Network == "devopsv6" {
+		serverAddressToUse = server.Node.Address6
+	} else {
+		serverAddressToUse = server.Node.Address
+	}
 
-	newip := getNextIP(server.Node.Address, taken)
+	newip := getNextIP(serverAddressToUse, taken)
 	if newip == "" {
 		return false
 	}
-	server.Node.Address = newip
+	if server.Node.Network == "devopsv6" {
+		server.Node.Address6 = newip
+	} else {
+		server.Node.Address = newip
+	}
 	slog.Info(fmt.Sprintf("updating wg address of %s to %s", server.Host.Name, newip))
 
 	netmaker.UpdateNode(&server.Node)
