@@ -24,6 +24,7 @@ func CreateExtClient(client Netclient, network string) string {
 		"devops4":  "road-warrior2",
 		"devopsv6": "road-warrior3",
 	}
+	slog.Info("creating ext client", clients[network])
 	// data := struct {
 	// 	Clientid string
 	// }{

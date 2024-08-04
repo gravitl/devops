@@ -68,7 +68,7 @@ func ingresstest(config *netmaker.Config) bool {
 	slog.Info("creating extclient")
 	ext := netmaker.CreateExtClient(*ingress, config.Network)
 	slog.Info("downloading client config")
-	if err := netmaker.DownloadExtClientConfig(*ingress); err != nil {
+	if err := netmaker.DownloadExtClientConfig(*ingress, ext); err != nil {
 		slog.Error("failed to download extclient config", "test", "ingress", "err", err)
 		return false
 	}
