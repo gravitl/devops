@@ -25,12 +25,6 @@ func CreateExtClient(client Netclient, network string) string {
 		"devopsv6": "road-warrior3",
 	}
 	slog.Info("creating ext client", clients[network], network)
-	// data := struct {
-	// 	Clientid string
-	// }{
-	// 	Clientid: "road-warrior",
-	// }
-	// callapi[models.ApiNode](http.MethodPost, "/api/extclients/"+client.Node.Network+"/"+client.Node.ID, data)
 	clientID, exists := clients[network]
 	if !exists {
 		slog.Error("No client ID found for network '%s'\n", network)
