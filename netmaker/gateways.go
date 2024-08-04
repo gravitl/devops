@@ -52,8 +52,8 @@ func CreateExtClient(client Netclient, network string) string {
 	return clientID
 }
 
-func DownloadExtClientConfig(client Netclient) error {
-	file := download(http.MethodGet, "/api/extclients/"+client.Node.Network+"/road-warrior/file", nil)
+func DownloadExtClientConfig(client Netclient, ext string) error {
+	file := download(http.MethodGet, "/api/extclients/"+client.Node.Network+"/"+ext+"/file", nil)
 	slog.Debug("received file", "file", string(file))
 	save, err := os.Create("/tmp/netmaker.conf")
 	if err != nil {
