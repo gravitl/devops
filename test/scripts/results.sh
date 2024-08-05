@@ -267,6 +267,68 @@ else
 fi
 
 
+# internet gateway results
+
+if [ -f /tmp/tests-devops/internetGateway.log ]
+then
+    grep ERROR /tmp/tests-devops/internetGateway.log >> /tmp/errors.log
+    if [ $? -eq 0 ]
+    then
+        echo "internet gateway for devops: FAILED" >> /tmp/results.log
+    else
+        grep "WARN" /tmp/tests-devops/internetGateway.log
+        if [ $? -eq 0 ]
+        then
+            echo "internet gateway for devops: SKIPPED" >> /tmp/results.log
+        else
+            echo "internet gateway for devops: PASSED" >> /tmp/results.log
+        fi
+    fi
+else
+    echo "internet gateway for devops: NOT RUN" >> /tmp/results.log
+fi
+
+if [ -f /tmp/tests-devops4/internetGateway.log ]
+then
+    grep ERROR /tmp/tests-devops4/internetGateway.log >> /tmp/errors.log
+    if [ $? -eq 0 ]
+    then
+        echo "internet gateway for devops4: FAILED" >> /tmp/results.log
+    else
+        grep "WARN" /tmp/tests-devops4/internetGateway.log
+        if [ $? -eq 0 ]
+        then
+            echo "internet gateway for devops4: SKIPPED" >> /tmp/results.log
+        else
+            echo "internet gateway for devops4: PASSED" >> /tmp/results.log
+        fi
+    fi
+else
+    echo "internet gateway for devops4: NOT RUN" >> /tmp/results.log
+fi
+
+
+if [ -f /tmp/tests-devopsv6/internetGateway.log ]
+then
+    grep ERROR /tmp/tests-devopsv6/internetGateway.log >> /tmp/errors.log
+    if [ $? -eq 0 ]
+    then
+        echo "internet gateway for devopsv6: FAILED" >> /tmp/results.log
+    else
+        grep "WARN" /tmp/tests-devopsv6/internetGateway.log
+        if [ $? -eq 0 ]
+        then
+            echo "internet gateway for devopsv6: SKIPPED" >> /tmp/results.log
+        else
+            echo "internet gateway for devopsv6: PASSED" >> /tmp/results.log
+        fi
+    fi
+else
+    echo "internet gateway for devopsv6: NOT RUN" >> /tmp/results.log
+fi
+
+
+
 # final ping results
 
 if [ -f /tmp/ping2-devops/ping.log ]
