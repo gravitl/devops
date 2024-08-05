@@ -60,6 +60,33 @@ func DeleteRelay(id, network string) {
 //	log.Println("deleted relay from node ", host.ID)
 //}
 
+func CreateInternetGateway(node Netclient, client Netclient) {
+	slog.Info("creating internet gateway on node", "node", node.Node.ID)
+	slog.Info("add client to the internet gateway", "client", client.Node.ID)
+
+	data := struct {
+		InetNodeClientIDs []string `json:"inet_node_client_ids"`
+	}{
+		InetNodeClientIDs: []string{client.Node.ID},
+	}
+
+	callapi[models.ApiNode](
+		http.MethodPost,
+		"/api/nodes/"+node.Node.Network+"/"+node.Node.ID+"/inet_gw",
+		data,
+	)
+}
+
+func DeleteInternetGateway(node Netclient) {
+	slog.Info("deleting internet gateway on node", "node", node.Node.ID)
+
+	callapi[models.ApiNode](
+		http.MethodDelete,
+		"/api/nodes/"+node.Node.Network+"/"+node.Node.ID+"/inet_gw",
+		nil,
+	)
+}
+
 func DeleteIngress(id, network string) {
 	api := "/api/nodes/" + network + "/" + id + "/deleteingress"
 	callapi[models.ApiNode](http.MethodDelete, api, nil)
@@ -314,7 +341,9 @@ func callapi[T any](method, route string, payload any) *T {
 		return nil
 	}
 	if res.StatusCode != http.StatusOK {
-		slog.Error(fmt.Sprintf("Error Status: %d Response: %s", res.StatusCode, string(resBodyBytes)))
+		slog.Error(
+			fmt.Sprintf("Error Status: %d Response: %s", res.StatusCode, string(resBodyBytes)),
+		)
 		return nil
 	}
 	body := new(T)
@@ -365,7 +394,9 @@ func download(method, route string, payload any) []byte {
 		return []byte{}
 	}
 	if res.StatusCode != http.StatusOK {
-		slog.Error(fmt.Sprintf("Error Status: %d Response: %s", res.StatusCode, string(resBodyBytes)))
+		slog.Error(
+			fmt.Sprintf("Error Status: %d Response: %s", res.StatusCode, string(resBodyBytes)),
+		)
 		return []byte{}
 	}
 	return resBodyBytes
