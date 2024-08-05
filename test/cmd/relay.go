@@ -76,9 +76,15 @@ func relaytest(config *netmaker.Config) bool {
 	netmaker.CreateRelay(relay, relayed)
 	egress := netmaker.GetHost("egress", netclient)
 	slog.Info("ping egress from relayed")
-	ip, _, err := net.ParseCIDR(egress.Node.Address)
+	var addressToUse string
+	if config.Network == "devopsv6" {
+		addressToUse = egress.Node.Address6
+	} else {
+		addressToUse = egress.Node.Address
+	}
+	ip, _, err := net.ParseCIDR(addressToUse)
 	if err != nil {
-		slog.Error("failed to parse egress address", egress.Node.Address)
+		slog.Error("failed to parse egress address", addressToUse)
 		return false
 	}
 	out, err := ssh.Run([]byte(config.Key), relayed.Host.EndpointIP, "ping -c 3 "+ip.String())
@@ -92,9 +98,15 @@ func relaytest(config *netmaker.Config) bool {
 		}
 	}
 	slog.Info("ping relayed from egress")
-	ip, _, err = net.ParseCIDR(relayed.Node.Address)
+	var relayedToUse string
+	if config.Network == "devopsv6" {
+		relayedToUse = relayed.Node.Address6
+	} else {
+		relayedToUse = relayed.Node.Address
+	}
+	ip, _, err = net.ParseCIDR(relayedToUse)
 	if err != nil {
-		slog.Error("failed to parse relayed address", "address", relayed.Node.Address, "test", "relay")
+		slog.Error("failed to parse relayed address", "address", relayedToUse, "test", "relay")
 		return false
 	}
 	out, err = ssh.Run([]byte(config.Key), egress.Host.EndpointIP, "ping -c 3 "+ip.String())
