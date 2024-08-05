@@ -134,6 +134,7 @@ jobs:
           bin/test egress
           bin/test relay
           bin/test internetGateway
+
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}

@@ -32,6 +32,7 @@ jobs:
           cp ./devops/netmaker-docs/Dockerfile.clearbit ./netmaker-docs
           cp ./devops/netmaker-docs/mod-html.sh ./netmaker-docs
           sed -i "s|REPLACETHISTHING|${{ secrets.CLEAR_BIT_ADDR }}|g" ./netmaker-docs/mod-html.sh
+          sed -i "s|POSTHOG_KEY|${{ secrets.POSTHOG_KEY }}|g" ./netmaker-docs/mod-html.sh
           echo "TAG_NAME=v$(cat ./netmaker-docs/conf.py | grep release | awk  '{print$3;exit}' | tr -d "'")" >> $GITHUB_OUTPUT
         id: version
       - name: Setup QEMU

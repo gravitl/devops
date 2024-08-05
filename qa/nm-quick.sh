@@ -358,7 +358,7 @@ local_install_setup() { (
 	fi
 	cd netmaker
 	if test -z "$NM_SKIP_BUILD"; then
-		docker build --no-cache --build-arg version=$IMAGE_TAG -t gravitl/netmaker:$IMAGE_TAG .
+		docker buildx build --no-cache --build-arg version=$IMAGE_TAG -t gravitl/netmaker:$IMAGE_TAG .
 	else
 		echo "Skipping build on NM_SKIP_BUILD"
 	fi
@@ -724,7 +724,7 @@ install_netmaker() {
 
 	# start docker and rebuild containers / networks
 	cd "${SCRIPT_DIR}"
-	docker-compose up -d --force-recreate
+	docker compose up -d --force-recreate
 	cd -
 	wait_seconds 2
 

@@ -329,6 +329,7 @@ fi
 
 
 
+
 # final ping results
 
 if [ -f /tmp/ping2-devops/ping.log ]
