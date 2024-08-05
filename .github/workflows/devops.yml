@@ -40,7 +40,7 @@ jobs:
     uses: ./.github/workflows/dailytest.yml
     with:
       tag: devops
-      network: devops
+      networks: '["devops", "devops4", "devopsv6"]'
       api: "https://api.clustercat.com"
       masterkey: secretkey
       server: server

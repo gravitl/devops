@@ -78,20 +78,36 @@ func peerupdatetest(config *netmaker.Config) bool {
 	}
 	slog.Info("updating wg ip on server")
 	taken := make(map[string]bool)
+	var addressToUse string
 	for _, machine := range netclient {
-		ip, _, err := net.ParseCIDR(machine.Node.Address)
+		if config.Network == "devopsv6" {
+			addressToUse = machine.Node.Address6
+		} else {
+			addressToUse = machine.Node.Address
+		}
+		ip, _, err := net.ParseCIDR(addressToUse)
 		if err != nil {
-			slog.Warn(fmt.Sprintf("%s is not a cidr", machine.Node.Address))
+			slog.Warn(fmt.Sprintf("%s is not a cidr", addressToUse))
 		}
 		taken[ip.String()] = true
 	}
 	slog.Debug("debugging", "exclued ips ", taken)
+	var serverAddressToUse string
+	if server.Node.Network == "devopsv6" {
+		serverAddressToUse = server.Node.Address6
+	} else {
+		serverAddressToUse = server.Node.Address
+	}
 
-	newip := getNextIP(server.Node.Address, taken)
+	newip := getNextIP(serverAddressToUse, taken)
 	if newip == "" {
 		return false
 	}
-	server.Node.Address = newip
+	if server.Node.Network == "devopsv6" {
+		server.Node.Address6 = newip
+	} else {
+		server.Node.Address = newip
+	}
 	slog.Info(fmt.Sprintf("updating wg address of %s to %s", server.Host.Name, newip))
 
 	netmaker.UpdateNode(&server.Node)
@@ -151,9 +167,10 @@ func peerupdatetest(config *netmaker.Config) bool {
 }
 
 func getNextIP(current string, taken map[string]bool) string {
+	network := config.Network
 	var newip net.IP
-	if len(taken) > 253 {
-		slog.Error("no free ips")
+	if len(taken) > 253 && network != "devopsv6" {
+		slog.Error("no free IPv4 ips")
 		return ""
 	}
 	ip, cidr, err := net.ParseCIDR(current)
@@ -162,20 +179,40 @@ func getNextIP(current string, taken map[string]bool) string {
 		return ""
 	}
 	slog.Info("getting free ip")
-	net4 := iplib.Net4FromStr(current)
-	newip, err = net4.NextIP(ip)
-	for {
-		if errors.Is(err, iplib.ErrBroadcastAddress) {
-			newip, err = net4.NextIP(net4.FirstAddress())
+	if network == "devopsv6" {
+		// Handle IPv6
+		net6 := iplib.Net6FromStr(current)
+		newip, err = net6.NextIP(ip)
+		for {
+			if errors.Is(err, iplib.ErrBroadcastAddress) {
+				newip, err = net6.NextIP(net6.FirstAddress())
+			}
+			if err != nil {
+				slog.Error("NextIP", "err", err)
+				return ""
+			}
+			if !taken[newip.String()] {
+				break
+			}
+			newip, err = net6.NextIP(newip)
 		}
-		if err != nil {
-			slog.Error("NextIP", "err", err)
-			return ""
+	} else {
+		// Handle IPv4
+		net4 := iplib.Net4FromStr(current)
+		newip, err = net4.NextIP(ip)
+		for {
+			if errors.Is(err, iplib.ErrBroadcastAddress) {
+				newip, err = net4.NextIP(net4.FirstAddress())
+			}
+			if err != nil {
+				slog.Info("NextIP", "err", err)
+				return ""
+			}
+			if !taken[newip.String()] {
+				break
+			}
+			newip, err = net4.NextIP(newip)
 		}
-		if !taken[newip.String()] {
-			break
-		}
-		newip, err = net4.NextIP(newip)
 	}
 	cidr.IP = newip
 	return cidr.String()

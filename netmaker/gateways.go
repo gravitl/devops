@@ -13,22 +13,39 @@ func CreateIngress(name Netclient) {
 	callapi[models.ApiNode](http.MethodPost, "/api/nodes/"+name.Node.Network+"/"+name.Node.ID+"/createingress", nil)
 }
 
-func GetExtClient(m Netclient) *models.ExtClient {
-	return callapi[models.ExtClient](http.MethodGet, "/api/extclients/"+m.Node.Network+"/road-warrior", nil)
+func GetExtClient(m Netclient, ext string) *models.ExtClient {
+	return callapi[models.ExtClient](http.MethodGet, "/api/extclients/"+m.Node.Network+"/"+ext, nil)
 }
 
-func CreateExtClient(client Netclient) {
+func CreateExtClient(client Netclient, network string) string {
 	slog.Info("creating ingress on node", "node", client.Node.ID)
-	data := struct {
-		Clientid string
-	}{
-		Clientid: "road-warrior",
+	clients := map[string]string{
+		"devops":   "road-warrior",
+		"devops4":  "road-warrior2",
+		"devopsv6": "road-warrior3",
 	}
+	slog.Info("creating ext client", clients[network], network)
+	clientID, exists := clients[network]
+	if !exists {
+		slog.Error("No client ID found for network '%s'\n", network)
+		return ""
+	}
+
+	data := struct {
+		Clientid string `json:"clientid"`
+	}{
+		Clientid: clientID,
+	}
+
 	callapi[models.ApiNode](http.MethodPost, "/api/extclients/"+client.Node.Network+"/"+client.Node.ID, data)
+
+	slog.Info("Successfully created client '%s'\n", clientID)
+	return clientID
 }
 
-func DownloadExtClientConfig(client Netclient) error {
-	file := download(http.MethodGet, "/api/extclients/"+client.Node.Network+"/road-warrior/file", nil)
+func DownloadExtClientConfig(client Netclient, ext string) error {
+	slog.Info("downloading config for", client.Node.Network, ext)
+	file := download(http.MethodGet, "/api/extclients/"+client.Node.Network+"/"+ext+"/file", nil)
 	slog.Debug("received file", "file", string(file))
 	save, err := os.Create("/tmp/netmaker.conf")
 	if err != nil {

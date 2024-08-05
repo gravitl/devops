@@ -6,7 +6,7 @@ on:
       tag:
         required: true
         type: string
-      network: 
+      networks:
         type: string
         required: true
       api:
@@ -24,12 +24,12 @@ on:
         required: true
         description: DO tag to use for testing
         default: "devops"
-      network: 
-        description: network to use for testing
+      networks:
+        description: networks to use for testing
         required: true
-        default: "devops"
+        default: '["devops", "devops4", "devopsv6"]'
       api:
-        description: api endopoint to use for testing
+        description: api endpoint to use for testing
         required: true
         default: "https://api.clustercat.com"
       masterkey:
@@ -42,7 +42,6 @@ on:
         default: "server"
 
 jobs:
-
   setadmin:
     name: set admin
     runs-on: ubuntu-latest
@@ -54,6 +53,9 @@ jobs:
   clean:
     name: remove all gateways
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        network: ${{ fromJson(inputs.networks) }}
     steps:
       - name: get binary
         run: |
@@ -65,25 +67,27 @@ jobs:
           chmod +x bin/test
           bin/test clean
         env:
-          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}
           TAG: ${{ inputs.tag }}
-          NETWORK: ${{ inputs.network}}
+          NETWORK: ${{ matrix.network }}
           MASTERKEY: ${{ inputs.masterkey }}
           API: ${{ inputs.api }}
       - name: save logs
         if: success() || failure()
         uses: actions/upload-artifact@v3
         with:
-          name: clean
+          name: clean-${{ matrix.network }}
           path: /tmp/clean.log
           retention-days: 3
-
 
   initial-ping:
     needs: [clean]
     name: initial ping
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        network: ${{ fromJson(inputs.networks) }}
     steps:
       - name: get binary
         run: |
@@ -96,24 +100,27 @@ jobs:
           sleep 3m
           bin/test ping
         env:
-          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}
           TAG: ${{ inputs.tag }}
-          NETWORK: ${{ inputs.network }}
+          NETWORK: ${{ matrix.network }}
           MASTERKEY: ${{ inputs.masterkey }}
           API: ${{ inputs.api }}
       - name: save logs
         if: success() || failure()
         uses: actions/upload-artifact@v3
         with:
-          name: ping
+          name: ping-${{ matrix.network }}
           path: /tmp/ping.log
           retention-days: 3
 
   tests:
-    needs: [initial-ping, clean]
+    needs: [initial-ping]
     name: tests
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        network: ${{ fromJson(inputs.networks) }}
     steps:
       - name: get binary
         run: |
@@ -129,10 +136,10 @@ jobs:
           bin/test internetGateway
 
         env:
-          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}
           TAG: ${{ inputs.tag }}
-          NETWORK: ${{ inputs.network }}
+          NETWORK: ${{ matrix.network }}
           MASTERKEY: ${{ inputs.masterkey }}
           API: ${{ inputs.api }}
           SERVER: ${{ inputs.server }}
@@ -140,7 +147,7 @@ jobs:
         if: success() || failure()
         uses: actions/upload-artifact@v3
         with:
-          name: tests
+          name: tests-${{ matrix.network }}
           path: /tmp/*.log
           retention-days: 3
 
@@ -148,6 +155,9 @@ jobs:
     needs: [tests]
     name: final ping
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        network: ${{ fromJson(inputs.networks) }}
     steps:
       - name: get binary
         run: |
@@ -158,24 +168,24 @@ jobs:
           chmod +x bin/test
           bin/test ping
         env:
-          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN  }}
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}
           TAG: ${{ inputs.tag }}
-          NETWORK: ${{ inputs.network }}
+          NETWORK: ${{ matrix.network }}
           MASTERKEY: ${{ inputs.masterkey }}
           API: ${{ inputs.api }}
       - name: save logs
         if: success() || failure()
         uses: actions/upload-artifact@v3
         with:
-          name: ping2
+          name: ping2-${{ matrix.network }}
           path: /tmp/ping.log
           retention-days: 3
 
   results:
     if: success() || failure()
     needs: [clean, initial-ping, tests, final-ping]
-    name: sumarize results
+    name: summarize results
     runs-on: ubuntu-latest
     steps:
       - name: checkout
