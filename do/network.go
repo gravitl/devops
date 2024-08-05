@@ -342,7 +342,7 @@ func (request *Request) UpdateNodes(tag, branch string) (bool, []string) {
 			if droplet.Name == "docker" {
 				cmd = "docker exec -it netclient ./netclient leave devops; /usr/bin/docker-compose pull; /usr/bin/docker-compose up -d"
 			} else if droplet.Name == "fedora" || droplet.Name == "rockylinux" || droplet.Name == "centos-userspace" {
-				cmd = "dnf update -y; dnf upgrade; wget -O netclient https://fileserver.netmaker.org/testing/netclient; chmod +x netclient; ./netclient install"
+				cmd = "dnf update -y; dnf upgrade -y; wget -O netclient https://fileserver.netmaker.org/testing/netclient; chmod +x netclient; ./netclient install"
 			}
 			_, err := ssh.Run(cmd)
 			if err != nil {
