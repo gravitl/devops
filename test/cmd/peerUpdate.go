@@ -167,51 +167,17 @@ func peerupdatetest(config *netmaker.Config) bool {
 }
 
 func getNextIP(current string, taken map[string]bool) string {
-
-	// var newip net.IP
-	// if len(taken) > 253 {
-	// 	slog.Error("no free ips")
-	// 	return ""
-	// }
-	// ip, cidr, err := net.ParseCIDR(current)
-	// if err != nil {
-	// 	slog.Error("failed to parse cidr", "err", err)
-	// 	return ""
-	// }
-	// slog.Info("getting free ip")
-	// net4 := iplib.Net4FromStr(current)
-	// newip, err = net4.NextIP(ip)
-	// for {
-	// 	if errors.Is(err, iplib.ErrBroadcastAddress) {
-	// 		newip, err = net4.NextIP(net4.FirstAddress())
-	// 	}
-	// 	if err != nil {
-	// 		slog.Error("NextIP", "err", err)
-	// 		return ""
-	// 	}
-	// 	if !taken[newip.String()] {
-	// 		break
-	// 	}
-	// 	newip, err = net4.NextIP(newip)
-	// }
-	// cidr.IP = newip
-	// return cidr.String()
-
 	network := config.Network
-
 	var newip net.IP
-
 	if len(taken) > 253 && network != "devopsv6" {
 		slog.Error("no free IPv4 ips")
 		return ""
 	}
-
 	ip, cidr, err := net.ParseCIDR(current)
 	if err != nil {
 		slog.Error("failed to parse cidr", "err", err)
 		return ""
 	}
-
 	slog.Info("getting free ip")
 	if network == "devopsv6" {
 		// Handle IPv6
@@ -222,7 +188,7 @@ func getNextIP(current string, taken map[string]bool) string {
 				newip, err = net6.NextIP(net6.FirstAddress())
 			}
 			if err != nil {
-				slog.Info("NextIP", "err", err)
+				slog.Error("NextIP", "err", err)
 				return ""
 			}
 			if !taken[newip.String()] {
@@ -248,8 +214,6 @@ func getNextIP(current string, taken map[string]bool) string {
 			newip, err = net4.NextIP(newip)
 		}
 	}
-
 	cidr.IP = newip
 	return cidr.String()
-
 }
