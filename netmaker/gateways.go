@@ -23,6 +23,7 @@ func CreateExtClient(client Netclient, network string) string {
 		"devops":   "road-warrior",
 		"devops4":  "road-warrior2",
 		"devopsv6": "road-warrior3",
+		"netmaker": "road-warrior",
 	}
 	slog.Info("creating ext client", clients[network], network)
 	clientID, exists := clients[network]
