@@ -188,7 +188,7 @@ jobs:
           path: /tmp
       - name: generate results
         run: |
-          test/scripts/results.sh
+          test/scripts/branchresults.sh
       - name: upload results
         uses: actions/upload-artifact@v3
         with:
