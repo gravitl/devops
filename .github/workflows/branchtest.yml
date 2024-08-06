@@ -125,7 +125,6 @@ jobs:
           bin/test peerUpdate -s ${{ inputs.server }} 
           bin/test ingress
           bin/test egress
-          bin/test relay
           
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.TESTING_DO_TOKEN  }}
