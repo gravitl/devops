@@ -17,6 +17,14 @@ func GetExtClient(m Netclient, ext string) *models.ExtClient {
 	return callapi[models.ExtClient](http.MethodGet, "/api/extclients/"+m.Node.Network+"/"+ext, nil)
 }
 
+func ChangeClient(m Netclient, key string, value string) {
+	slog.Info("changing", key, "to", value)
+	data := map[string]string{
+		key: value,
+	}
+	callapi[models.ApiNode](http.MethodPut, "/api/nodes/"+m.Node.Network+"/"+m.Node.ID, data)
+}
+
 func CreateExtClient(client Netclient, network string) string {
 	slog.Info("creating ingress on node", "node", client.Node.ID)
 	clients := map[string]string{
