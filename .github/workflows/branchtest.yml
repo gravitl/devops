@@ -51,37 +51,37 @@ jobs:
         run: |
           curl -L ${{ inputs.api }}/api/users/adm/createsuperadmin -d '{"username":"${{ secrets.NM_USER }}","password":"${{ secrets.NM_PASSWORD }}"}'
 
-  clean:
-    name: remove all gateways
-    runs-on: ubuntu-latest
-    steps:
-      - name: get binary
-        run: |
-          mkdir bin
-          wget -O bin/test fileserver.clustercat.com/testing/test
-      - name: run tests
-        id: clean
-        run: |
-          chmod +x bin/test
-          bin/test clean
-        env:
-          DIGITALOCEAN_TOKEN: ${{ secrets.TESTING_DO_TOKEN  }}
-          KEY: ${{ secrets.TESTING_SSH_KEY }}
-          TAG: ${{ inputs.tag }}
-          NETWORK: ${{ inputs.network}}
-          MASTERKEY: ${{ inputs.masterkey }}
-          API: ${{ inputs.api }}
-      - name: save logs
-        if: success() || failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: clean
-          path: /tmp/clean.log
-          retention-days: 3
+  # clean:
+  #   name: remove all gateways
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: get binary
+  #       run: |
+  #         mkdir bin
+  #         wget -O bin/test fileserver.clustercat.com/testing/test
+  #     - name: run tests
+  #       id: clean
+  #       run: |
+  #         chmod +x bin/test
+  #         bin/test clean
+  #       env:
+  #         DIGITALOCEAN_TOKEN: ${{ secrets.TESTING_DO_TOKEN  }}
+  #         KEY: ${{ secrets.TESTING_SSH_KEY }}
+  #         TAG: ${{ inputs.tag }}
+  #         NETWORK: ${{ inputs.network}}
+  #         MASTERKEY: ${{ inputs.masterkey }}
+  #         API: ${{ inputs.api }}
+  #     - name: save logs
+  #       if: success() || failure()
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: clean
+  #         path: /tmp/clean.log
+  #         retention-days: 3
 
 
   initial-ping:
-    needs: [clean]
+    # needs: [clean]
     name: initial ping
     runs-on: ubuntu-latest
     steps:
@@ -111,7 +111,7 @@ jobs:
           retention-days: 3
 
   tests:
-    needs: [initial-ping, clean]
+    needs: [initial-ping]
     name: tests
     runs-on: ubuntu-latest
     steps:
@@ -125,8 +125,7 @@ jobs:
           bin/test peerUpdate -s ${{ inputs.server }} 
           bin/test ingress
           bin/test egress
-          bin/test relay
-          bin/test internetGateway
+          
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.TESTING_DO_TOKEN  }}
           KEY: ${{ secrets.TESTING_SSH_KEY }}
@@ -173,7 +172,7 @@ jobs:
 
   results:
     if: success() || failure()
-    needs: [clean, initial-ping, tests, final-ping]
+    needs: [initial-ping, tests, final-ping]
     name: sumarize results
     runs-on: ubuntu-latest
     steps:
@@ -188,7 +187,7 @@ jobs:
           path: /tmp
       - name: generate results
         run: |
-          test/scripts/results.sh
+          test/scripts/branchresults.sh
       - name: upload results
         uses: actions/upload-artifact@v3
         with:

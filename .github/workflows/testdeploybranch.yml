@@ -110,7 +110,7 @@ jobs:
 
   testbranch:
     needs: [getserver, terraform, masterkey]
-    uses: gravitl/devops/.github/workflows/branchtest.yml@NET-1485-b
+    uses: ./.github/workflows/branchtest.yml
     with:
       tag: ${{ inputs.tag }}
       network: netmaker
