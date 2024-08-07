@@ -44,7 +44,7 @@ func clientchangestest(config *netmaker.Config) bool {
 	changer := netclient[rand.Intn(len(netclient))]
 	slog.Info("making changes to", changer)
 	mtu := rand.Intn(221) + 1280 // Generates a random MTU between 1280 and 1500
-	slog.Info("changing mtu to", mtu)
+	slog.Info("changing mtu to", mtu, "on", changer)
 	netmaker.ChangeClient(changer, "mtu", strconv.Itoa(mtu))
 	return pass
 }
