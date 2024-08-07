@@ -23,13 +23,15 @@ resource "digitalocean_droplet" "dockerclient" {
       "pwd",
       "DEBIAN_FRONTEND=noninteractive apt-get -y update",
       "DEBIAN_FRONTEND=noninteractive apt-get -y update",
-      "DEBIAN_FRONTEND=noninteractive apt install -y wireguard-tools docker.io",
-      "DEBIAN_FRONTEND=noninteractive apt install -y wireguard-tools docker.io",
+      "DEBIAN_FRONTEND=noninteractive apt install -y wireguard-tools",
+      "DEBIAN_FRONTEND=noninteractive apt install -y wireguard-tools",
+      "curl -fsSL https://get.docker.com -o get-docker.sh",
+      "sh get-docker.sh",
       "git clone https://www.github.com/gravitl/netclient",
       "cd netclient",
       "git checkout ${var.clientbranch}",
       "git pull origin ${var.clientbranch}",
-      "docker build -t terraform/test . "
+      "docker buildx build -t terraform/test . "
     ]
   }
 }
