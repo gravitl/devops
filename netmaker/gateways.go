@@ -1,6 +1,8 @@
 package netmaker
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"os"
 
@@ -22,7 +24,12 @@ func ChangeClient(m Netclient, key string, value string) {
 	data := map[string]string{
 		key: value,
 	}
-	callapi[models.ApiNode](http.MethodPut, "/api/nodes/"+m.Node.Network+"/"+m.Node.ID, data)
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		slog.Error("Error marshalling JSON: ", err)
+		return
+	}
+	callapi[models.ApiNode](http.MethodPut, "/api/nodes/"+m.Node.Network+"/"+m.Node.ID, bytes.NewBuffer(jsonData))
 }
 
 func CreateExtClient(client Netclient, network string) string {
