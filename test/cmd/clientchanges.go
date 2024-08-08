@@ -41,10 +41,16 @@ func clientchangestest(config *netmaker.Config) bool {
 	netclient := netmaker.GetNetclient(config.Network)
 	rand.Seed(uint64(time.Now().UnixNano()))
 	changer := netclient[rand.Intn(len(netclient))]
+
 	slog.Info("making changes to", changer.Host.Name)
 	mtu := rand.Intn(221) + 1280 // Generates a random MTU between 1280 and 1500
 	slog.Info("changing mtu to", mtu, "on", changer.Host.Name)
 	changer.Host.MTU = mtu
+
+	udpPort := rand.Intn(10) + 51821
+	slog.Info("changing udp port to", udpPort, "on", changer.Host.Name)
+	changer.Host.ListenPort = udpPort
+
 	netmaker.UpdateHost(&changer.Host)
 	return pass
 }
