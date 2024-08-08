@@ -21,9 +21,9 @@ func ChangeClient(m Netclient, key string, value int) {
 	slog.Info("changing", key, "to", value)
 	url := "/api/hosts/" + m.Host.ID
 	data := struct {
-		mtu int
+		Mtu int `json:"mtu"`
 	}{
-		mtu: value,
+		Mtu: value,
 	}
 	callapi[models.ApiHost](http.MethodPut, url, data)
 }
