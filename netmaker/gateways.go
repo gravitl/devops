@@ -22,7 +22,6 @@ func GetExtClient(m Netclient, ext string) *models.ExtClient {
 func ChangeClient(m Netclient, key string, value int) {
 	slog.Info("changing", key, "to", value)
 	url := "/api/nodes/" + m.Node.Network + "/" + m.Node.ID
-	slog.Info("url is:", url)
 	data := map[string]int{
 		key: value,
 	}
