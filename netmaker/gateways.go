@@ -27,6 +27,7 @@ func ChangeClient(m Netclient, key string, value int) {
 		key: value,
 	}
 	jsonData, err := json.Marshal(data)
+	slog.Info("data:", data)
 	if err != nil {
 		slog.Error("Error marshalling JSON: ", err)
 		return
