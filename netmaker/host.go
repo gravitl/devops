@@ -1,6 +1,7 @@
 package netmaker
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gravitl/netmaker/models"
@@ -20,6 +21,9 @@ func GetHostByName(name string) *models.ApiHost {
 
 func GetHosts() *[]models.ApiHost {
 	return callapi[[]models.ApiHost](http.MethodGet, "/api/hosts", nil)
+}
+func UpdateHost(host *models.ApiHost) {
+	callapi[models.ApiNode](http.MethodPut, fmt.Sprintf("/api/nodes/%s", host.ID), host)
 }
 
 func GetHostByID(id string, hosts *[]models.ApiHost) *models.ApiHost {
