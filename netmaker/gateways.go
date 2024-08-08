@@ -19,9 +19,9 @@ func GetExtClient(m Netclient, ext string) *models.ExtClient {
 	return callapi[models.ExtClient](http.MethodGet, "/api/extclients/"+m.Node.Network+"/"+ext, nil)
 }
 
-func ChangeClient(m Netclient, key string, value string) {
+func ChangeClient(m Netclient, key string, value int) {
 	slog.Info("changing", key, "to", value)
-	data := map[string]string{
+	data := map[string]int{
 		key: value,
 	}
 	jsonData, err := json.Marshal(data)
