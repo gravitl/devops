@@ -21,6 +21,8 @@ func GetExtClient(m Netclient, ext string) *models.ExtClient {
 
 func ChangeClient(m Netclient, key string, value int) {
 	slog.Info("changing", key, "to", value)
+	url := "/api/nodes/" + m.Node.Network + "/" + m.Node.ID
+	slog.Info("url is:", url)
 	data := map[string]int{
 		key: value,
 	}
@@ -29,7 +31,7 @@ func ChangeClient(m Netclient, key string, value int) {
 		slog.Error("Error marshalling JSON: ", err)
 		return
 	}
-	callapi[models.ApiNode](http.MethodPut, "/api/nodes/"+m.Node.Network+"/"+m.Node.ID, bytes.NewBuffer(jsonData))
+	callapi[models.ApiNode](http.MethodPut, url, bytes.NewBuffer(jsonData))
 }
 
 func CreateExtClient(client Netclient, network string) string {
