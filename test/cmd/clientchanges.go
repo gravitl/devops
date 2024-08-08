@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/gravitl/devops/netmaker"
@@ -45,6 +44,6 @@ func clientchangestest(config *netmaker.Config) bool {
 	slog.Info("making changes to", changer.Host.Name)
 	mtu := rand.Intn(221) + 1280 // Generates a random MTU between 1280 and 1500
 	slog.Info("changing mtu to", mtu, "on", changer.Host.Name)
-	netmaker.ChangeClient(changer, "mtu", strconv.Itoa(mtu))
+	netmaker.ChangeClient(changer, "mtu", mtu)
 	return pass
 }
