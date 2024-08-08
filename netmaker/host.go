@@ -23,7 +23,7 @@ func GetHosts() *[]models.ApiHost {
 	return callapi[[]models.ApiHost](http.MethodGet, "/api/hosts", nil)
 }
 func UpdateHost(host *models.ApiHost) {
-	callapi[models.ApiHost](http.MethodPut, fmt.Sprintf("/api/nodes/%s", host.ID), host)
+	callapi[models.ApiHost](http.MethodPut, fmt.Sprintf("/api/hosts/%s", host.ID), host)
 }
 
 func GetHostByID(id string, hosts *[]models.ApiHost) *models.ApiHost {
