@@ -344,6 +344,7 @@ func (request *Request) UpdateNodes(tag, branch string) (bool, []string) {
 			} else if droplet.Name == "fedora" || droplet.Name == "rockylinux" || droplet.Name == "centos-userspace" {
 				cmd = "dnf update -y; dnf upgrade -y; wget -O netclient https://fileserver.netmaker.org/testing/netclient; chmod +x netclient; ./netclient install"
 			}
+			slog.Info("LOG--------droplet name", droplet.Name, "cmd", cmd)
 			_, err := ssh.Run(cmd)
 			if err != nil {
 				slog.Warn("netclient update failed", "droplet", droplet.Name, "ip", ssh.Server, "cmd", cmd)
