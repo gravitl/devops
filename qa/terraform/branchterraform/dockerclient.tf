@@ -45,5 +45,8 @@ resource "local_file" "dockeripaddresses" {
    depends_on = [data.digitalocean_droplet.dockerserverip]
    content = data.digitalocean_droplet.dockerserverip.ipv4_address
    filename = "ipaddress${var.docker}.txt"
+}
 
+output "droplet_ip" {
+  value = data.digitalocean_droplet.dockerserverip.ipv4_address
 }
