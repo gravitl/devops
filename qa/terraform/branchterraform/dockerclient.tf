@@ -36,6 +36,15 @@ resource "digitalocean_droplet" "dockerclient" {
   }
 }
 
+resource "null_resource" "wait_for_ip" {
+  depends_on = [digitalocean_droplet.dockerclient]
+
+  provisioner "local-exec" {
+    command = "sleep 30"
+  }
+}
+
+
 data "digitalocean_droplet" "dockerserverip" {
    id = digitalocean_droplet.dockerclient.id
    depends_on = [digitalocean_droplet.dockerclient]
@@ -45,8 +54,4 @@ resource "local_file" "dockeripaddresses" {
    depends_on = [data.digitalocean_droplet.dockerserverip]
    content = data.digitalocean_droplet.dockerserverip.ipv4_address
    filename = "ipaddress${var.docker}.txt"
-}
-
-output "droplet_ip" {
-  value = data.digitalocean_droplet.dockerserverip.ipv4_address
 }
