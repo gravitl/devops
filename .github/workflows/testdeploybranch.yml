@@ -84,7 +84,7 @@ jobs:
     uses: ./.github/workflows/terraform.yml
     with:
       netclientbranch: ${{ inputs.netclientbranch }}
-      netmakerbranch: ${{ github.event_name == 'workflow_dispatch' && inputs.branch || github.head_ref }}
+      netmakerbranch: ${{ inputs.netmakerbranch }}
       server: ${{ needs.getserver.outputs.server }}
     secrets: inherit
   
