@@ -49,7 +49,27 @@ jobs:
     steps:
       - name: set user
         run: |
-          curl -L ${{ inputs.api }}/api/users/adm/createsuperadmin -d '{"username":"${{ secrets.NM_USER }}","password":"${{ secrets.NM_PASSWORD }}"}'
+          for i in {1..3}; do
+            response=$(curl -L \
+              --tlsv1.2 \
+              --tls-max 1.2 \
+              -H "Content-Type: application/json" \
+              -d '{"username":"${{ secrets.NM_USER }}","password":"${{ secrets.NM_PASSWORD }}"}' \
+              -w "%{http_code}" \
+              -o /dev/null \
+              -s \
+              ${{ inputs.api }}/api/users/adm/createsuperadmin)
+            
+            if [ "$response" = "200" ]; then
+              echo "Request successful"
+              exit 0
+            else
+              echo "Attempt $i failed with status code: $response"
+              sleep 5
+            fi
+          done
+          echo "All attempts failed"
+          exit 1
 
   # clean:
   #   name: remove all gateways
