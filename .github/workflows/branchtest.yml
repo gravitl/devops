@@ -49,6 +49,7 @@ jobs:
     steps:
       - name: set user
         run: |
+          sleep 20
           curl -L ${{ inputs.api }}/api/users/adm/createsuperadmin -d '{"username":"${{ secrets.NM_USER }}","password":"${{ secrets.NM_PASSWORD }}"}'
 
   # clean:
@@ -93,7 +94,7 @@ jobs:
         id: ping
         run: |
           chmod +x bin/test
-          sleep 30
+          sleep 60
           bin/test ping
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.TESTING_DO_TOKEN  }}
