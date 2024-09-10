@@ -49,7 +49,6 @@ jobs:
     steps:
       - name: set user
         run: |
-          sleep 20
           curl -L ${{ inputs.api }}/api/users/adm/createsuperadmin -d '{"username":"${{ secrets.NM_USER }}","password":"${{ secrets.NM_PASSWORD }}"}'
 
   # clean:
