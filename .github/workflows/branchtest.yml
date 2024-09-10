@@ -49,7 +49,7 @@ jobs:
     steps:
       - name: set user
         run: |
-          curl -L ${{ inputs.api }}/api/users/adm/createsuperadmin -d '{"username":"${{ secrets.NM_USER }}","password":"${{ secrets.NM_PASSWORD }}"}'
+          curl -L ${{ inputs.api }}/api/users/adm/createsuperadmin -d "{\"username\":\"${{ secrets.NM_USER }}\",\"password\":\"${{ secrets.NM_PASSWORD }}\"}"
 
   # clean:
   #   name: remove all gateways
