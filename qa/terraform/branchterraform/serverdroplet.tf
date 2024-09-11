@@ -37,10 +37,10 @@ resource "null_resource" "terraformnetmakerserver" {
       "docker run -d --name netmaker -e SERVER_BROKER_ENDPOINT=\"nanomq:1883\" --env-file netmaker.env --network testnet -p 8081:8081 gravitl/netmaker:${var.branch}",
       "docker restart caddy",
         
-      "nmctl context set default --endpoint=\"https://api.$NETMAKER_BASE_DOMAIN\" --master_key=\"$MASTER_KEY\""
-      "nmctl context use default"
-      "nmctl network create --name netmaker --ipv4_addr 10.101.0.0/16"
-      "export TOKEN=$(nmctl enrollment_key create --tags netmaker --unlimited --networks netmaker)"
+      "nmctl context set default --endpoint=\"https://api.$NETMAKER_BASE_DOMAIN\" --master_key=\"$MASTER_KEY\"",
+      "nmctl context use default",
+      "nmctl network create --name netmaker --ipv4_addr 10.101.0.0/16",
+      "export TOKEN=$(nmctl enrollment_key create --tags netmaker --unlimited --networks netmaker)",
 
       # "export PATH=$PATH:/usr/bin",
       # "wget https://raw.githubusercontent.com/gravitl/devops/${var.devopsbranch}/qa/nm-quick.sh",
