@@ -18,7 +18,7 @@ resource "null_resource" "terraformnetmakerserver" {
       "cd netmaker",
       "git checkout ${var.branch}",
       "git pull origin ${var.branch}",
-      "docker build --build-arg "tags=ee" -t gravitl/netmaker:${var.branch} .",
+      "docker build --build-arg \"tags=ee\" -t gravitl/netmaker:${var.branch} .",
 
       "cd ~",
 
