@@ -62,9 +62,9 @@ resource "null_resource" "terraformnetmakerserver" {
       "git pull origin ${var.clientbranch}",
       "go mod tidy",
       "go build .",
-      "./netclient install",
+      "./netclient install"
      
-      "netclient register -t $TOKEN"
+      # "netclient register -t $TOKEN"
     ]
   }
 }
