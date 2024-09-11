@@ -30,9 +30,10 @@ resource "null_resource" "terraformnetmakerserver" {
 
       "touch netmaker.env",
 
-      "echo \"SERVER_HOST=$SERVER_HOST\" >> netmaker.env",
+      "echo \"SERVER_HOST=api.${var.server}.clustercat.com\" >> netmaker.env",
       "echo \"MASTER_KEY=$MASTER_KEY\" >> netmaker.env",
       "echo \"NETMAKER_BASE_DOMAIN=$NETMAKER_BASE_DOMAIN\" >> netmaker.env",
+      "echo \"NM_DOMAIN=${var.server}.clustercat.com\" >> netmaker.env"
 
       "docker run -d --name netmaker -e SERVER_BROKER_ENDPOINT=\"nanomq:1883\" --env-file netmaker.env --network testnet -p 8081:8081 gravitl/netmaker:${var.branch}",
       "docker restart caddy",
