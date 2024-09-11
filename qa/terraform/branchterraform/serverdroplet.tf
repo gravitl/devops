@@ -40,7 +40,7 @@ resource "null_resource" "terraformnetmakerserver" {
       "nmctl context set default --endpoint=\"https://api.$NETMAKER_BASE_DOMAIN\" --master_key=\"$MASTER_KEY\"",
       "nmctl context use default",
       "nmctl network create --name netmaker --ipv4_addr 10.101.0.0/16",
-      "export TOKEN=$(nmctl enrollment_key create --tags netmaker --unlimited --networks netmaker)",
+      "export TOKEN=$(nmctl enrollment_key create --tags netmaker --unlimited --networks netmaker | jq -r .token)",
 
       # "export PATH=$PATH:/usr/bin",
       # "wget https://raw.githubusercontent.com/gravitl/devops/${var.devopsbranch}/qa/nm-quick.sh",
@@ -64,7 +64,7 @@ resource "null_resource" "terraformnetmakerserver" {
       "go build .",
       "./netclient install",
      
-      "	netclient register -t $TOKEN"
+      "netclient register -t $TOKEN"
     ]
   }
 }
