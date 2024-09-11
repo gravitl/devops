@@ -366,8 +366,12 @@ local_install_setup() { (
 	if [ "$INSTALL_TYPE" = "pro" ]; then
 		cp compose/docker-compose.ee.yml "$SCRIPT_DIR/docker-compose.override.yml"
 		cp docker/Caddyfile-pro "$SCRIPT_DIR/Caddyfile"
+
+		sed -i '1i{\n\t# Use Let'"'"'s Encrypt staging environment\n\tacme_ca https://acme-staging-v02.api.letsencrypt.org/directory\n}\n' "$SCRIPT_DIR/Caddyfile"
 	else
 		cp docker/Caddyfile "$SCRIPT_DIR/Caddyfile"
+
+		sed -i '1i{\n\t# Use Let'"'"'s Encrypt staging environment\n\tacme_ca https://acme-staging-v02.api.letsencrypt.org/directory\n}\n' "$SCRIPT_DIR/Caddyfile"
 	fi
 	cp scripts/netmaker.default.env "$SCRIPT_DIR/netmaker.default.env"
 	cp docker/mosquitto.conf "$SCRIPT_DIR/mosquitto.conf"
