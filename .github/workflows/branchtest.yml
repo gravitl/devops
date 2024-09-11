@@ -52,7 +52,7 @@ jobs:
           USERNAME: ${{ secrets.NM_USER }}
           PASSWORD: ${{ secrets.NM_PASSWORD }}
         run: |
-          curl -kL ${{ inputs.api }}/api/users/adm/createsuperadmin -d '{"username":"${{ secrets.NM_USER }}","password":"${{ secrets.NM_PASSWORD }}"}'
+          curl -L ${{ inputs.api }}/api/users/adm/createsuperadmin -d '{"username":"${{ secrets.NM_USER }}","password":"${{ secrets.NM_PASSWORD }}"}'
 
 
   # clean:
