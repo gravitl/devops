@@ -48,8 +48,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: set user
+        env:
+          USERNAME: ${{ secrets.NM_USER }}
+          PASSWORD: ${{ secrets.NM_PASSWORD }}
         run: |
           curl -L ${{ inputs.api }}/api/users/adm/createsuperadmin -d '{"username":"${{ secrets.NM_USER }}","password":"${{ secrets.NM_PASSWORD }}"}'
+
 
   # clean:
   #   name: remove all gateways
@@ -93,7 +97,7 @@ jobs:
         id: ping
         run: |
           chmod +x bin/test
-          sleep 30
+          sleep 60
           bin/test ping
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.TESTING_DO_TOKEN  }}

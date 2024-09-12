@@ -34,13 +34,6 @@ on:
         type: string
 
 jobs:
-  # go:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Setup go
-  #     uses: actions/setup-go@v3
-  #     with:
-  #       go-version: 1.23
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
@@ -48,7 +41,6 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-    # Check if devops needs to access a branch with nm-quick changes
     - name: Quick Check
       id: quickcheck
       run: |
@@ -59,25 +51,12 @@ jobs:
         diff ./nm-quick-develop.sh ./nm-quick-branch.sh > output.txt || echo "There is a difference between the two files"  > output.txt
         BRANCH_CHECK=$([ -s output.txt ] && echo "${{ inputs.netmakerbranch }}" ||   echo "master")
         echo "branch is: $BRANCH_CHECK"
-        export BRANCHES=$(git branch -r)
-        [ -s BRANCHES ]  && echo "${{ inputs.netmakerBranch }} exists" || echo "IT LOOKS LIKE YOU HAVE MADE CHANGES TO THE NM-QUICK SCRIPT. THIS MAY AFFECT INSTALLATION WITH THE NM-QUICK SCRIPT ON THE DEVOPS SIDE. IF CHANGES ARE NEEDED TO THE DEVOPS NM-QUICK. PLEASE GIVE THE BRANCH THE SAME NAME AS THE NETMAKER BRANCH WHERE YOU MADE THE CHANGES. TRYING WITH NM-QUICK FROM MASTER ON DEVOPS FOR NOW." && BRANCH_CHECK="master"
         echo "BRANCHTOUSE=$BRANCH_CHECK" >> $GITHUB_OUTPUT
 
-        
-
-    # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v3
       with:
         repository: gravitl/devops
-  
-
-  
-  #  - name: Set Branches
-  #    run: |
-  #      cd qa/terraform/branchterraform
-  #      echo variable \"branch\" { default = \"${{ inputs.netmakerbranch }}\" } >> variables.tf
-  #      echo variable \"clientbranch\" { default = \"${{ inputs.netclientranch }}\" } >> variables.tf
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
@@ -97,7 +76,7 @@ jobs:
       env:
           SSH_KEY: ${{ secrets.TESTING_SSH_KEY }}
     
-    - name: Terraform Init
+    - name: Terraform Init and Apply
       run: |
         cd qa/terraform/branchterraform
         terraform init
@@ -111,5 +90,4 @@ jobs:
         TF_VAR_clientbranch: "${{ inputs.netclientbranch }}"
         TF_VAR_devopsbranch: "${{ steps.quickcheck.outputs.BRANCHTOUSE }}"
         TF_VAR_do_tag: ${{ github.run_id }}-${{ github.run_attempt }}
-        TF_VAR_server: ${{ inputs.server }}
-
+        TF_VAR_server: "${{ inputs.server }}"
