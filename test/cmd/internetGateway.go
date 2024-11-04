@@ -5,6 +5,7 @@ import (
 	"net"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gravitl/devops/netmaker"
 	"github.com/gravitl/devops/ssh"
@@ -45,6 +46,8 @@ func internetGateway(config *netmaker.Config) bool {
 
 	netmaker.CreateInternetGateway(*internetGateway, *ingressNode)
 	slog.Info("internet gateway was created")
+
+	time.Sleep(30 * time.Second)
 
 	out, err := ssh.Run(
 		[]byte(config.Key),
