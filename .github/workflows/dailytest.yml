@@ -27,7 +27,7 @@ on:
       networks:
         description: networks to use for testing
         required: true
-        default: '["devops", "devops4", "devopsv6"]'
+        default: '["devops"]'
       api:
         description: api endpoint to use for testing
         required: true
