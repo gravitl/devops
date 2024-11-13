@@ -5,7 +5,9 @@ on:
     inputs:
       version:
         required: true
+        description: 'Version to release'
         type: string
+        default: 'v0.0.0'
 
 jobs:
 
@@ -62,6 +64,116 @@ jobs:
           args: release --clean --release-notes release.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Rename binaries
+        run: |
+          mkdir -p renamed-binaries
+          cd dist
+            
+          echo "Initial dist directory contents:"
+          ls -R
+            
+          for dir in headless_*; do
+            if [ -d "$dir" ]; then
+              echo "Processing directory: $dir"
+                
+              IFS='_' read -r _ OS ARCH VERSION <<< "$dir"
+                
+              EXT=""
+              if [ "$OS" = "windows" ]; then
+                EXT=".exe"
+              fi
+                
+              case "$dir" in
+                *linux_arm_5*)
+                  NEW_NAME="netclient-linux-armv5" ;;
+                *linux_arm_6*)
+                  NEW_NAME="netclient-linux-armv6" ;;
+                *linux_arm_7*)
+                  NEW_NAME="netclient-linux-armv7" ;;
+                *linux_arm64*)
+                  NEW_NAME="netclient-linux-arm64" ;;
+                *linux_mips_hardfloat*)
+                  NEW_NAME="netclient-linux-mips-hardfloat" ;;
+                *linux_mips_softfloat*)
+                  NEW_NAME="netclient-linux-mips-softfloat" ;;
+                *linux_mipsle_hardfloat*)
+                  NEW_NAME="netclient-linux-mipsle-hardfloat" ;;
+                *linux_mipsle_softfloat*)
+                  NEW_NAME="netclient-linux-mipsle-softfloat" ;;
+                *linux_amd64*)
+                  NEW_NAME="netclient-linux-amd64" ;;
+                *darwin_amd64*)
+                  NEW_NAME="netclient-darwin-amd64" ;;
+                *darwin_arm64*)
+                  NEW_NAME="netclient-darwin-arm64" ;;
+                *windows_amd64*)
+                  NEW_NAME="netclient-windows-amd64" ;;
+                *)
+                  echo "Unknown directory format: $dir"
+                  continue ;;
+              esac
+                
+              if [ "$OS" = "windows" ]; then
+                NEW_NAME="${NEW_NAME}.exe"
+              fi
+                
+              echo "Moving $dir/netclient${EXT} to ../renamed-binaries/${NEW_NAME}"
+              cp "$dir/netclient${EXT}" "../renamed-binaries/${NEW_NAME}"
+            fi
+          done
+            
+          cd ../renamed-binaries
+            
+          echo "Final renamed-binaries contents:"
+          ls -lh
+            
+          expected_files=(
+            "netclient-darwin-amd64"
+            "netclient-darwin-arm64"
+            "netclient-linux-amd64"
+            "netclient-linux-arm64"
+            "netclient-linux-armv5"
+            "netclient-linux-armv6"
+            "netclient-linux-armv7"
+            "netclient-linux-mips-hardfloat"
+            "netclient-linux-mips-softfloat"
+            "netclient-linux-mipsle-hardfloat"
+            "netclient-linux-mipsle-softfloat"
+            "netclient-windows-amd64.exe"
+          )
+            
+          for file in "${expected_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "Warning: Expected file $file is missing"
+            fi
+          done
+
+      - name: Install SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H fileserver.clustercat.com >> ~/.ssh/known_hosts
+    
+      - name: Test SSH connection
+        run: |
+          if ssh -o BatchMode=yes -o StrictHostKeyChecking=no -T root@fileserver.clustercat.com; then
+            echo "SSH connection successful"
+          else
+            echo "SSH connection failed"
+            exit 1
+          fi
+    
+      - name: Upload to server
+        env:
+          UPLOAD_PATH_VERSION: /var/www/files/releases/download/${{ github.event.inputs.version }}
+        run: |
+          ssh root@fileserver.clustercat.com "mkdir -p $UPLOAD_PATH_VERSION"
+          cd renamed-binaries
+          ls -alh
+          find . -type f -name "netclient-*" -exec scp {} root@fileserver.clustercat.com:$UPLOAD_PATH_VERSION/ \; 
 
   docker:
     needs: release-branch
