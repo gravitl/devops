@@ -1,0 +1,51 @@
+name: Simplified Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "New version number"
+        required: true
+        type: string
+
+jobs:
+  release-ui:
+    uses: gravitl/devops/.github/workflows/UIRelease.yml@master
+    with:
+      version: ${{ inputs.version }}
+    secrets: inherit
+
+  release-netmaker:
+    uses: gravitl/devops/.github/workflows/netmakerRelease.yml@master
+    with:
+      version: ${{ inputs.version }}
+    secrets: inherit
+
+  release-netclient:
+    needs: release-netmaker
+    uses: gravitl/devops/.github/workflows/netclientRelease.yml@master
+    with:
+      version: ${{ inputs.version }}
+    secrets: inherit
+
+  release-rac:
+    needs: release-netmaker
+    uses: gravitl/remote-access-client/.github/workflows/build_deploy.yml@master
+    with:
+      version: ${{ inputs.version }}
+      branch: 'master'
+    secrets: inherit 
+
+  windows-bundler:
+    needs: [release-netclient, release-rac]
+    uses: gravitl/netclient-wix/.github/workflows/main.yml@master
+    with:
+      version: ${{ inputs.version }}
+    secrets: inherit
+
+  mac-bundler:
+    needs: [release-netclient, release-rac]
+    uses: gravitl/mac-installer/.github/workflows/main.yml@master
+    with:
+      version: ${{ inputs.version }}
+    secrets: inherit
