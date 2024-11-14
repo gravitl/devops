@@ -59,8 +59,12 @@ func pingtest(config *netmaker.Config) bool {
 	if err != nil {
 		slog.Error("unable to get wireguard IP for network", "network", config.Network, "test", "ping", "err", err)
 	}
+
+	var resultsMutex sync.Mutex
+	var failuresMutex sync.Mutex
 	failures := make(map[string]string)
 	results := make(map[string]map[string]bool)
+
 	wg := sync.WaitGroup{}
 	for _, hosts := range netclient {
 		hosts := hosts
@@ -69,7 +73,10 @@ func pingtest(config *netmaker.Config) bool {
 			defer wg.Done()
 			source := hosts.Host.EndpointIP
 			slog.Info("ping from", "host", hosts.Host.Name, "ip", source)
-			results[hosts.Host.Name] = make(map[string]bool)
+
+			localResults := make(map[string]bool)
+			var localFailures string
+
 			for _, destination := range destinations {
 				if hostmap[destination.String()] == hosts.Host.Name {
 					//skip self
@@ -78,11 +85,11 @@ func pingtest(config *netmaker.Config) bool {
 				out, err := ssh.Run([]byte(config.Key), source, "ping -c 10 "+destination.String()+" | grep packet")
 				if err != nil {
 					slog.Error("error connecting to host", "host", hosts.Host.Name, "ip", source, "test", "ping", "err", err)
-					failures[hosts.Host.Name] = "unable to connect"
+					localFailures = "unable to connect"
 					break
 				}
-				results[hosts.Host.Name][hostmap[destination.String()]] = true
-				if strings.Contains(out, ", 10% packet loss") || strings.Contains(out, ", 20% packet loss") {
+				localResults[hostmap[destination.String()]] = true
+				if strings.Contains(out, ", 10% packet loss") || strings.Contains(out, ", 20% packet loss") || strings.Contains(out, ", 30% packet loss") {
 					slog.Warn("packet loss", "host", hosts.Host.Name, "destination", destination, "output", strings.TrimSuffix(out, "\n"))
 					continue
 				}
@@ -91,15 +98,30 @@ func pingtest(config *netmaker.Config) bool {
 					continue
 				}
 				slog.Error("failed to ping", "host", hosts.Host.Name, "destination", destination, "output", out)
-				failures[hosts.Host.Name] = failures[hosts.Host.Name] + " " + hostmap[destination.String()]
-				results[hosts.Host.Name][hostmap[destination.String()]] = false
+				if localFailures == "" {
+					localFailures = hostmap[destination.String()]
+				} else {
+					localFailures += " " + hostmap[destination.String()]
+				}
+				localResults[hostmap[destination.String()]] = false
+			}
+
+			resultsMutex.Lock()
+			results[hosts.Host.Name] = localResults
+			resultsMutex.Unlock()
+
+			if localFailures != "" {
+				failuresMutex.Lock()
+				failures[hosts.Host.Name] = localFailures
+				failuresMutex.Unlock()
 			}
 		}()
 	}
 	wg.Wait()
+
 	if len(failures) > 0 {
 		for k, v := range failures {
-			slog.Error("ping failues", "host", k, "failure", v)
+			slog.Error("ping failures", "host", k, "failure", v)
 		}
 		return false
 	}
