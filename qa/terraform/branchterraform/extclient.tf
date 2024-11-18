@@ -2,7 +2,7 @@ resource "digitalocean_droplet" "extclient" {
   image = "ubuntu-22-04-x64"
   name = var.extclient
   region = "nyc3"
-  size = "s-1vcpu-1gb"
+  size = "s-2vcpu-4gb-amd"
   ipv6 = true
   ssh_keys = [
     for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id
