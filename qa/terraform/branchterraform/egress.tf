@@ -3,7 +3,7 @@
 resource "digitalocean_droplet" "egress" {
   image = "ubuntu-22-04-x64"
   name = var.egress
-  size = "s-2vcpu-2gb"
+  size = "s-2vcpu-4gb-amd"
   ipv6 = true
   ssh_keys = [
     for v in data.digitalocean_ssh_keys.keys.ssh_keys : v.id
