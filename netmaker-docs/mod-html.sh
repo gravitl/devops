@@ -61,6 +61,8 @@ sed -i '/link rel=\"prev\"/a \ \ \ \ <link rel=\"canonical\"\ href=\"https://doc
 
 sed -i '/link rel=\"prev\"/a \ \ \ \ <link rel=\"canonical\"\ href=\"https://docs.netmaker.io/ui-reference.html\"\ />' /usr/share/nginx/html/ui-reference.html
 
+sed -i '/link rel=\"prev\"/a \ \ \ \ <link rel=\"canonical\"\ href=\"https://docs.netmaker.io/site2site-mesh-vpn.html\"\ />' /usr/share/nginx/html/site2site-mesh-vpn.html
+
 pushd /usr/share/nginx/html/
 find . -type f -name "*.html" -exec sed -i 's-var json_loc = "../"versions.json""-var json_loc = "../versions.json"-' {} +
 find . -type f -name "*.html" -exec sed -i 's-var json_loc = ""versions.json""-var json_loc = "versions.json"-' {} +
